@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type Service struct {
@@ -20,26 +21,6 @@ func NewService(repo *repository.GormRepository, db *gorm.DB) *Service {
 	}
 }
 
-func (s *Service) AddNewStudent(student model.Student) error {
-
-	// Perform validations
-	// if err := s.ValidateJsonFields(student); err != nil {
-	// 	return err
-	// }
-
-	// create unit of work
-	uow := repository.NewUnitOfWork(s.DB, false)
-	// student.ID = uuid.NewV4()
-	if err := s.repo.Add(uow, &student); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-
-	return nil
-
-}
-
 // GetAll gives all students
 func (s *Service) GetAll(students *[]model.Student) error {
 
@@ -50,17 +31,56 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
+	} else {
+		utility.ConvertDateTime(students)
+	}
+	uow.Commit()
+
+	return nil
+
+}
+
+// Get returns students as per the id
+func (s *Service) Get(students *[]model.Student, id string) error {
+
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	} else {
+		utility.ConvertDateTime(students)
 	}
 	uow.Commit()
 	return nil
 }
 
-// Get returns students as per the id
-func (s *Service) Get(student *[]model.Student, queryProcessors []repository.QueryProcessor) error {
+func (s *Service) AddNewStudent(student *model.Student) error {
 
-	uow := repository.NewUnitOfWork(s.DB, true)
+	// create unit of work
+	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Get(uow, student, queryProcessors); err != nil {
+	if err := s.repo.Add(uow, student); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+
+	return nil
+
+}
+
+func (s *Service) Update(student *model.Student, id string) error {
+
+	uow := repository.NewUnitOfWork(s.DB, false)
+
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
+
+	if err := s.repo.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -69,23 +89,14 @@ func (s *Service) Get(student *[]model.Student, queryProcessors []repository.Que
 }
 
 // Delete the student
-func (s *Service) Delete(student *model.Student, queryProcessors []repository.QueryProcessor) error {
+func (s *Service) Delete(student *model.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
+
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
 
 	if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) Update(student model.Student, queryProcessors []repository.QueryProcessor) error {
-
-	uow := repository.NewUnitOfWork(s.DB, false)
-
-	if err := s.repo.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}

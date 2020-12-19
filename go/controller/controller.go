@@ -7,9 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	uuid "github.com/satori/go.uuid"
 	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/repository"
 	"github.com/shaileshhb/restapi/service"
 )
 
@@ -35,7 +33,7 @@ func (c *Controller) RegisterEndPoints(router *mux.Router) {
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
-	students := []model.Student{}
+	var students = []model.Student{}
 	err := c.Service.GetAll(&students)
 	if err != nil {
 		fmt.Println(err)
@@ -53,14 +51,12 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
-	students := []model.Student{}
+	var students = []model.Student{}
 	var err error
-	var queryProcessors []repository.QueryProcessor
 
 	params := mux.Vars(r)
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(params["id"]))
 
-	err = c.Service.Get(&students, queryProcessors)
+	err = c.Service.Get(&students, params["id"])
 	if err != nil {
 		fmt.Println(err)
 		w.Write([]byte("Student Not Found"))
@@ -74,11 +70,13 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write(studentJSON)
 	}
 
+	fmt.Println(students[0].Date[:10])
+
 }
 
 func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student model.Student
+	var student = &model.Student{}
 	var err error
 
 	studentResponse, err := ioutil.ReadAll(r.Body)
@@ -105,16 +103,9 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student model.Student
-	var queryProcessors []repository.QueryProcessor
+	var student = &model.Student{}
 
 	params := mux.Vars(r)
-
-	studentID, err := uuid.FromString(params["studentID"])
-	if err != nil {
-		fmt.Println(err)
-	}
-	student.ID = studentID
 
 	studentResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -123,8 +114,6 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(params["id"]))
-
 	err = json.Unmarshal(studentResponse, &student)
 	if err != nil {
 		fmt.Println(err)
@@ -132,7 +121,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.Service.Update(student, queryProcessors); err != nil {
+	if err := c.Service.Update(student, params["id"]); err != nil {
 		fmt.Println(err)
 		w.Write([]byte("Error while updating student"))
 	} else {
@@ -143,12 +132,11 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student model.Student
-	var queryProcessors []repository.QueryProcessor
+	var student = &model.Student{}
+
 	params := mux.Vars(r)
 
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(params["id"]))
-	if err := c.Service.Delete(&student, queryProcessors); err != nil {
+	if err := c.Service.Delete(student, params["id"]); err != nil {
 		fmt.Println(err)
 		w.Write([]byte("Error while deleting student"))
 	} else {

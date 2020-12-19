@@ -15,7 +15,6 @@ type Base struct {
 }
 
 func (base *Base) BeforeCreate(scope *gorm.Scope) {
-	// fmt.Println("Hello")
 	uuid := uuid.NewV4()
 	scope.SetColumn("ID", uuid)
 }

@@ -5,7 +5,7 @@ type Student struct {
 	Name   string `json:"name"`
 	Age    int    `json:"age"`
 	RollNo int    `json:"rollNo"`
-	Date   string `json:"date"`
+	Date   string `gorm:"type:datetime" json:"date"`
 	Email  string `json:"email"`
 	IsMale *bool  `json:"isMale"`
 }
