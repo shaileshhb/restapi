@@ -32,8 +32,9 @@ func (s *Service) GetAll(students *[]model.Student) error {
 		uow.Complete()
 		return err
 	}
-	// else {
+	//  else {
 	// 	utility.ConvertDateTime(students)
+	// 	utility.TrimDateTime(students)
 	// }
 	uow.Commit()
 
@@ -47,7 +48,8 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
+	queryCondition := "id=?"
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
@@ -55,6 +57,7 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	}
 	// else {
 	// 	utility.ConvertDateTime(students)
+	// 	utility.TrimDateTime(students)
 	// }
 	uow.Commit()
 	return nil
@@ -88,7 +91,8 @@ func (s *Service) Update(student *model.Student, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	var queryProcessors []repository.QueryProcessor
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
+	queryCondition := "id=?"
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
@@ -104,7 +108,8 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	var queryProcessors []repository.QueryProcessor
-	queryProcessors = append(queryProcessors, repository.GetStudentByID(id))
+	queryCondition := "id=?"
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
 		uow.Complete()
@@ -117,37 +122,37 @@ func (s *Service) Delete(student *model.Student, id string) error {
 func (s *Service) Validate(student *model.Student) error {
 
 	emailPattern := regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-	datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
+	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
 
 	if student.Name == "" {
 		return errors.New("Name is required")
 	}
 
-	if student.RollNo < 0 {
-		return errors.New("Roll number is invalid")
-	}
+	// if student.RollNo < 0 {
+	// 	return errors.New("Roll number is invalid")
+	// }
 
 	if student.Email == "" || !emailPattern.MatchString(student.Email) {
 		return errors.New("Email is invalid")
 	}
 
-	if student.Age < 18 {
-		return errors.New("Age cannot be less than 18")
-	}
+	// if student.Age < 18 {
+	// 	return errors.New("Age cannot be less than 18")
+	// }
 
-	if !dateTimePattern.MatchString(student.DateTime) {
-		return errors.New("Date time is invalid")
+	// if !dateTimePattern.MatchString(student.DateTime) {
+	// 	return errors.New("Date time is invalid")
 
-	}
+	// }
 
-	if !datePattern.MatchString(student.Date) {
-		return errors.New("Date is invalid")
-	}
+	// if !datePattern.MatchString(student.Date) {
+	// 	return errors.New("Date is invalid")
+	// }
 
-	if student.IsMale == nil {
-		return errors.New("Gender is required")
-	}
+	// if student.IsMale == nil {
+	// 	return errors.New("Gender is required")
+	// }
 
 	return nil
 }

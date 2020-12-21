@@ -29,12 +29,12 @@ export class StudentCrudComponent implements OnInit {
 
   formBuild(){
     this.studentForm = this.formBuilder.group({
-      rollNo: ['', Validators.required],
-      name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: ['', Validators.required],
-      date: ['', Validators.required],
-      dateTime: ['', Validators.required],
-      gender: ['', Validators.required],
+      rollNo: [],
+      name: ['', [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]],
+      age: [],
+      date: [],
+      dateTime: [],
+      gender: [],
       email: ['', [Validators.required, Validators.email, 
         Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
     });
@@ -80,7 +80,7 @@ export class StudentCrudComponent implements OnInit {
           rollNo: response[0].rollNo,
           age: response[0].age,
           date: response[0].date,
-          dateTime: response[0].dateTime.slice(0,19),
+          dateTime: response[0].dateTime,
           email: response[0].email,
           gender: response[0].isMale
         });

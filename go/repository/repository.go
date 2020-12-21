@@ -20,7 +20,7 @@ func NewGormRepository() *GormRepository {
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
-func GetStudentByID(id string) QueryProcessor {
+func Where(condition string, id string) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if id != "" {

@@ -47,10 +47,10 @@
                     <label class="control-label col-sm-2" for="nameId" >Name</label>
                     <div class="col-sm-6">
                         <input type="text" class="form-control" id="nameId" formControlName="name" required>
-                    </div>
-                    <div class="text-danger" *ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
-                        <div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
-                        <div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
+                        <div class="text-danger" *ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
+                            <div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
+                            <div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -58,45 +58,45 @@
                     <div class="col-sm-6">
                         <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
                     </div>
-                    <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
+                    <!-- <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
                         <div *ngIf="studentForm.get('rollNo').errors.required">Please enter Roll No</div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="ageId">Age</label>
                     <div class="col-sm-6">
-                        <input type="number" class="form-control" id="ageId" formControlName="age" required>
+                        <input type="number" class="form-control" id="ageId" formControlName="age">
                     </div>
-                    <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
+                    <!-- <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
                         <div *ngIf="studentForm.get('age').errors.required">Please enter Age</div>
-                    </div>
+                    </div> -->
                 </div> 
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="dateId" >Date</label>
                     <div class="col-sm-6">
-                        <input type="date" class="form-control" id="dateId" formControlName="date" required>
+                        <input type="date" class="form-control" id="dateId" formControlName="date">
                     </div>
-                    <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
+                    <!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
                         <div *ngIf="studentForm.get('name').errors.required">Date is required</div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="dateTimId" >Date With Time</label>
                     <div class="col-sm-6">
-                        <input type="datetime-local" class="form-control" id="dateTimId" formControlName="dateTime" step="1" required>
+                        <input type="datetime-local" class="form-control" id="dateTimId" formControlName="dateTime" step="1">
                     </div>
-                    <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
+                    <!-- <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
                         <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
-                    </div>
+                    </div> -->
                 </div>              
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="emailId" >Email</label>
                     <div class="col-sm-6">
-                        <input type="text" class="form-control" id="emailId" formControlName="email" required>
-                    </div>
-                    <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
-                        <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
-                        <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
+                        <input type="text" class="form-control" id="emailId" formControlName="email">
+                        <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
+                            <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
+                            <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
+                        </div>
                     </div>
                 </div>               
                 <fieldset class="form-group">
@@ -105,25 +105,22 @@
                         <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
                             <span >
                                 <label>Male</label>&nbsp;
-                                <input type="radio" name="gender" [value] = true formControlName="gender" required>
+                                <input type="radio" name="gender" [value] = true formControlName="gender">
                             </span>
                         </div>
                         <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
                             <span>
                                 <label>Female</label>&nbsp;
-                                <input type="radio" name="gender" [value] = false formControlName="gender" required>
+                                <input type="radio" name="gender" [value] = false formControlName="gender">
                             </span>
-                        </div>                           
-                        <div class="text-danger">
-                            <div *ngIf="addOrUpdateAction == 'add'">
-                                <span *ngIf = "studentForm.get('gender').invalid && studentForm.get('gender').dirty" [class] = "'required'">Gender is required</span>
-                            </div>
                         </div>
                     </div>
                 </fieldset>   
 
+                <div>{{studentForm.valid}}</div>
+
                 <div class="form-group">
-                    <button [disabled]="!studentForm.valid || !studentForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()"  data-dismiss="modal">SUBMIT</button>
+                    <button [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
                 </div>
                 
             </form>
