@@ -2,11 +2,11 @@ package service
 
 import (
 	"errors"
+	"regexp"
 
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
-	"github.com/shaileshhb/restapi/utility"
 )
 
 type Service struct {
@@ -31,9 +31,10 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		utility.ConvertDateTime(students)
 	}
+	// else {
+	// 	utility.ConvertDateTime(students)
+	// }
 	uow.Commit()
 
 	return nil
@@ -51,14 +52,19 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		utility.ConvertDateTime(students)
 	}
+	// else {
+	// 	utility.ConvertDateTime(students)
+	// }
 	uow.Commit()
 	return nil
 }
 
 func (s *Service) AddNewStudent(student *model.Student) error {
+
+	if err := s.Validate(student); err != nil {
+		return err
+	}
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
@@ -74,6 +80,10 @@ func (s *Service) AddNewStudent(student *model.Student) error {
 }
 
 func (s *Service) Update(student *model.Student, id string) error {
+
+	if err := s.Validate(student); err != nil {
+		return err
+	}
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
@@ -104,23 +114,30 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	return nil
 }
 
-func (s *Service) ValidateJsonFields(student model.Student) error {
+func (s *Service) Validate(student *model.Student) error {
 
-	if err := s.ValidateStringValues([]string{student.Name, student.Date, student.Email}); err != nil {
-		return err
+	emailPattern := regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
+	datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
+
+	if student.Name == "" {
+		return errors.New("Name is required")
 	}
-	return nil
-}
 
-func (s *Service) ValidateStringValues(fields []string) error {
+	if student.Email == "" || !emailPattern.MatchString(student.Email) {
+		return errors.New("Email is invalid")
+	}
 
-	for _, field := range fields {
-		for _, str := range field {
-			if (str < 'a' || str > 'z') && (str < 'A' || str > 'Z') {
-				return errors.New("Invalid String")
-			}
-		}
+	if student.Age < 18 {
+		return errors.New("Age cannot be less than 18")
+	}
+	if !dateTimePattern.MatchString(student.DateTime) {
+		return errors.New("Date time is invalid")
 
 	}
+	if !datePattern.MatchString(student.Date) {
+		return errors.New("Date is invalid")
+	}
+
 	return nil
 }

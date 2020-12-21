@@ -33,6 +33,7 @@ export class StudentCrudComponent implements OnInit {
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
       age: ['', Validators.required],
       date: ['', Validators.required],
+      dateTime: ['', Validators.required],
       gender: ['', Validators.required],
       email: ['', [Validators.required, Validators.email, 
         Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
@@ -63,57 +64,54 @@ export class StudentCrudComponent implements OnInit {
     }
   }
 
-  addStudent():void{
-    this.studentAPI = {
-      id:null, 
-      rollNo:this.studentForm.get('rollNo').value, 
-      name:this.studentForm.get('name').value, 
-      age:this.studentForm.get('age').value, 
-      email:this.studentForm.get('email').value, 
-      isMale:this.studentForm.get('gender').value, 
-      date:this.studentForm.get('date').value
-    };
-    this.studentService.addNewStudent(this.studentAPI).subscribe(data=>{
-      this.getStudents();
-      alert("Student added");
-      this.modalService.dismissAll();
-
-    },
-    (err) => console.log('HTTP Error', err)
-    );
+  setAddAction():void{
+    this.formBuild();
+    this.addOrUpdateAction = "add";
   }
-
-  dobChange():void{
-      let dobDate:Date = new Date(this.studentForm.controls['date'].value);
-      let diff = (new Date().getTime() - dobDate.getTime());
-      let ageTotal = Math.trunc(diff/ (1000 * 3600 * 24 *365));
-      this.studentForm.patchValue({
-        age: ageTotal,
-      });
-  }
-
-    setAddAction():void{
-      
-      this.formBuild();
-      this.addOrUpdateAction = "add";
-    }
 
     prepopulate(id:string):void{
       this.formBuild();
       this.addOrUpdateAction = "update";
       this.id = id;
-      this.studentService.getStudentDetails(id).subscribe((data)=>{
-        
-        console.log(data[0]);
-        
+      this.studentService.getStudentDetails(id).subscribe((response)=>{
+
         this.studentForm.patchValue({
-          name: data[0].name,
-          rollNo: data[0].rollNo,
-          age: data[0].age,
-          date: data[0].date,
-          email: data[0].email,
-          gender: data[0].isMale
+          name: response[0].name,
+          rollNo: response[0].rollNo,
+          age: response[0].age,
+          date: response[0].date,
+          dateTime: response[0].dateTime.slice(0,19),
+          email: response[0].email,
+          gender: response[0].isMale
         });
+      },
+      (err) => console.log('HTTP Error', err)
+      );
+    }
+
+    addStudent():void{
+      
+      let dateWithTime = this.studentForm.get('dateTime').value
+      let date = dateWithTime.slice(0, 10)
+      let time = dateWithTime.slice(11)
+      console.log(date, time);
+      
+      
+      this.studentAPI = {
+        id: null, 
+        rollNo: this.studentForm.get('rollNo').value, 
+        name: this.studentForm.get('name').value, 
+        age: this.studentForm.get('age').value, 
+        email: this.studentForm.get('email').value, 
+        date: this.studentForm.get('date').value,
+        dateTime: date.concat(" ", time),
+        isMale: this.studentForm.get('gender').value
+
+      };
+      this.studentService.addNewStudent(this.studentAPI).subscribe(data=>{
+        this.getStudents();
+        alert("Student added");
+        this.modalService.dismissAll();
       },
       (err) => console.log('HTTP Error', err)
       );
@@ -128,6 +126,7 @@ export class StudentCrudComponent implements OnInit {
         "age": this.studentForm.get('age').value, 
         "email": this.studentForm.get('email').value, 
         "date": this.studentForm.get('date').value,
+        "dateTime": this.studentForm.get('dateTime').value,
         "isMale": this.studentForm.get('gender').value
       }).
       subscribe((data)=>{

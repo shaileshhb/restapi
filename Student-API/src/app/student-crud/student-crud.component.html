@@ -11,6 +11,7 @@
             <th>Age</th>
             <th>Email</th>
             <th>Date</th>
+            <th>DateTime</th>
             <th>Gender</th>
             <th>Update Student</th>
             <th>Delete Student</th>
@@ -22,6 +23,7 @@
             <td [innerHtml]="student.age"></td>
             <td [innerHtml]="student.email"></td>
             <td [innerHtml]="student.date"></td>
+            <td [innerHtml]="student.dateTime"></td>
             <td [innerHtml]="student.isMale"></td>
             <td><button class="btn btn-outline-warning" (click) = "prepopulate(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
             <td><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
@@ -61,18 +63,6 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="control-label col-sm-2" for="dateId" >Date</label>
-                    <div class="col-sm-6">
-                        <input type="date" class="form-control" id="dateId" formControlName="date" (change) = "dobChange()" required>
-                    </div>
-                    <div class="text-danger">
-                        <span *ngIf = "studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)" [class] = "'required'">Date is required</span>
-                    </div>
-                    <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
-                        <div *ngIf="studentForm.get('name').errors.required">Date is required</div>
-                    </div>
-                </div>
-                <div class="form-group row">
                     <label class="control-label col-sm-2" for="ageId">Age</label>
                     <div class="col-sm-6">
                         <input type="number" class="form-control" id="ageId" formControlName="age" required>
@@ -80,7 +70,25 @@
                     <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
                         <div *ngIf="studentForm.get('age').errors.required">Please enter Age</div>
                     </div>
-                </div>               
+                </div> 
+                <div class="form-group row">
+                    <label class="control-label col-sm-2" for="dateId" >Date</label>
+                    <div class="col-sm-6">
+                        <input type="date" class="form-control" id="dateId" formControlName="date" required>
+                    </div>
+                    <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
+                        <div *ngIf="studentForm.get('name').errors.required">Date is required</div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-sm-2" for="dateTimId" >Date With Time</label>
+                    <div class="col-sm-6">
+                        <input type="datetime-local" class="form-control" id="dateTimId" formControlName="dateTime" step="1" required>
+                    </div>
+                    <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
+                        <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
+                    </div>
+                </div>              
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="emailId" >Email</label>
                     <div class="col-sm-6">
@@ -88,7 +96,7 @@
                     </div>
                     <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
                         <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
-                        <div *ngIf="studentForm.get('email').errors.email">Email ID is not valid</div>
+                        <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
                     </div>
                 </div>               
                 <fieldset class="form-group">

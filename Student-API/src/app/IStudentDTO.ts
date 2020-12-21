@@ -5,5 +5,6 @@ export interface IStudentDTO {
     age: number;
     email: string;
     date: string;
+    dateTime: string;
     isMale: boolean;
 }

@@ -70,8 +70,6 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write(studentJSON)
 	}
 
-	fmt.Println(students[0].Date[:10])
-
 }
 
 func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
@@ -85,16 +83,18 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Response could not be read"))
 		return
 	}
-	err = json.Unmarshal(studentResponse, &student)
+	err = json.Unmarshal([]byte(studentResponse), &student)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// fmt.Println(student)
+
 	if err := c.Service.AddNewStudent(student); err != nil {
 		fmt.Println(err)
-		w.Write([]byte("Error while adding student"))
+		w.Write([]byte("Error while adding student, " + err.Error()))
 	} else {
 		w.Write([]byte(student.ID.String()))
 	}

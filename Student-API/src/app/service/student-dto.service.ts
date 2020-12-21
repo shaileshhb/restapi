@@ -28,10 +28,10 @@ export class StudentDTOService {
 
     let studentJSON: string = JSON.stringify(studentDetails);
     let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8'} );
+    
+    console.log(studentJSON);
 
-    console.log(studentJSON);    
-
-    return this.http.post<any>(this.url, studentJSON, {'headers': httpHeaders} );
+    return this.http.post<any>(this.url, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
 
   }
 
@@ -50,7 +50,7 @@ export class StudentDTOService {
   deleteStudent(studentID: string): Observable<IStudentDTO> {
     console.log(studentID);
     
-    return this.http.delete<IStudentDTO>(this.url + "/" +studentID);
+    return this.http.delete<IStudentDTO>(this.url + "/" +studentID, {responseType:'text' as 'json'});
   }
 
 }
