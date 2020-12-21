@@ -124,6 +124,10 @@ func (s *Service) Validate(student *model.Student) error {
 		return errors.New("Name is required")
 	}
 
+	if student.RollNo < 0 {
+		return errors.New("Roll number is invalid")
+	}
+
 	if student.Email == "" || !emailPattern.MatchString(student.Email) {
 		return errors.New("Email is invalid")
 	}
@@ -131,12 +135,18 @@ func (s *Service) Validate(student *model.Student) error {
 	if student.Age < 18 {
 		return errors.New("Age cannot be less than 18")
 	}
+
 	if !dateTimePattern.MatchString(student.DateTime) {
 		return errors.New("Date time is invalid")
 
 	}
+
 	if !datePattern.MatchString(student.Date) {
 		return errors.New("Date is invalid")
+	}
+
+	if student.IsMale == nil {
+		return errors.New("Gender is required")
 	}
 
 	return nil
