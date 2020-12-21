@@ -120,6 +120,7 @@ func (s *Service) Delete(student *model.Student, id string) error {
 
 func (s *Service) Validate(student *model.Student) error {
 
+	namePattern := regexp.MustCompile("^[a-zA-Z]*$")
 	emailPattern := regexp.MustCompile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)

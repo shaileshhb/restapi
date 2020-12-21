@@ -2,13 +2,13 @@ package model
 
 type Student struct {
 	Base
-	Name     string `json:"name"`
-	Age      *int   `json:"age"`
-	RollNo   *int   `json:"rollNo"`
-	Date     string `gorm:"type:date; default:null" json:"date"`
-	DateTime string `gorm:"type:datetime; default:null" json:"dateTime"`
-	Email    string `json:"email"`
-	IsMale   *bool  `json:"isMale"`
+	Name     string  `json:"name"`
+	Age      *int    `json:"age"`
+	RollNo   *int    `json:"rollNo"`
+	Date     *string `gorm:"type:date; default:null" json:"date"`
+	DateTime *string `gorm:"type:datetime; default:null" json:"dateTime"`
+	Email    string  `json:"email"`
+	IsMale   *bool   `json:"isMale"`
 }
 
 // type DateTimestamp struct {

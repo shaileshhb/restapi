@@ -90,13 +90,7 @@ export class StudentCrudComponent implements OnInit {
     }
 
     addStudent():void{
-      
-      let dateWithTime = this.studentForm.get('dateTime').value
-      let date = dateWithTime.slice(0, 10)
-      let time = dateWithTime.slice(11)
-      console.log(date, time);
-      
-      
+            
       this.studentAPI = {
         id: null, 
         rollNo: this.studentForm.get('rollNo').value, 
@@ -104,7 +98,7 @@ export class StudentCrudComponent implements OnInit {
         age: this.studentForm.get('age').value, 
         email: this.studentForm.get('email').value, 
         date: this.studentForm.get('date').value,
-        dateTime: date.concat(" ", time),
+        dateTime: this.studentForm.get('datetime').value,
         isMale: this.studentForm.get('gender').value
 
       };

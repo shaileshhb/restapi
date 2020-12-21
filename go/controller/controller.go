@@ -38,12 +38,15 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Student not found"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if studentJSON, err := json.Marshal(students); err != nil {
 		log.Println(err)
 		w.Write([]byte("Could not convert to json"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	} else {
 		w.Write(studentJSON)
 		log.Println("Student Successfully returned")
@@ -61,12 +64,15 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Student Not Found"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if studentJSON, err := json.Marshal(students); err != nil {
 		log.Println(err)
 		w.Write([]byte("Could not convert to json"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+
 	} else {
 		w.Write(studentJSON)
 		log.Println("Student successfully returned")
@@ -83,6 +89,7 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Response could not be read"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -114,6 +121,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Response could not be read"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -127,6 +135,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	if err := c.Service.Update(student, params["id"]); err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while updating student"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
 		w.Write([]byte(student.ID.String()))
 		log.Println("Student successfully updated", student.ID)
@@ -143,9 +152,9 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	if err := c.Service.Delete(student, params["id"]); err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while deleting student"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
 		w.Write([]byte(student.ID.String()))
 		log.Println("Student successfully deleted", student.ID)
-
 	}
 }

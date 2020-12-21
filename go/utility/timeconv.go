@@ -6,21 +6,32 @@ import (
 
 func ConvertDateTime(students *[]model.Student) {
 
+	tempStudentsDate := *students
+
 	for i := 0; i < len(*students); i++ {
-		if (*students)[i].Date == "" {
+		if tempStudentsDate[i].Date == nil {
 			continue
 		}
-		(*students)[i].Date = (*students)[i].Date[:10]
+		trimDate := *tempStudentsDate[i].Date
+		trimDate = trimDate[:10]
+		tempStudentsDate[i].Date = &trimDate
 	}
 
 }
 
 func TrimDateTime(students *[]model.Student) {
 
+	tempStudentsDate := *students
+
 	for i := 0; i < len(*students); i++ {
-		if (*students)[i].DateTime == "" {
+		if tempStudentsDate[i].Date == nil {
 			continue
 		}
-		(*students)[i].DateTime = (*students)[i].DateTime[11:19] + " " + (*students)[i].DateTime[11:19]
+		trimDate := *tempStudentsDate[i].DateTime
+		trimTime := *tempStudentsDate[i].DateTime
+		trimDate = trimDate[:10]
+		trimTime = trimTime[11:19]
+		tempDateTime := trimDate + " " + trimTime
+		tempStudentsDate[i].DateTime = &tempDateTime
 	}
 }
