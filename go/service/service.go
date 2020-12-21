@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type Service struct {
@@ -31,11 +32,10 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
+	} else {
+		utility.ConvertDateTime(students)
+		utility.TrimDateTime(students)
 	}
-	//  else {
-	// 	utility.ConvertDateTime(students)
-	// 	utility.TrimDateTime(students)
-	// }
 	uow.Commit()
 
 	return nil
@@ -54,11 +54,10 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
+	} else {
+		utility.ConvertDateTime(students)
+		utility.TrimDateTime(students)
 	}
-	// else {
-	// 	utility.ConvertDateTime(students)
-	// 	utility.TrimDateTime(students)
-	// }
 	uow.Commit()
 	return nil
 }
