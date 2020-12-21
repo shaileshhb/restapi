@@ -34,7 +34,8 @@ export class StudentCrudComponent implements OnInit {
       age: ['', Validators.required],
       date: ['', Validators.required],
       gender: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email, 
+        Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
     });
   }
   
