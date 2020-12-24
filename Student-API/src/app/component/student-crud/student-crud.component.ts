@@ -17,7 +17,7 @@ export class StudentCrudComponent implements OnInit {
   studentForm: FormGroup;
   studentAPI: IStudentDTO;
   addOrUpdateAction: string;
-  login = "Logout";
+  login = "Login";
   
   constructor(
     private studentService:StudentDTOService, 
@@ -48,9 +48,16 @@ export class StudentCrudComponent implements OnInit {
 
   getStudents():void{
     this.studentService.getStudentDetails().subscribe((data)=>{
+      this.login = "Logout"
       this.students = data;
     },
-    (err) => console.log('HTTP Error', err)
+    (err) => {
+      console.log('HTTP Error', err)
+      alert("Error: " + err.statusText)
+      if (err.status == 401) {
+        this.router.navigateByUrl('/login')
+      }
+    }
     );
   }
 

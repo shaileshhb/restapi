@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from 'rxjs';
 
 import { IStudentDTO } from "src/app/IStudentDTO"; 
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,14 +13,16 @@ export class StudentDTOService {
   // url = "http://gsmktg.azurewebsites.net/api/v1/techlabs/test/students/";
   baseURL = "http://localhost:8080/students"
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private cookieService: CookieService) { }
 
   getStudentDetails(studentID?: string): Observable<IStudentDTO[]> {
 
+    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+
     if(studentID == undefined) {
-      return this.http.get<IStudentDTO[]>(this.baseURL);
+      return this.http.get<IStudentDTO[]>(this.baseURL, {'headers' : httpHeaders});
     } else {
-      return this.http.get<IStudentDTO[]>(this.baseURL + "/" + studentID);
+      return this.http.get<IStudentDTO[]>(this.baseURL + "/" + studentID, {'headers' : httpHeaders});
     }
 
   }
@@ -27,7 +30,7 @@ export class StudentDTOService {
   addNewStudent(studentDetails): Observable<any> {
 
     let studentJSON: string = JSON.stringify(studentDetails);
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8'} );
+    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': this.cookieService.get("Token") } );
     
     console.log(studentJSON);
 
@@ -37,7 +40,7 @@ export class StudentDTOService {
 
   updateExisitingStudent(id: string, studentDetails: any): Observable<IStudentDTO> {
 
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8'} );
+    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': this.cookieService.get("Token") } );
     let studentJSON: string = JSON.stringify(studentDetails); 
 
     console.log(studentJSON);
@@ -50,7 +53,9 @@ export class StudentDTOService {
   deleteStudent(studentID: string): Observable<IStudentDTO> {
     console.log(studentID);
     
-    return this.http.delete<IStudentDTO>(this.baseURL + "/" +studentID, {responseType:'text' as 'json'});
+    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+
+    return this.http.delete<IStudentDTO>(this.baseURL + "/" +studentID, {'headers': httpHeaders, responseType:'text' as 'json'});
   }
 
 }

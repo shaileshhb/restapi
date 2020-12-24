@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-master-navbar',
@@ -12,17 +13,16 @@ export class MasterNavbarComponent implements OnInit {
 
   isUserLoggedIn: boolean;
 
-  constructor() { }
+  constructor(private cookieService: CookieService) { }
 
   ngOnInit(): void {
 
     if (this.loggedInValue == "Login") {
       this.isUserLoggedIn = false
-      console.log(this.isUserLoggedIn);
+      this.cookieService.delete("Token")
     } else {
       this.isUserLoggedIn = true
-      console.log(this.isUserLoggedIn);
-      
+
     }
   }
 

@@ -2,10 +2,12 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	stdmodel "github.com/shaileshhb/restapi/student/std-model"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
@@ -23,18 +25,32 @@ func NewController(service *stdservice.Service) *Controller {
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
 
-	router.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-	router.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-	router.HandleFunc("/students", c.AddNewStudent).Methods("POST")
-	router.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
-	router.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
+	router.Handle("/students", c.validationUserToken(c.GetAllStudents)).Methods("GET")
+	router.Handle("/students/{id}", c.validationUserToken(c.GetStudent)).Methods("GET")
+	router.Handle("/students", c.validationUserToken(c.AddNewStudent)).Methods("POST")
+	router.Handle("/students/{id}", c.validationUserToken(c.UpdateStudent)).Methods("PUT")
+	router.Handle("/students/{id}", c.validationUserToken(c.DeleteStudent)).Methods("DELETE")
 
 }
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+
+	log.Printf("\n\nINSIDE GET ALL STUDENT\n\n")
+
+	// userToken, err := c.validationUserToken(r)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+	// if !userToken.Valid {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
+
 	var students = []stdmodel.Student{}
-	err := c.Service.GetAll(&students)
+	err = c.Service.GetAll(&students)
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Student not found"))
@@ -55,9 +71,9 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
-	var students = []stdmodel.Student{}
 	var err error
 
+	var students = []stdmodel.Student{}
 	params := mux.Vars(r)
 
 	err = c.Service.Get(&students, params["id"])
@@ -82,9 +98,11 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student = &stdmodel.Student{}
 	var err error
 
+	log.Printf("\n\nINSIDE ADD STUDENT\n\n")
+
+	var student = &stdmodel.Student{}
 	studentResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -111,6 +129,8 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
+
+	var err error
 
 	var student = &stdmodel.Student{}
 
@@ -144,11 +164,12 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student = &stdmodel.Student{}
+	var err error
 
+	var student = &stdmodel.Student{}
 	params := mux.Vars(r)
 
-	if err := c.Service.Delete(student, params["id"]); err != nil {
+	if err = c.Service.Delete(student, params["id"]); err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while deleting student"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -156,4 +177,68 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(student.ID.String()))
 		log.Println("Student successfully deleted", student.ID)
 	}
+}
+
+// func (c *Controller) validationUserToken(r *http.Request) (*jwt.Token, error) {
+
+// 	log.Println(r.Header["Token"][0])
+// 	log.Println(len(r.Header["Token"]))
+
+// 	var jwtKey = []byte("some_secret_key")
+
+// 	userCookie, err := r.Cookie("UserToken")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	tokenString := userCookie.Value
+
+// 	if r.Header["Token"] != nil {
+
+// 		log.Println("Inside validation")
+// 		claims := &claim.Claim{}
+
+// 		userToken, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
+// 			return jwtKey, nil
+// 		})
+// 		if err != nil {
+// 			// w.WriteHeader(http.StatusUnauthorized)
+// 			return nil, err
+// 		}
+// 		return userToken, nil
+// 	} else {
+// 		return nil, errors.New("Unauthorized user")
+// 	}
+
+// }
+
+func (c *Controller) validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		var jwtKey = []byte("some_secret_key")
+
+		log.Println(r.Header["Token"])
+
+		if r.Header["Token"][0] != "" {
+
+			log.Println("Inside validation")
+
+			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("There was an error")
+				}
+				return jwtKey, nil
+			})
+
+			if err != nil {
+				fmt.Fprintf(w, err.Error())
+			}
+
+			if token.Valid {
+				endpoint(w, r)
+			}
+		} else {
+			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+			// fmt.Fprintf(w, "Not Authorized")
+		}
+	})
 }

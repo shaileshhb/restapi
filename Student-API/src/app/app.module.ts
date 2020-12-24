@@ -14,6 +14,7 @@ import { EmtpyToNullDirective } from './directives/emtpy-to-null.directive';
 import { LoginComponent } from './component/login/login.component';
 import { MasterNavbarComponent } from './component/master-navbar/master-navbar.component';
 import { StudentCrudComponent } from './component/student-crud/student-crud.component';
+import { CookieService } from 'ngx-cookie-service';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,7 @@ import { StudentCrudComponent } from './component/student-crud/student-crud.comp
     ReactiveFormsModule,
     NgbModule,
   ],
-  providers: [],
+  providers: [CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

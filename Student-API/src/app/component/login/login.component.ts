@@ -1,7 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit  } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CookieService } from 'ngx-cookie-service';
 import { User } from 'src/app/user';
 import { LoginService } from '../../service/login.service';
 
@@ -20,7 +21,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder, 
     private loginSerive: LoginService,
     private router: Router,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private cookieService: CookieService
     ) { 
     this.buildLoginForm()
     this.buildRegisterForm()
@@ -51,23 +53,23 @@ export class LoginComponent implements OnInit {
   }
 
   validateUser() {
-    console.log(this.loginForm.value);
 
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
 
-      console.log(response);
+      // console.log(response);
 
-      if (response == "Success") {
-        this.login = 'Logout';
-        this.router.navigateByUrl('/students')
-      } else {
-        alert('Invalid username or password')
-      }
+      this.cookieService.set("Token", response, {expires: 1})
+      this.login = 'Logout';
+      this.router.navigateByUrl('/students')
       
     },
     (err) => {
-      alert(err)
+      console.log("Error:" + err);
+      
     })
+
+    console.log(this.cookieService.get("Token"));
+    
     
   }
 

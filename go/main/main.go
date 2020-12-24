@@ -25,7 +25,7 @@ import (
 
 func main() {
 
-	db, err := gorm.Open("mysql", "root:root@tcp(localhost:4040)/gorm_test?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:root@tcp(localhost:4040)/student_app?charset=utf8&parseTime=True&loc=Local")
 	defer db.Close()
 	if err != nil {
 		fmt.Println(err)
@@ -56,7 +56,7 @@ func main() {
 
 	db.AutoMigrate(&stdmodel.Student{})
 
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
+	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	origin := handlers.AllowedOrigins([]string{"*"})
 

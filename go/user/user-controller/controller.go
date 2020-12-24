@@ -5,10 +5,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
+	"github.com/shaileshhb/restapi/claim"
 	usermodel "github.com/shaileshhb/restapi/user/user-model"
 	userservice "github.com/shaileshhb/restapi/user/user-service"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Controller struct {
@@ -48,11 +53,21 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	user.Password = string(hashPassword)
+
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	if err = c.Service.Add(user); err != nil {
 		log.Println(err)
-		w.Write([]byte("Error while adding user, " + err.Error()))
+		// w.Write([]byte("Error while adding user, " + err.Error()))
 	} else {
-		w.Write([]byte(user.ID.String()))
+		// w.Write([]byte(user.ID.String()))
+		c.generateJWT(user.ID, w)
 		log.Println("User successfully added", user.ID)
 	}
 }
@@ -66,7 +81,6 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 	userDetails, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Response could not be read"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -80,21 +94,70 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err = c.Service.Get(validateUser, user.Username); err != nil {
 		log.Println(err)
-		w.Write([]byte("Error while fetching user, " + err.Error()))
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		// w.WriteHeader(http.StatusBadRequest)
 	} else {
-		log.Println("User found", validateUser)
 
-		if validateUser.Username == user.Username && validateUser.Password == user.Password {
-			w.Write([]byte("Success"))
-			log.Println("Student successfully logged in")
-
-		} else {
-			w.Write([]byte("Failed"))
+		if validateUser.Username != user.Username {
+			// w.Write([]byte("Username or password is invalid"))
+			http.Error(w, "Login failed for username!", http.StatusUnauthorized)
 			log.Println("Username or password is invalid")
-			// http.Error(w,, http.StatusBadRequest)
-
+			return
 		}
 
+		if err = bcrypt.CompareHashAndPassword([]byte(validateUser.Password), []byte(user.Password)); err != nil {
+			// w.Write([]byte("Failed"))
+			http.Error(w, "Username or password is invalid", http.StatusUnauthorized)
+			log.Println("Username or password is invalid password", err)
+			return
+		}
+
+		tokenString, err := c.generateJWT(validateUser.ID, w)
+		if err != nil {
+			w.Write([]byte("Token string failed"))
+			log.Println("Token string failed")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write([]byte(tokenString))
+
 	}
+
+}
+
+func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (string, error) {
+
+	// secret key
+	var jwtKey = []byte("some_secret_key")
+
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	// Creating JWT Claim which includes username and claims
+	claims := &claim.Claim{
+		ID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	// token having algo form signing method and the claim
+	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := userToken.SignedString(jwtKey)
+	if err != nil {
+		// w.Write([]byte("Failed"))
+		// http.Error(w, err.Error(), http.StatusBadRequest)
+		// log.Println("Username or password is invalid")
+		return tokenString, err
+	}
+
+	return tokenString, nil
+
+	// Setting up the cookie for userToken
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:    "UserToken",
+	// 	Value:   tokenString,
+	// 	Expires: expirationTime,
+	// })
 
 }
