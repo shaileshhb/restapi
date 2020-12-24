@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
-	usermodel "github.com/shaileshhb/restapi/user/usermodel"
-	repository "github.com/shaileshhb/restapi/user/userrepository"
+	usermodel "github.com/shaileshhb/restapi/user/user-model"
+	repository "github.com/shaileshhb/restapi/user/user-repository"
 )
 
 type UserService struct {

@@ -1,7 +1,7 @@
 package utility
 
 import (
-	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
+	stdmodel "github.com/shaileshhb/restapi/student/std-model"
 )
 
 func ConvertDateTime(students *[]stdmodel.Student) {

@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	usermodel "github.com/shaileshhb/restapi/user/usermodel"
-	userservice "github.com/shaileshhb/restapi/user/userservice"
+	usermodel "github.com/shaileshhb/restapi/user/user-model"
+	userservice "github.com/shaileshhb/restapi/user/user-service"
 )
 
 type Controller struct {

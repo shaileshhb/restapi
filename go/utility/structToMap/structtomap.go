@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/fatih/structs"
-	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
+	stdmodel "github.com/shaileshhb/restapi/student/std-model"
 )
 
 func ConvertStructToMap(student *stdmodel.Student, id string) map[string]interface{} {

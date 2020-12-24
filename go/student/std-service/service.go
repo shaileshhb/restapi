@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
-	model "github.com/shaileshhb/restapi/student/stdmodel"
-	repository "github.com/shaileshhb/restapi/student/stdrepository"
+	model "github.com/shaileshhb/restapi/student/std-model"
+	repository "github.com/shaileshhb/restapi/student/std-repository"
 	"github.com/shaileshhb/restapi/utility"
 	"github.com/shaileshhb/restapi/utility/structToMap"
 )

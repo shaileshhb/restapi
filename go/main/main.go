@@ -13,14 +13,14 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	stdcontroller "github.com/shaileshhb/restapi/student/stdcontroller"
-	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
-	stdrepository "github.com/shaileshhb/restapi/student/stdrepository"
-	stdservice "github.com/shaileshhb/restapi/student/stdservice"
-	usercontroller "github.com/shaileshhb/restapi/user/usercontroller"
-	usermodel "github.com/shaileshhb/restapi/user/usermodel"
-	userrepository "github.com/shaileshhb/restapi/user/userrepository"
-	userservice "github.com/shaileshhb/restapi/user/userservice"
+	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
+	stdmodel "github.com/shaileshhb/restapi/student/std-model"
+	stdrepository "github.com/shaileshhb/restapi/student/std-repository"
+	stdservice "github.com/shaileshhb/restapi/student/std-service"
+	usercontroller "github.com/shaileshhb/restapi/user/user-controller"
+	usermodel "github.com/shaileshhb/restapi/user/user-model"
+	userrepository "github.com/shaileshhb/restapi/user/user-repository"
+	userservice "github.com/shaileshhb/restapi/user/user-service"
 )
 
 func main() {
