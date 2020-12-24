@@ -4,6 +4,7 @@ export interface IStudentDTO {
     rollNo: number;
     age: number;
     email: string;
+    phone: string;
     date: string;
     dateTime: string;
     isMale: boolean;

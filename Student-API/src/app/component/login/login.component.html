@@ -1,0 +1,94 @@
+<app-master-navbar [loggedInValue]="login" (hideRegister)="userRegister($event)"></app-master-navbar>
+
+<!--Login-->
+<section>
+    <br> <br>
+    <div class="container">
+
+        <div class="card">
+            <div class="card-header">
+                <h5>User Login</h5>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="loginForm">
+
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="userID" >Username</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="userID" formControlName="username" required>
+                            <div class="text-danger" *ngIf="loginForm.get('username').invalid && (loginForm.get('username').dirty || loginForm.get('username').touched)">
+                                <div *ngIf="loginForm.get('username').errors.required">Please enter Username</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="passwordID" >Password</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" id="passwordID" formControlName="password" required>
+                            <div class="text-danger" *ngIf="loginForm.get('password').invalid && (loginForm.get('password').dirty || loginForm.get('password').touched)">
+                                <div *ngIf="loginForm.get('password').errors.required">Please enter Password</div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <button [disabled]="!loginForm.valid" class="btn btn-primary" type="submit" (click)="validateUser()">Login</button> &nbsp; &nbsp;
+                        <button class="btn btn-info" (click)="openModal(registerModal);">Register</button>
+                    </div>
+                </form>
+            </div>
+          </div>
+    </div>
+</section>
+
+<!--Register Form-->
+<ng-template #registerModal let-modal>
+    
+    <div class="modal-header">
+        <h4 class="modal-title">Registration FORM</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+    </div>
+
+    <div class="modal-body">
+
+        <form [formGroup]="registerForm">
+
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="emailID" >Email</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="emailID" formControlName="email" required>
+                    <div class="text-danger" *ngIf="registerForm.get('email').invalid && (registerForm.get('email').dirty || registerForm.get('email').touched)">
+                        <div *ngIf="registerForm.get('email').errors.required">Please enter Email</div>
+                        <div *ngIf="registerForm.get('email').errors.pattern">Email ID is not valid</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="userID" >Username</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="userID" formControlName="username" required>
+                    <div class="text-danger" *ngIf="registerForm.get('username').invalid && (registerForm.get('username').dirty || registerForm.get('username').touched)">
+                        <div *ngIf="registerForm.get('username').errors.required">Please enter Username</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="passwordID" >Password</label>
+                <div class="col-sm-6">
+                    <input type="password" class="form-control" id="passwordID" formControlName="password" required>
+                    <div class="text-danger" *ngIf="registerForm.get('password').invalid && (registerForm.get('password').dirty || registerForm.get('password').touched)">
+                        <div *ngIf="registerForm.get('password').errors.required">Please enter Password</div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="form-group">
+                <button [disabled]="!registerForm.valid" class="btn btn-primary" type="submit" (click)="registerUser()">Register</button>
+            </div>
+        </form>
+        
+    </div>
+
+</ng-template>

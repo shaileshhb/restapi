@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { StudentDTOService } from '../service/student-dto.service';
+import { StudentDTOService } from '../../service/student-dto.service';
 
 @Component({
   selector: 'app-student-details',
@@ -11,6 +11,7 @@ import { StudentDTOService } from '../service/student-dto.service';
 export class StudentDetailsComponent implements OnInit {
 
   studentDetails = [];
+  login = "Login";
 
   constructor(private studentDto: StudentDTOService, private router: Router ) { }
 

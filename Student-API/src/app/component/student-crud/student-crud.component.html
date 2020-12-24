@@ -1,3 +1,5 @@
+<app-master-navbar [loggedInValue]="login"></app-master-navbar>
+
 <div class="container">
     <br>
     <button class="btn btn-primary" (click) = "setAddAction(); openStudentModalForm(studentModal)">ADD STUDENT</button>
@@ -10,6 +12,7 @@
             <th>Roll No</th>
             <th>Age</th>
             <th>Email</th>
+            <th>Phone Number</th>
             <th>Date</th>
             <th>DateTime</th>
             <th>Gender</th>
@@ -22,6 +25,7 @@
             <td [innerHtml]="student.rollNo"></td>
             <td [innerHtml]="student.age"></td>
             <td [innerHtml]="student.email"></td>
+            <td [innerHtml]="student.phone"></td>
             <td [innerHtml]="student.date"></td>
             <td [innerHtml]="student.dateTime"></td>
             <td [innerHtml]="student.isMale"></td>
@@ -58,26 +62,46 @@
                     <div class="col-sm-6">
                         <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
                     </div>
-                    <!-- <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
-                        <div *ngIf="studentForm.get('rollNo').errors.required">Please enter Roll No</div>
-                    </div> -->
+                    <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
+                        <div *ngIf="studentForm.get('rollNo').errors.min">Please enter Roll No</div>
+                    </div>
                 </div>
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="ageId">Age</label>
                     <div class="col-sm-6">
                         <input type="number" class="form-control" id="ageId" formControlName="age">
                     </div>
-                    <!-- <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
-                        <div *ngIf="studentForm.get('age').errors.required">Please enter Age</div>
-                    </div> -->
+                    <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
+                        <div *ngIf="studentForm.get('age').errors.min">Please enter Age</div>
+                    </div>
                 </div> 
+                <div class="form-group row">
+                    <label class="control-label col-sm-2" for="emailId" >Email</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="emailId" formControlName="email">
+                        <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
+                            <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
+                            <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="control-label col-sm-2" for="phoneId" >Phone Number</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="phoneId" appEmtpyToNull formControlName="phone">
+                        <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
+                            <div *ngIf="studentForm.get('phone').errors.minLength">Phone number should have 10 digits</div>
+                            <div *ngIf="studentForm.get('phone').errors.pattern">Phone number should contain only digits</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group row">
                     <label class="control-label col-sm-2" for="dateId" >Date</label>
                     <div class="col-sm-6">
                         <input type="date" class="form-control" id="dateId" formControlName="date">
                     </div>
                     <!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
-                        <div *ngIf="studentForm.get('name').errors.required">Date is required</div>
+                        <div *ngIf="studentForm.get('date').errors.required">Date is required</div>
                     </div> -->
                 </div>
                 <div class="form-group row">
@@ -88,17 +112,7 @@
                     <!-- <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
                         <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
                     </div> -->
-                </div>              
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="emailId" >Email</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="emailId" formControlName="email">
-                        <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
-                            <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
-                            <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
-                        </div>
-                    </div>
-                </div>               
+                </div>                             
                 <fieldset class="form-group">
                     <div class="row">
                         <label class="control-label col-sm-2" >Gender</label>
@@ -117,7 +131,7 @@
                     </div>
                 </fieldset>   
 
-                <div>{{studentForm.valid}}</div>
+                <!-- <div>{{studentForm.valid}}</div> -->
 
                 <div class="form-group">
                     <button [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>

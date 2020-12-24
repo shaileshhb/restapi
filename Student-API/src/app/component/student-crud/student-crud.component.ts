@@ -17,6 +17,7 @@ export class StudentCrudComponent implements OnInit {
   studentForm: FormGroup;
   studentAPI: IStudentDTO;
   addOrUpdateAction: string;
+  login = "Logout";
   
   constructor(
     private studentService:StudentDTOService, 
@@ -29,14 +30,15 @@ export class StudentCrudComponent implements OnInit {
 
   formBuild(){
     this.studentForm = this.formBuilder.group({
-      rollNo: [],
+      rollNo: ['', [Validators.min(1)]],
       name: ['', [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: [],
+      age: ['', [Validators.min(17)]],
+      phone: ['', [Validators.minLength(10), Validators.pattern("^[0-9]*$")]],
       date: [],
       dateTime: [],
       gender: [],
       email: ['', [Validators.required, Validators.email, 
-        Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+        Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
     });
   }
   
@@ -79,6 +81,7 @@ export class StudentCrudComponent implements OnInit {
           name: response[0].name,
           rollNo: response[0].rollNo,
           age: response[0].age,
+          phone: response[0].phone,
           date: response[0].date,
           dateTime: response[0].dateTime,
           email: response[0].email,
@@ -93,15 +96,18 @@ export class StudentCrudComponent implements OnInit {
             
       this.studentAPI = {
         id: null, 
-        rollNo: this.studentForm.get('rollNo').value, 
+        rollNo: (this.studentForm.get('rollNo').value  == "") ? null : this.studentForm.get('rollNo').value, 
         name: this.studentForm.get('name').value, 
-        age: this.studentForm.get('age').value, 
-        email: this.studentForm.get('email').value, 
-        date: this.studentForm.get('date').value,
-        dateTime: this.studentForm.get('datetime').value,
+        age: (this.studentForm.get('age').value == "") ? null : this.studentForm.get('age').value, 
+        email: this.studentForm.get('email').value,
+        phone: (this.studentForm.get('phone').value == "") ? null : this.studentForm.get('phone').value,
+        date: (this.studentForm.get('date').value == "") ? null : this.studentForm.get('date').value,
+        dateTime: (this.studentForm.get('dateTime').value == "") ? null : this.studentForm.get('dateTime').value,
         isMale: this.studentForm.get('gender').value
-
       };
+      console.log(this.studentAPI);
+      
+
       this.studentService.addNewStudent(this.studentAPI).subscribe(data=>{
         this.getStudents();
         alert("Student added");
@@ -118,7 +124,8 @@ export class StudentCrudComponent implements OnInit {
         "rollNo": this.studentForm.get('rollNo').value, 
         "name": this.studentForm.get('name').value, 
         "age": this.studentForm.get('age').value, 
-        "email": this.studentForm.get('email').value, 
+        "email": this.studentForm.get('email').value,
+        "phone": this.studentForm.get('phone').value,
         "date": this.studentForm.get('date').value,
         "dateTime": this.studentForm.get('dateTime').value,
         "isMale": this.studentForm.get('gender').value
@@ -148,6 +155,10 @@ export class StudentCrudComponent implements OnInit {
     openStudentModalForm(studentModel: any) {
       this.modalService.open(studentModel, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size:'xl'})
 
+    }
+
+    convertEmptyToNull(studentForm: any) {
+      
     }
 
 }

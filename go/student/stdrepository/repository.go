@@ -2,14 +2,13 @@ package repository
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/model"
 )
 
 type Repository interface {
 	Get(uow *UnitOfWork, out interface{}) error
-	AddCustomer(uow *UnitOfWork, cust model.Student) error
-	UpdateCustomer(uow *UnitOfWork, cust model.Student, newCust model.Student) error
-	DeleteCustomer(uow *UnitOfWork, cust model.Student) error
+	Add(uow *UnitOfWork, entity interface{}) error
+	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
+	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 }
 
 type GormRepository struct{}
@@ -24,7 +23,7 @@ func Where(condition string, id string) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if id != "" {
-			db = db.Model(out).Where("id=?", id)
+			db = db.Model(out).Where(condition, id)
 		}
 		return db, nil
 	}
@@ -60,6 +59,26 @@ func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}) error {
 	return nil
 }
 
+func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error {
+
+	db := uow.DB
+	var err error
+
+	if queryProcessors != nil {
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := db.Debug().Updates(entityMap).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
@@ -74,25 +93,6 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 		}
 	}
 	if err := db.Debug().Delete(entity).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
-
-	db := uow.DB
-	var err error
-
-	if queryProcessors != nil {
-		for _, queryProcessor := range queryProcessors {
-			db, err = queryProcessor(db, entity)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	if err := db.Debug().Model(entity).Update(entity).Error; err != nil {
 		return err
 	}
 	return nil

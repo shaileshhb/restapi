@@ -1,10 +1,10 @@
 package utility
 
 import (
-	"github.com/shaileshhb/restapi/model"
+	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
 )
 
-func ConvertDateTime(students *[]model.Student) {
+func ConvertDateTime(students *[]stdmodel.Student) {
 
 	tempStudentsDate := *students
 
@@ -19,7 +19,7 @@ func ConvertDateTime(students *[]model.Student) {
 
 }
 
-func TrimDateTime(students *[]model.Student) {
+func TrimDateTime(students *[]stdmodel.Student) {
 
 	tempStudentsDate := *students
 

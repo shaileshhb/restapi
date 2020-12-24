@@ -13,10 +13,14 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/controller"
-	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/repository"
-	"github.com/shaileshhb/restapi/service"
+	stdcontroller "github.com/shaileshhb/restapi/student/stdcontroller"
+	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
+	stdrepository "github.com/shaileshhb/restapi/student/stdrepository"
+	stdservice "github.com/shaileshhb/restapi/student/stdservice"
+	usercontroller "github.com/shaileshhb/restapi/user/usercontroller"
+	usermodel "github.com/shaileshhb/restapi/user/usermodel"
+	userrepository "github.com/shaileshhb/restapi/user/userrepository"
+	userservice "github.com/shaileshhb/restapi/user/userservice"
 )
 
 func main() {
@@ -34,14 +38,23 @@ func main() {
 		log.Fatal("No Route Created")
 	}
 
-	repos := repository.NewGormRepository()
+	//login
+	db.AutoMigrate(&usermodel.User{})
 
-	serv := service.NewService(repos, db)
-	controller := controller.NewController(serv)
+	userRepo := userrepository.NewUserRepository()
+	userService := userservice.NewUserService(userRepo, db)
+	userController := usercontroller.NewController(userService)
 
-	controller.RegisterEndPoints(router)
+	userController.RegisterUserRoutes(router)
 
-	db.AutoMigrate(&model.Student{})
+	//student
+	repos := stdrepository.NewGormRepository()
+	serv := stdservice.NewService(repos, db)
+	controller := stdcontroller.NewController(serv)
+
+	controller.RegisterRoutes(router)
+
+	db.AutoMigrate(&stdmodel.Student{})
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})

@@ -10,16 +10,16 @@ import { IStudentDTO } from "src/app/IStudentDTO";
 export class StudentDTOService {
 
   // url = "http://gsmktg.azurewebsites.net/api/v1/techlabs/test/students/";
-  url = "http://localhost:8080/students"
+  baseURL = "http://localhost:8080/students"
 
   constructor(private http: HttpClient) { }
 
   getStudentDetails(studentID?: string): Observable<IStudentDTO[]> {
 
     if(studentID == undefined) {
-      return this.http.get<IStudentDTO[]>(this.url);
+      return this.http.get<IStudentDTO[]>(this.baseURL);
     } else {
-      return this.http.get<IStudentDTO[]>(this.url + "/" + studentID);
+      return this.http.get<IStudentDTO[]>(this.baseURL + "/" + studentID);
     }
 
   }
@@ -31,7 +31,7 @@ export class StudentDTOService {
     
     console.log(studentJSON);
 
-    return this.http.post<any>(this.url, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.post<any>(this.baseURL, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
 
   }
 
@@ -43,14 +43,14 @@ export class StudentDTOService {
     console.log(studentJSON);
     
     
-    return this.http.put<IStudentDTO>(this.url + "/" + id, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.put<IStudentDTO>(this.baseURL + "/" + id, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
 
   } 
 
   deleteStudent(studentID: string): Observable<IStudentDTO> {
     console.log(studentID);
     
-    return this.http.delete<IStudentDTO>(this.url + "/" +studentID, {responseType:'text' as 'json'});
+    return this.http.delete<IStudentDTO>(this.baseURL + "/" +studentID, {responseType:'text' as 'json'});
   }
 
 }

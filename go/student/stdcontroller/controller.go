@@ -7,21 +7,21 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/service"
+	stdmodel "github.com/shaileshhb/restapi/student/stdmodel"
+	stdservice "github.com/shaileshhb/restapi/student/stdservice"
 )
 
 type Controller struct {
-	Service *service.Service
+	Service *stdservice.Service
 }
 
-func NewController(service *service.Service) *Controller {
+func NewController(service *stdservice.Service) *Controller {
 	return &Controller{
 		Service: service,
 	}
 }
 
-func (c *Controller) RegisterEndPoints(router *mux.Router) {
+func (c *Controller) RegisterRoutes(router *mux.Router) {
 
 	router.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 	router.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
@@ -33,7 +33,7 @@ func (c *Controller) RegisterEndPoints(router *mux.Router) {
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
-	var students = []model.Student{}
+	var students = []stdmodel.Student{}
 	err := c.Service.GetAll(&students)
 	if err != nil {
 		log.Println(err)
@@ -55,7 +55,7 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
-	var students = []model.Student{}
+	var students = []stdmodel.Student{}
 	var err error
 
 	params := mux.Vars(r)
@@ -82,7 +82,7 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student = &model.Student{}
+	var student = &stdmodel.Student{}
 	var err error
 
 	studentResponse, err := ioutil.ReadAll(r.Body)
@@ -93,8 +93,7 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(studentResponse, &student)
-	// err = json.Unmarshal([]byte(student.DateTime.String()), &student)
+	err = json.Unmarshal(studentResponse, student)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -113,7 +112,7 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student = &model.Student{}
+	var student = &stdmodel.Student{}
 
 	params := mux.Vars(r)
 
@@ -125,7 +124,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(studentResponse, &student)
+	err = json.Unmarshal(studentResponse, student)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -137,15 +136,15 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error while updating student"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
-		w.Write([]byte(student.ID.String()))
-		log.Println("Student successfully updated", student.ID)
+		w.Write([]byte(params["id"]))
+		log.Println("Student successfully updated", *student)
 	}
 
 }
 
 func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
-	var student = &model.Student{}
+	var student = &stdmodel.Student{}
 
 	params := mux.Vars(r)
 
