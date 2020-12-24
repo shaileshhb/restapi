@@ -67,8 +67,15 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		// w.Write([]byte("Error while adding user, " + err.Error()))
 	} else {
 		// w.Write([]byte(user.ID.String()))
-		c.generateJWT(user.ID, w)
-		log.Println("User successfully added", user.ID)
+		tokenString, err := c.generateJWT(user.ID, w)
+		if err != nil {
+			w.Write([]byte("Token string failed"))
+			log.Println("Token string failed")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write([]byte(tokenString))
+		// log.Println("User successfully added", user.ID)
 	}
 }
 
@@ -77,6 +84,8 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 	var user = &usermodel.User{}
 	var validateUser = &usermodel.User{}
 	var err error
+
+	log.Println("Inside userlogin")
 
 	userDetails, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -119,6 +128,8 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		log.Println(tokenString)
 		w.Write([]byte(tokenString))
 
 	}

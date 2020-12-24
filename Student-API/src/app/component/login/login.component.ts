@@ -3,7 +3,6 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service';
-import { User } from 'src/app/user';
 import { LoginService } from '../../service/login.service';
 
 @Component({
@@ -56,21 +55,20 @@ export class LoginComponent implements OnInit {
 
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
 
-      // console.log(response);
-
-      this.cookieService.set("Token", response, {expires: 1})
+      console.log(response);
+      this.cookieService.set("Token", response, {expires:1})
       this.login = 'Logout';
-      this.router.navigateByUrl('/students')
+      this.router.navigate(['/students'])
       
     },
     (err) => {
+      alert("Error:" + err)
       console.log("Error:" + err);
       
     })
 
     console.log(this.cookieService.get("Token"));
-    
-    
+
   }
 
   openModal(modalContent: any) {
@@ -82,11 +80,14 @@ export class LoginComponent implements OnInit {
 
     this.loginSerive.register(this.registerForm.value).subscribe(response => {
       console.log(response);
-      alert("Sccuessful")
+      alert("User Registered Successfully")
+      this.cookieService.set("Token", response, {expires: 1})
+      this.login = 'Logout';
       this.modalService.dismissAll()
-      this.router.navigateByUrl('/students')
+      this.router.navigate(['/students'])
     },
     err => {
+      alert("Error:" + err)
       alert(err)
     })
     

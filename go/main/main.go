@@ -33,14 +33,14 @@ func main() {
 	}
 	fmt.Println("DB connected Successfully")
 
+	db.AutoMigrate(&usermodel.User{}, &stdmodel.Student{})
+
 	router := mux.NewRouter()
 	if router == nil {
 		log.Fatal("No Route Created")
 	}
 
 	//login
-	db.AutoMigrate(&usermodel.User{})
-
 	userRepo := userrepository.NewUserRepository()
 	userService := userservice.NewUserService(userRepo, db)
 	userController := usercontroller.NewController(userService)
@@ -54,7 +54,7 @@ func main() {
 
 	controller.RegisterRoutes(router)
 
-	db.AutoMigrate(&stdmodel.Student{})
+	// db.AutoMigrate()
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})

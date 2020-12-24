@@ -11,18 +11,22 @@ export class MasterNavbarComponent implements OnInit {
   @Input() loggedInValue;
   @Output() hideRegister: EventEmitter<boolean> = new EventEmitter();
 
-  isUserLoggedIn: boolean;
+  // isUserLoggedIn: boolean = false;
 
   constructor(private cookieService: CookieService) { }
 
   ngOnInit(): void {
+  }
 
-    if (this.loggedInValue == "Login") {
-      this.isUserLoggedIn = false
+  loginToggle() {
+
+    console.log(this.loggedInValue);
+    
+
+    if (this.loggedInValue == "Logout") {
+      console.log("inside logout");
       this.cookieService.delete("Token")
-    } else {
-      this.isUserLoggedIn = true
-
+      // this.isUserLoggedIn = false
     }
   }
 
