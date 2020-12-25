@@ -38,10 +38,10 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  userRegister(registerValue) {
-    console.log(registerValue);
-    
-  }
+  // userRegister(registerValue) {
+  //   registerValue = true
+  //   console.log(registerValue);
+  // }
 
   buildRegisterForm() {
     this.registerForm = this.formBuilder.group({
@@ -57,6 +57,7 @@ export class LoginComponent implements OnInit {
 
       console.log(response);
       this.cookieService.set("Token", response, {expires:1})
+      // console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
       this.router.navigate(['/students'])
       
@@ -66,8 +67,6 @@ export class LoginComponent implements OnInit {
       console.log("Error:" + err);
       
     })
-
-    console.log(this.cookieService.get("Token"));
 
   }
 

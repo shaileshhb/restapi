@@ -25,15 +25,15 @@ func NewController(service *stdservice.Service) *Controller {
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
 
-	apiRoutes := router.PathPrefix("/api").Subrouter()
+	// apiRoutes := router.PathPrefix("/students").Subrouter()
 
-	apiRoutes.Use(validationUserToken)
+	// apiRoutes.Use(validationUserToken)
 
-	router.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-	router.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-	router.HandleFunc("/students", c.AddNewStudent).Methods("POST")
-	router.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
-	router.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
+	router.Handle("/students", validationUserToken(c.GetAllStudents)).Methods("GET")
+	router.Handle("/students/{id}", validationUserToken(c.GetStudent)).Methods("GET")
+	router.Handle("/students", validationUserToken(c.AddNewStudent)).Methods("POST")
+	router.Handle("/students/{id}", validationUserToken(c.UpdateStudent)).Methods("PUT")
+	router.Handle("/students/{id}", validationUserToken(c.DeleteStudent)).Methods("DELETE")
 
 }
 
@@ -215,7 +215,7 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 // }
 
-func validationUserToken(endpoint http.Handler) http.Handler {
+func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		var jwtKey = []byte("some_secret_key")
@@ -238,7 +238,7 @@ func validationUserToken(endpoint http.Handler) http.Handler {
 			}
 
 			if token.Valid {
-				endpoint.ServeHTTP(w, r)
+				endpoint(w, r)
 			}
 		} else {
 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)

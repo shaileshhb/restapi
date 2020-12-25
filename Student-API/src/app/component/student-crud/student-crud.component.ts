@@ -61,6 +61,10 @@ export class StudentCrudComponent implements OnInit {
     );
   }
 
+  // userRegister(registerValue) {
+  //   console.log(registerValue);
+  // }
+
   validate():void{
   
     if(this.studentForm.valid){

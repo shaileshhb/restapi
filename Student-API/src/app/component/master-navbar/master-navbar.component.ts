@@ -9,24 +9,32 @@ import { CookieService } from 'ngx-cookie-service';
 export class MasterNavbarComponent implements OnInit {
 
   @Input() loggedInValue;
-  @Output() hideRegister: EventEmitter<boolean> = new EventEmitter();
+  // @Output() hideRegister: EventEmitter<boolean> = new EventEmitter();
 
-  // isUserLoggedIn: boolean = false;
+  isUserLoggedIn: boolean;
 
   constructor(private cookieService: CookieService) { }
 
   ngOnInit(): void {
+
+    console.log(this.cookieService.get("Token"));
+
+    if (this.cookieService.get("Token") == "") {
+      this.isUserLoggedIn = false
+    } else {
+      this.isUserLoggedIn = true
+    }
+
   }
 
   loginToggle() {
 
-    console.log(this.loggedInValue);
+    console.log(this.loggedInValue, this.isUserLoggedIn);
     
-
     if (this.loggedInValue == "Logout") {
       console.log("inside logout");
       this.cookieService.delete("Token")
-      // this.isUserLoggedIn = false
+      this.isUserLoggedIn = false
     }
   }
 

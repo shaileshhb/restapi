@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 import { StudentDTOService } from '../../service/student-dto.service';
 
@@ -13,42 +14,18 @@ export class StudentDetailsComponent implements OnInit {
   studentDetails = [];
   login = "Login";
 
-  constructor(private studentDto: StudentDTOService, private router: Router ) { }
+  constructor(private cookieService: CookieService) { }
 
   ngOnInit(): void {
 
-    // this.studentDto.getStudentDetails()
-    // .subscribe(res => {
-    //   this.studentDetails = res;
-    //   for (let i = 0; i < this.studentDetails.length; i++) {
-    //     this.studentDetails[i].isMale =  this.studentDetails[i].isMale == true? "Male": "Female";
-    //   }
-    //   console.log(this.studentDetails);
-    // }, 
-    // e => {
-    //   console.log(e);
-      
-    // })
+    console.log(this.cookieService.get("Token"));
+    if (this.cookieService.get("Token") == "") {
+      this.login = "Login"
+    } else {
+      this.login = "Logout"
+    }
+
   }
 
-  // deleteStudent = function(studentID) {
-
-  //   if(confirm("Are you sure you want to delete student?")) {
-  //     console.log(studentID);
-  //     this.studentDto.deleteStuden(studentID)
-  //     .subscribe(res=> {
-  //       this.ngOnInit();
-  //     })
-  //   }
-    
-  // }
-
-  // saveStudentID = function(studentID) {
-    
-  //   if(confirm('Are you sure you want update this student details?')) {
-  //     localStorage.setItem('studentID', studentID);
-  //     this.router.navigateByUrl('/updateStudent');
-  //   }
-  // }
 
 }
