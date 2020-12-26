@@ -25,9 +25,15 @@ func NewController(service *stdservice.Service) *Controller {
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
 
-	// apiRoutes := router.PathPrefix("/students").Subrouter()
+	// apiRoutes := router.PathPrefix("/students/api").Subrouter()
 
 	// apiRoutes.Use(validationUserToken)
+
+	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	// apiRoutes.HandleFunc("/students", c.AddNewStudent).Methods("POST")
+	// apiRoutes.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
+	// apiRoutes.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
 
 	router.Handle("/students", validationUserToken(c.GetAllStudents)).Methods("GET")
 	router.Handle("/students/{id}", validationUserToken(c.GetStudent)).Methods("GET")
@@ -35,6 +41,72 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	router.Handle("/students/{id}", validationUserToken(c.UpdateStudent)).Methods("PUT")
 	router.Handle("/students/{id}", validationUserToken(c.DeleteStudent)).Methods("DELETE")
 
+}
+
+// func validationUserToken(endpoint http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+// 		log.Println("Inside Validation token")
+
+// 		var jwtKey = []byte("some_secret_key")
+
+// 		log.Println(r.Header["Token"])
+
+// 		if r.Header["Token"][0] != "" {
+
+// 			log.Println("Inside validation")
+
+// 			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+// 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+// 					return nil, fmt.Errorf("There was an error")
+// 				}
+// 				return jwtKey, nil
+// 			})
+
+// 			if err != nil {
+// 				fmt.Fprintf(w, err.Error())
+// 			}
+
+// 			if token.Valid {
+// 				endpoint.ServeHTTP(w, r)
+// 			}
+// 		} else {
+// 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+// 			// fmt.Fprintf(w, "Not Authorized")
+// 		}
+// 	})
+// }
+
+func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		var jwtKey = []byte("some_secret_key")
+
+		log.Println(r.Header["Token"])
+
+		if r.Header["Token"][0] != "" {
+
+			log.Println("Inside validation")
+
+			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("There was an error")
+				}
+				return jwtKey, nil
+			})
+
+			if err != nil {
+				fmt.Fprintf(w, err.Error())
+			}
+
+			if token.Valid {
+				endpoint(w, r)
+			}
+		} else {
+			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+			// fmt.Fprintf(w, "Not Authorized")
+		}
+	})
 }
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
@@ -181,68 +253,4 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(student.ID.String()))
 		log.Println("Student successfully deleted", student.ID)
 	}
-}
-
-// func (c *Controller) validationUserToken(r *http.Request) (*jwt.Token, error) {
-
-// 	log.Println(r.Header["Token"][0])
-// 	log.Println(len(r.Header["Token"]))
-
-// 	var jwtKey = []byte("some_secret_key")
-
-// 	userCookie, err := r.Cookie("UserToken")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	tokenString := userCookie.Value
-
-// 	if r.Header["Token"] != nil {
-
-// 		log.Println("Inside validation")
-// 		claims := &claim.Claim{}
-
-// 		userToken, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
-// 			return jwtKey, nil
-// 		})
-// 		if err != nil {
-// 			// w.WriteHeader(http.StatusUnauthorized)
-// 			return nil, err
-// 		}
-// 		return userToken, nil
-// 	} else {
-// 		return nil, errors.New("Unauthorized user")
-// 	}
-
-// }
-
-func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		var jwtKey = []byte("some_secret_key")
-
-		log.Println(r.Header["Token"])
-
-		if r.Header["Token"][0] != "" {
-
-			log.Println("Inside validation")
-
-			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("There was an error")
-				}
-				return jwtKey, nil
-			})
-
-			if err != nil {
-				fmt.Fprintf(w, err.Error())
-			}
-
-			if token.Valid {
-				endpoint(w, r)
-			}
-		} else {
-			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
-			// fmt.Fprintf(w, "Not Authorized")
-		}
-	})
 }

@@ -5,16 +5,16 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/repository"
 	usermodel "github.com/shaileshhb/restapi/user/user-model"
-	repository "github.com/shaileshhb/restapi/user/user-repository"
 )
 
 type UserService struct {
-	repo *repository.UserRepository
+	repo *repository.GormRepository
 	DB   *gorm.DB
 }
 
-func NewUserService(repo *repository.UserRepository, db *gorm.DB) *UserService {
+func NewUserService(repo *repository.GormRepository, db *gorm.DB) *UserService {
 	return &UserService{
 		repo: repo,
 		DB:   db,

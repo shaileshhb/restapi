@@ -57,7 +57,7 @@ export class LoginComponent implements OnInit {
 
       console.log(response);
       this.cookieService.set("Token", response, {expires:1})
-      // console.log(this.cookieService.get("Token"));
+      console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
       this.router.navigate(['/students'])
       

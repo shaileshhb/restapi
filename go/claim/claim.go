@@ -6,6 +6,6 @@ import (
 )
 
 type Claim struct {
-	ID uuid.UUID `json:"username"`
+	ID uuid.UUID
 	jwt.StandardClaims
 }

@@ -13,13 +13,12 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
 	stdmodel "github.com/shaileshhb/restapi/student/std-model"
-	stdrepository "github.com/shaileshhb/restapi/student/std-repository"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
 	usercontroller "github.com/shaileshhb/restapi/user/user-controller"
 	usermodel "github.com/shaileshhb/restapi/user/user-model"
-	userrepository "github.com/shaileshhb/restapi/user/user-repository"
 	userservice "github.com/shaileshhb/restapi/user/user-service"
 )
 
@@ -40,15 +39,15 @@ func main() {
 		log.Fatal("No Route Created")
 	}
 
+	repos := repository.NewGormRepository()
+
 	//login
-	userRepo := userrepository.NewUserRepository()
-	userService := userservice.NewUserService(userRepo, db)
+	userService := userservice.NewUserService(repos, db)
 	userController := usercontroller.NewController(userService)
 
 	userController.RegisterUserRoutes(router)
 
 	//student
-	repos := stdrepository.NewGormRepository()
 	serv := stdservice.NewService(repos, db)
 	controller := stdcontroller.NewController(serv)
 
