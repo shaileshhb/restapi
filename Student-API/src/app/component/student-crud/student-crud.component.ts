@@ -124,7 +124,13 @@ export class StudentCrudComponent implements OnInit {
         alert("Student added");
         this.modalService.dismissAll();
       },
-      (err) => console.log('HTTP Error', err)
+      (err) => {
+        console.log('HTTP Error', err)
+        alert("Error: " + err.statusText)
+        
+        this.router.navigateByUrl('/login')
+
+      }
       );
     }
 
@@ -146,7 +152,13 @@ export class StudentCrudComponent implements OnInit {
         alert("Student updated");
         this.modalService.dismissAll();
       },
-      (err) => console.log('HTTP Error', err)
+      (err) => {
+        console.log('HTTP Error', err)
+        alert("Error: " + err.statusText)
+
+        this.router.navigateByUrl('/login')
+        
+      }
       );
     }
 
@@ -158,18 +170,22 @@ export class StudentCrudComponent implements OnInit {
           this.modalService.dismissAll();
 
         },
-        (err) => console.log('HTTP Error', err)
+        (err) => {
+          console.log('HTTP Error', err)
+          alert("Error: " + err.statusText)
+            
+          this.router.navigateByUrl('/login')
+          
+        }
         );
       }
     }
 
     openStudentModalForm(studentModel: any) {
       this.modalService.open(studentModel, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size:'xl'})
-
     }
 
-    convertEmptyToNull(studentForm: any) {
-      
-    }
+    // checkCurrentSession(value: any) {
 
+    // }
 }

@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
-	usermodel "github.com/shaileshhb/restapi/user/user-model"
 )
 
 type UserService struct {
@@ -21,7 +21,7 @@ func NewUserService(repo *repository.GormRepository, db *gorm.DB) *UserService {
 	}
 }
 
-func (s *UserService) Get(user *usermodel.User, username string) error {
+func (s *UserService) Get(user *model.User, username string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -38,7 +38,7 @@ func (s *UserService) Get(user *usermodel.User, username string) error {
 
 }
 
-func (s *UserService) Add(user *usermodel.User) error {
+func (s *UserService) Add(user *model.User) error {
 
 	if err := s.Validate(user); err != nil {
 		return err
@@ -57,7 +57,7 @@ func (s *UserService) Add(user *usermodel.User) error {
 
 }
 
-// func (s *UserService) Update(user *usermodel.User, id string) error {
+// func (s *UserService) Update(user *model.User, id string) error {
 
 // if err := s.Validate(user); err != nil {
 // 	return err
@@ -79,7 +79,7 @@ func (s *UserService) Add(user *usermodel.User) error {
 // }
 
 // Delete the student
-// func (s *UserService) Delete(user *usermodel.User, id string) error {
+// func (s *UserService) Delete(user *model.User, id string) error {
 
 // 	uow := repository.NewUnitOfWork(s.DB, false)
 
@@ -95,12 +95,12 @@ func (s *UserService) Add(user *usermodel.User) error {
 // 	return nil
 // }
 
-func (s *UserService) Validate(user *usermodel.User) error {
+func (s *UserService) Validate(user *model.User) error {
 
 	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 
 	if user.Username == "" {
-		return errors.New("Name is required")
+		return errors.New("Username is required")
 	}
 
 	if user.Password == "" {

@@ -55,8 +55,10 @@ export class LoginComponent implements OnInit {
 
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
 
-      console.log(response);
-      this.cookieService.set("Token", response, {expires:1})
+      // console.log(response)
+      
+      this.setLoginCookie(response)
+
       console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
       this.router.navigate(['/students'])
@@ -80,16 +82,30 @@ export class LoginComponent implements OnInit {
     this.loginSerive.register(this.registerForm.value).subscribe(response => {
       console.log(response);
       alert("User Registered Successfully")
-      this.cookieService.set("Token", response, {expires: 1})
+
+      this.setLoginCookie(response)
+
       this.login = 'Logout';
       this.modalService.dismissAll()
       this.router.navigate(['/students'])
     },
     err => {
       alert("Error:" + err)
-      alert(err)
+      // alert(err)
     })
     
+  }
+
+  setLoginCookie(value: any) {
+
+    const expiryTime = new Date();
+    expiryTime.setMinutes(expiryTime.getMinutes() + 1);
+
+    console.log(expiryTime);
+    
+
+    this.cookieService.set("Token", value, expiryTime)
+
   }
 
 }

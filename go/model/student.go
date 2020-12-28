@@ -1,15 +1,13 @@
 package model
 
-import "github.com/shaileshhb/restapi/model"
-
 type Student struct {
-	model.Base  `structs:"id,omitnested"`
-	Name        string  `json:"name" struct:"name"`
-	Age         *int    `json:"age" struct:"age"`
-	RollNo      *int    `json:"rollNo" struct:"rollNo"`
-	PhoneNumber *string `json:"phoneno" struct:"phoneno"`
-	Email       string  `json:"email" struct:"email"`
-	IsMale      *bool   `json:"isMale" struct:"isMale"`
+	Base
+	Name        string  `gorm:"type:varchar(30)" json:"name" `
+	Age         *int    `gorm:"type:integer" json:"age"`
+	RollNo      *int    `gorm:"type:integer" json:"rollNo"`
+	PhoneNumber *string `gorm:"type:varchar(10)" json:"phoneno"`
+	Email       string  `gorm:"type:varchar(50)" json:"email"`
+	IsMale      *bool   `gorm:"type:tinyint(1)" json:"isMale"`
 	Date        *string `gorm:"type:date" json:"date"`
 	DateTime    *string `gorm:"type:datetime" json:"dateTime"`
 }

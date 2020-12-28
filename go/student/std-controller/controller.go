@@ -9,7 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	stdmodel "github.com/shaileshhb/restapi/student/std-model"
+	"github.com/shaileshhb/restapi/model"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
 )
 
@@ -81,8 +81,7 @@ func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		var jwtKey = []byte("some_secret_key")
-
-		log.Println(r.Header["Token"])
+		// log.Println("Header ->", r.Header)
 
 		if r.Header["Token"][0] != "" {
 
@@ -96,13 +95,18 @@ func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http
 			})
 
 			if err != nil {
-				fmt.Fprintf(w, err.Error())
+				log.Println("invalid signature")
+				fmt.Fprintf(w, "Session Expired")
+
+				// http.Error(w, err.Error(), http.StatusInternalServerError)
+				// return
 			}
 
 			if token.Valid {
 				endpoint(w, r)
 			}
 		} else {
+			log.Println("cookie header not found")
 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
 			// fmt.Fprintf(w, "Not Authorized")
 		}
@@ -113,19 +117,9 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	log.Printf("\n\nINSIDE GET ALL STUDENT\n\n")
+	log.Printf("\nINSIDE GET ALL STUDENT\n")
 
-	// userToken, err := c.validationUserToken(r)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// 	return
-	// }
-	// if !userToken.Valid {
-	// 	w.WriteHeader(http.StatusUnauthorized)
-	// 	return
-	// }
-
-	var students = []stdmodel.Student{}
+	var students = []model.Student{}
 	err = c.Service.GetAll(&students)
 	if err != nil {
 		log.Println(err)
@@ -134,22 +128,23 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if studentJSON, err := json.Marshal(students); err != nil {
+	studentJSON, err := json.Marshal(students)
+	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Could not convert to json"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	} else {
-		w.Write(studentJSON)
-		log.Println("Student Successfully returned")
 	}
+	w.Write(studentJSON)
+	log.Println("Student Successfully returned")
+
 }
 
 func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var students = []stdmodel.Student{}
+	var students = []model.Student{}
 	params := mux.Vars(r)
 
 	err = c.Service.Get(&students, params["id"])
@@ -159,16 +154,15 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	if studentJSON, err := json.Marshal(students); err != nil {
+	studentJSON, err := json.Marshal(students)
+	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Could not convert to json"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
-
-	} else {
-		w.Write(studentJSON)
-		log.Println("Student successfully returned")
+		return
 	}
+	w.Write(studentJSON)
+	log.Println("Student successfully returned")
 
 }
 
@@ -176,13 +170,13 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	log.Printf("\n\nINSIDE ADD STUDENT\n\n")
+	log.Printf("\nINSIDE ADD STUDENT\n")
 
-	var student = &stdmodel.Student{}
+	var student = &model.Student{}
 	studentResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Response could not be read"))
+		// w.Write([]byte("Response could not be read"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -194,13 +188,15 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.Service.AddNewStudent(student); err != nil {
+	err = c.Service.AddNewStudent(student)
+	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while adding student, " + err.Error()))
-	} else {
-		w.Write([]byte(student.ID.String()))
-		log.Println("Student successfully added", student.ID)
+		return
 	}
+
+	w.Write([]byte(student.ID.String()))
+	log.Println("Student successfully added", student.ID)
 
 }
 
@@ -208,7 +204,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var student = &stdmodel.Student{}
+	var student = &model.Student{}
 
 	params := mux.Vars(r)
 
@@ -227,14 +223,15 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.Service.Update(student, params["id"]); err != nil {
+	err = c.Service.Update(student, params["id"])
+	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while updating student"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	} else {
-		w.Write([]byte(params["id"]))
-		log.Println("Student successfully updated", *student)
+		return
 	}
+	w.Write([]byte(params["id"]))
+	log.Println("Student successfully updated", *student)
 
 }
 
@@ -242,15 +239,17 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var student = &stdmodel.Student{}
+	var student = &model.Student{}
 	params := mux.Vars(r)
 
-	if err = c.Service.Delete(student, params["id"]); err != nil {
+	err = c.Service.Delete(student, params["id"])
+	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while deleting student"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	} else {
-		w.Write([]byte(student.ID.String()))
-		log.Println("Student successfully deleted", student.ID)
+		return
 	}
+	w.Write([]byte(student.ID.String()))
+	log.Println("Student successfully deleted", student.ID)
+
 }

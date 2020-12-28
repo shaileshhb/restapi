@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
-	model "github.com/shaileshhb/restapi/student/std-model"
 	"github.com/shaileshhb/restapi/utility"
 	"github.com/shaileshhb/restapi/utility/structToMap"
 )
@@ -126,10 +126,11 @@ func (s *Service) Delete(student *model.Student, id string) error {
 
 func (s *Service) Validate(student *model.Student) error {
 
-	namePattern := regexp.MustCompile("^[a-zA-Z]*$")
+	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
+	phonePattern := regexp.MustCompile("^[0-9]*$")
+	datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
 
 	if student.Name == "" || !namePattern.MatchString(student.Name) {
 		return errors.New("Name is required")
@@ -147,14 +148,19 @@ func (s *Service) Validate(student *model.Student) error {
 		return errors.New("Age cannot be less than 18")
 	}
 
-	// if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
-	// 	return errors.New("Date time is invalid")
+	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && phonePattern.MatchString(*student.PhoneNumber) {
+		// log.Println(len(*student.PhoneNumber) >= 10, phonePattern.MatchString(*student.PhoneNumber))
+		return errors.New("Phone number should be only numbers and atleast 10 digits")
+	}
 
-	// }
+	if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
+		return errors.New("Date time is invalid")
 
-	// if student.Date != nil && !datePattern.MatchString((*student.Date)) {
-	// 	return errors.New("Date is invalid")
-	// }
+	}
+
+	if student.Date != nil && !datePattern.MatchString((*student.Date)) {
+		return errors.New("Date is invalid")
+	}
 
 	// if student.IsMale == nil {
 	// 	return errors.New("Gender is required")

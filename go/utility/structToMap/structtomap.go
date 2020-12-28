@@ -4,10 +4,10 @@ import (
 	"log"
 
 	"github.com/fatih/structs"
-	stdmodel "github.com/shaileshhb/restapi/student/std-model"
+	"github.com/shaileshhb/restapi/model"
 )
 
-func ConvertStructToMap(student *stdmodel.Student, id string) map[string]interface{} {
+func ConvertStructToMap(student *model.Student, id string) map[string]interface{} {
 
 	studentMap := structs.Map(student)
 
@@ -47,7 +47,7 @@ func ConvertStructToMap(student *stdmodel.Student, id string) map[string]interfa
 
 }
 
-func EmptyToNull(student *stdmodel.Student) {
+func EmptyToNull(student *model.Student) {
 
 	if student.PhoneNumber != nil {
 		if *student.PhoneNumber == "" {
@@ -56,14 +56,14 @@ func EmptyToNull(student *stdmodel.Student) {
 	}
 
 	if student.Date != nil {
-		if *student.PhoneNumber == "" {
-			student.PhoneNumber = nil
+		if *student.Date == "" {
+			student.Date = nil
 		}
 	}
 
 	if student.DateTime != nil {
-		if *student.PhoneNumber == "" {
-			student.PhoneNumber = nil
+		if *student.DateTime == "" {
+			student.DateTime = nil
 		}
 	}
 }

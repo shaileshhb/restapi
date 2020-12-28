@@ -13,12 +13,11 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
-	stdmodel "github.com/shaileshhb/restapi/student/std-model"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
 	usercontroller "github.com/shaileshhb/restapi/user/user-controller"
-	usermodel "github.com/shaileshhb/restapi/user/user-model"
 	userservice "github.com/shaileshhb/restapi/user/user-service"
 )
 
@@ -32,7 +31,7 @@ func main() {
 	}
 	fmt.Println("DB connected Successfully")
 
-	db.AutoMigrate(&usermodel.User{}, &stdmodel.Student{})
+	db.AutoMigrate(&model.User{}, &model.Student{})
 
 	router := mux.NewRouter()
 	if router == nil {
