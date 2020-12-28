@@ -188,10 +188,13 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("Student in controller", student)
+
 	err = c.Service.AddNewStudent(student)
 	if err != nil {
-		log.Println(err)
-		w.Write([]byte("Error while adding student, " + err.Error()))
+		log.Println("error from add", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		// w.Write([]byte("Error while adding student, " + err.Error()))
 		return
 	}
 
@@ -230,8 +233,8 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte(params["id"]))
-	log.Println("Student successfully updated", *student)
+	// w.Write([]byte("Student successfully updated"))
+	log.Println("Student successfully updated")
 
 }
 
@@ -249,7 +252,7 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte(student.ID.String()))
-	log.Println("Student successfully deleted", student.ID)
+	// w.Write([]byte(student.ID.String()))
+	log.Println("Student successfully deleted")
 
 }

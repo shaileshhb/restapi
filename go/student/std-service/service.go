@@ -33,11 +33,11 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		utility.ConvertDateTime(students)
-		utility.TrimDateTime(students)
 	}
 	uow.Commit()
+
+	utility.TrimDate(students)
+	utility.TrimDateTime(students)
 
 	return nil
 
@@ -55,11 +55,12 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		utility.ConvertDateTime(students)
-		utility.TrimDateTime(students)
 	}
 	uow.Commit()
+
+	utility.TrimDate(students)
+	utility.TrimDateTime(students)
+
 	return nil
 }
 
@@ -69,12 +70,17 @@ func (s *Service) AddNewStudent(student *model.Student) error {
 		return err
 	}
 
+	var queryProcessors []repository.QueryProcessor
+
+	checkName := "name = ?"
+	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name))
+
 	structToMap.EmptyToNull(student)
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Add(uow, student); err != nil {
+	if err := s.repo.Add(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -93,8 +99,11 @@ func (s *Service) Update(student *model.Student, id string) error {
 	studentMap := structToMap.ConvertStructToMap(student, id)
 
 	var queryProcessors []repository.QueryProcessor
-	queryCondition := "id=?"
-	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
+	checkID := "id = ?"
+	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
+
+	checkName := "name = ?"
+	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name))
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
@@ -129,8 +138,8 @@ func (s *Service) Validate(student *model.Student) error {
 	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 	phonePattern := regexp.MustCompile("^[0-9]*$")
-	datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}`)
+	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}`)
 
 	if student.Name == "" || !namePattern.MatchString(student.Name) {
 		return errors.New("Name is required")
@@ -148,19 +157,20 @@ func (s *Service) Validate(student *model.Student) error {
 		return errors.New("Age cannot be less than 18")
 	}
 
-	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && phonePattern.MatchString(*student.PhoneNumber) {
+	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
 		// log.Println(len(*student.PhoneNumber) >= 10, phonePattern.MatchString(*student.PhoneNumber))
 		return errors.New("Phone number should be only numbers and atleast 10 digits")
 	}
 
-	if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
-		return errors.New("Date time is invalid")
+	// if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
+	// 	return errors.New("Date time is invalid")
 
-	}
+	// }
 
-	if student.Date != nil && !datePattern.MatchString((*student.Date)) {
-		return errors.New("Date is invalid")
-	}
+	// if student.Date != nil && !datePattern.MatchString((*student.Date)) {
+	// 	return errors.New("Date is invalid")
+
+	// }
 
 	// if student.IsMale == nil {
 	// 	return errors.New("Gender is required")

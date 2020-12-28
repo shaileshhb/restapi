@@ -4,7 +4,7 @@ import (
 	"github.com/shaileshhb/restapi/model"
 )
 
-func ConvertDateTime(students *[]model.Student) {
+func TrimDate(students *[]model.Student) {
 
 	tempStudentsDate := *students
 
@@ -31,7 +31,7 @@ func TrimDateTime(students *[]model.Student) {
 		trimTime := *tempStudentsDate[i].DateTime
 		trimDate = trimDate[:10]
 		trimTime = trimTime[11:19]
-		tempDateTime := trimDate + " " + trimTime
+		tempDateTime := trimDate + "T" + trimTime
 		tempStudentsDate[i].DateTime = &tempDateTime
 	}
 }

@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/model"
 )
 
 type Repository interface {
@@ -19,11 +22,24 @@ func NewGormRepository() *GormRepository {
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
-func Where(condition string, id string) QueryProcessor {
+func Where(condition string, value string) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		if id != "" {
-			db = db.Model(out).Where(condition, id)
+		if value != "" {
+			db = db.Model(out).Where(condition, value)
+		}
+		return db, nil
+	}
+}
+
+func Search(condition string, value string) QueryProcessor {
+
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		student := &model.Student{}
+		if value != "" {
+			if !db.Debug().Where(condition, value).First(student).RecordNotFound() {
+				return nil, errors.New("Student with same name already exists")
+			}
 		}
 		return db, nil
 	}
@@ -49,11 +65,23 @@ func (*GormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors []Q
 	return nil
 }
 
-func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}) error {
+func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
+	var err error
 
-	if err := db.Debug().Create(entity).Error; err != nil {
+	// log.Println(queryProcessors)
+
+	if queryProcessors != nil {
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if err = db.Debug().Create(entity).Error; err != nil {
 		return err
 	}
 	return nil

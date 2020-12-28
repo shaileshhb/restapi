@@ -1,13 +1,13 @@
 package model
 
 type Student struct {
-	Base
-	Name        string  `gorm:"type:varchar(30)" json:"name" `
-	Age         *int    `gorm:"type:integer" json:"age"`
-	RollNo      *int    `gorm:"type:integer" json:"rollNo"`
-	PhoneNumber *string `gorm:"type:varchar(10)" json:"phoneno"`
+	Base        `structs:"id,omitnested"`
+	Name        string  `gorm:"type:varchar(30)" json:"name"`
+	Age         *int    `gorm:"type:int" json:"age"`
+	RollNo      *int    `gorm:"type:int" json:"rollNo"`
+	PhoneNumber *string `gorm:"type:varchar(10)" json:"phone"`
 	Email       string  `gorm:"type:varchar(50)" json:"email"`
-	IsMale      *bool   `gorm:"type:tinyint(1)" json:"isMale"`
+	IsMale      *bool   `json:"isMale"`
 	Date        *string `gorm:"type:date" json:"date"`
 	DateTime    *string `gorm:"type:datetime" json:"dateTime"`
 }

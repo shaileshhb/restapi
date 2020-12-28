@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CookieService } from 'ngx-cookie-service';
 import { IStudentDTO } from 'src/app/IStudentDTO';
 import { StudentDTOService } from 'src/app/service/student-dto.service';
 
@@ -12,7 +13,7 @@ import { StudentDTOService } from 'src/app/service/student-dto.service';
 })
 export class StudentCrudComponent implements OnInit {
 
-  students:IStudentDTO[] = [];
+  students = [];
   id: string;
   studentForm: FormGroup;
   studentAPI: IStudentDTO;
@@ -23,7 +24,8 @@ export class StudentCrudComponent implements OnInit {
     private studentService:StudentDTOService, 
     private router:Router, 
     private formBuilder:FormBuilder,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private cookieService: CookieService
     ) { 
       this.formBuild();
   }
@@ -50,12 +52,23 @@ export class StudentCrudComponent implements OnInit {
     this.studentService.getStudentDetails().subscribe((data)=>{
       this.login = "Logout"
       this.students = data;
+      for (let i = 0; i < this.students.length; i++) {
+        this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
+        if(this.students[i].isMale != null) {
+          this.students[i].isMale = this.students[i].isMale == true ? "Male" : "Female"         
+        } else {
+          this.students[i].isMale = ""
+        }
+      }
+      console.log(this.students);
+      
     },
     (err) => {
       console.log('HTTP Error', err)
       alert("Error: " + err.statusText)
       if (err.status == 401) {
         this.router.navigateByUrl('/login')
+        this.modalService.dismissAll() 
       }
     }
     );
@@ -87,7 +100,7 @@ export class StudentCrudComponent implements OnInit {
       this.addOrUpdateAction = "update";
       this.id = id;
       this.studentService.getStudentDetails(id).subscribe((response)=>{
-
+        
         this.studentForm.patchValue({
           name: response[0].name,
           rollNo: response[0].rollNo,
@@ -104,7 +117,7 @@ export class StudentCrudComponent implements OnInit {
     }
 
     addStudent():void{
-            
+
       this.studentAPI = {
         id: null, 
         rollNo: (this.studentForm.get('rollNo').value  == "") ? null : this.studentForm.get('rollNo').value, 
@@ -120,6 +133,8 @@ export class StudentCrudComponent implements OnInit {
       
 
       this.studentService.addNewStudent(this.studentAPI).subscribe(data=>{
+        console.log(data);
+        
         this.getStudents();
         alert("Student added");
         this.modalService.dismissAll();
@@ -128,7 +143,10 @@ export class StudentCrudComponent implements OnInit {
         console.log('HTTP Error', err)
         alert("Error: " + err.statusText)
         
-        this.router.navigateByUrl('/login')
+        if (err.status == 401) {
+          this.router.navigateByUrl('/login')
+          this.modalService.dismissAll() 
+        }
 
       }
       );
@@ -147,7 +165,7 @@ export class StudentCrudComponent implements OnInit {
         "dateTime": this.studentForm.get('dateTime').value,
         "isMale": this.studentForm.get('gender').value
       }).
-      subscribe((data)=>{
+      subscribe((data)=>{        
         this.getStudents();
         alert("Student updated");
         this.modalService.dismissAll();
@@ -156,7 +174,10 @@ export class StudentCrudComponent implements OnInit {
         console.log('HTTP Error', err)
         alert("Error: " + err.statusText)
 
-        this.router.navigateByUrl('/login')
+        if (err.status == 401) {
+          this.router.navigateByUrl('/login')
+          this.modalService.dismissAll() 
+        }
         
       }
       );
@@ -165,6 +186,7 @@ export class StudentCrudComponent implements OnInit {
     deleteStudent(id:string):void{
       if(confirm("Are you sure to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
+
           this.getStudents();
           alert("Student deleted");
           this.modalService.dismissAll();
@@ -174,7 +196,10 @@ export class StudentCrudComponent implements OnInit {
           console.log('HTTP Error', err)
           alert("Error: " + err.statusText)
             
-          this.router.navigateByUrl('/login')
+          if (err.status == 401) {
+            this.router.navigateByUrl('/login')
+            this.modalService.dismissAll() 
+          }
           
         }
         );
@@ -182,10 +207,11 @@ export class StudentCrudComponent implements OnInit {
     }
 
     openStudentModalForm(studentModel: any) {
-      this.modalService.open(studentModel, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size:'xl'})
+      if (this.cookieService.get("Token") == "") {
+        alert("Session has expired. Please login")
+        this.router.navigateByUrl("/login");
+        return
+      }
+       this.modalService.open(studentModel, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size:'xl'})
     }
-
-    // checkCurrentSession(value: any) {
-
-    // }
 }

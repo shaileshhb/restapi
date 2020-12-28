@@ -41,7 +41,15 @@ func ConvertStructToMap(student *model.Student, id string) map[string]interface{
 		studentMap["DateTime"] = *student.DateTime
 	}
 
-	log.Println("Student:", student)
+	log.Println("In struct to map, student:", student)
+
+	// if student.IsMale == nil {
+	// 	studentMap["IsMale"] = nil
+	// } else {
+	// 	studentMap["IsMale"] = *student.IsMale
+	// }
+
+	log.Println("Student in struct to map func:", studentMap)
 
 	return studentMap
 

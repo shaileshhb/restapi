@@ -44,10 +44,15 @@ func (s *UserService) Add(user *model.User) error {
 		return err
 	}
 
+	var queryProcessors []repository.QueryProcessor
+
+	checkName := "username = ?"
+	queryProcessors = append(queryProcessors, repository.Search(checkName, user.Username))
+
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Add(uow, user); err != nil {
+	if err := s.repo.Add(uow, user, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
