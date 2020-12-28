@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "github.com/shaileshhb/restapi/docs"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"

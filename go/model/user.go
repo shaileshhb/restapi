@@ -6,3 +6,5 @@ type User struct {
 	Username string `gorm:"type:varchar(30)" json:"username"`
 	Password string `gorm:"type:varchar(30)" json:"password"`
 }
+
+var JwtKey = []byte("some_secret_key")

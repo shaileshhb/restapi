@@ -139,7 +139,6 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (string, error) {
 
 	// secret key
-	var jwtKey = []byte("some_secret_key")
 
 	expirationTime := time.Now().Add(1 * time.Minute)
 
@@ -154,7 +153,7 @@ func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (strin
 	// token having algo form signing method and the claim
 	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := userToken.SignedString(jwtKey)
+	tokenString, err := userToken.SignedString(model.JwtKey)
 	if err != nil {
 		// w.Write([]byte("Failed"))
 		// http.Error(w, err.Error(), http.StatusBadRequest)
