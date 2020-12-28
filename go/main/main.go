@@ -44,7 +44,6 @@ func main() {
 	//login
 	userService := userservice.NewUserService(repos, db)
 	userController := usercontroller.NewController(userService)
-
 	userController.RegisterUserRoutes(router)
 
 	//student
@@ -84,7 +83,7 @@ func main() {
 		fmt.Println("Closing DB")
 		db.Close()
 	}()
-	fmt.Println("Server ShutDown....")
+	fmt.Println("Server ShutDown.......")
 	os.Exit(0)
 
 }
