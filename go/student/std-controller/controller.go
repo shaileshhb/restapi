@@ -96,9 +96,9 @@ func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http
 
 			if err != nil {
 				log.Println("invalid signature")
-				fmt.Fprintf(w, "Session Expired")
+				// fmt.Fprintf(w, "Session Expired")
 
-				// http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				// return
 			}
 
