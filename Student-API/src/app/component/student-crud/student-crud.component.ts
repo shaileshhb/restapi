@@ -131,7 +131,7 @@ export class StudentCrudComponent implements OnInit {
     updateStudent():void{
 
       this.studentService.updateExisitingStudent(this.id, {
-        // "id":this.id,
+        "id":this.id,
         "rollNo": this.studentForm.get('rollNo').value, 
         "name": this.studentForm.get('name').value, 
         "age": this.studentForm.get('age').value, 
