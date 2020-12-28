@@ -25,63 +25,32 @@ func NewController(service *stdservice.Service) *Controller {
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
 
-	// apiRoutes := router.PathPrefix("/students/api").Subrouter()
+	apiRoutes := router.PathPrefix("/").Subrouter()
 
-	// apiRoutes.Use(validationUserToken)
+	apiRoutes.Use(validationUserToken)
 
-	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-	// apiRoutes.HandleFunc("/students", c.AddNewStudent).Methods("POST")
-	// apiRoutes.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
-	// apiRoutes.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
+	apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+	apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	apiRoutes.HandleFunc("/students", c.AddNewStudent).Methods("POST")
+	apiRoutes.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
+	apiRoutes.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
 
-	router.Handle("/students", validationUserToken(c.GetAllStudents)).Methods("GET")
-	router.Handle("/students/{id}", validationUserToken(c.GetStudent)).Methods("GET")
-	router.Handle("/students", validationUserToken(c.AddNewStudent)).Methods("POST")
-	router.Handle("/students/{id}", validationUserToken(c.UpdateStudent)).Methods("PUT")
-	router.Handle("/students/{id}", validationUserToken(c.DeleteStudent)).Methods("DELETE")
+	// router.Handle("/students", validationUserToken(c.GetAllStudents)).Methods("GET")
+	// router.Handle("/students/{id}", validationUserToken(c.GetStudent)).Methods("GET")
+	// router.Handle("/students", validationUserToken(c.AddNewStudent)).Methods("POST")
+	// router.Handle("/students/{id}", validationUserToken(c.UpdateStudent)).Methods("PUT")
+	// router.Handle("/students/{id}", validationUserToken(c.DeleteStudent)).Methods("DELETE")
 
 }
 
-// func validationUserToken(endpoint http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-// 		log.Println("Inside Validation token")
-
-// 		var jwtKey = []byte("some_secret_key")
-
-// 		log.Println(r.Header["Token"])
-
-// 		if r.Header["Token"][0] != "" {
-
-// 			log.Println("Inside validation")
-
-// 			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
-// 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 					return nil, fmt.Errorf("There was an error")
-// 				}
-// 				return jwtKey, nil
-// 			})
-
-// 			if err != nil {
-// 				fmt.Fprintf(w, err.Error())
-// 			}
-
-// 			if token.Valid {
-// 				endpoint.ServeHTTP(w, r)
-// 			}
-// 		} else {
-// 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
-// 			// fmt.Fprintf(w, "Not Authorized")
-// 		}
-// 	})
-// }
-
-func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
+func validationUserToken(endpoint http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		log.Println("Inside Validation token")
+
 		var jwtKey = []byte("some_secret_key")
-		// log.Println("Header ->", r.Header)
+
+		log.Println(r.Header["Token"])
 
 		if r.Header["Token"][0] != "" {
 
@@ -95,23 +64,56 @@ func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http
 			})
 
 			if err != nil {
-				log.Println("invalid signature")
-				// fmt.Fprintf(w, "Session Expired")
-
+				fmt.Fprintf(w, err.Error())
 				http.Error(w, err.Error(), http.StatusUnauthorized)
-				// return
+
 			}
 
 			if token.Valid {
-				endpoint(w, r)
+				endpoint.ServeHTTP(w, r)
 			}
 		} else {
-			log.Println("cookie header not found")
 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
 			// fmt.Fprintf(w, "Not Authorized")
 		}
 	})
 }
+
+// func validationUserToken(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+// 		var jwtKey = []byte("some_secret_key")
+// 		// log.Println("Header ->", r.Header)
+
+// 		if r.Header["Token"][0] != "" {
+
+// 			log.Println("Inside validation")
+
+// 			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+// 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+// 					return nil, fmt.Errorf("There was an error")
+// 				}
+// 				return jwtKey, nil
+// 			})
+
+// 			if err != nil {
+// 				log.Println("invalid signature")
+// 				// fmt.Fprintf(w, "Session Expired")
+
+// 				http.Error(w, err.Error(), http.StatusUnauthorized)
+// 				// return
+// 			}
+
+// 			if token.Valid {
+// 				endpoint(w, r)
+// 			}
+// 		} else {
+// 			log.Println("cookie header not found")
+// 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+// 			// fmt.Fprintf(w, "Not Authorized")
+// 		}
+// 	})
+// }
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
