@@ -45,6 +45,8 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	getHandler := apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
 	getSum := apiRoutes.HandleFunc("/students/sum", c.GetSum).Methods("GET")
+	getDiff := apiRoutes.HandleFunc("/students/diff", c.GetDiff).Methods("GET")
+	getAgeAndRecordDiff := apiRoutes.HandleFunc("/students/recordsDiff", c.GetDiffOfAgeAndRecord).Methods("GET")
 
 	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
@@ -67,12 +69,12 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 
 	// getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	excludeRoutes := []*mux.Route{getHandler, getSum}
+	excludeRoutes := []*mux.Route{getHandler, getSum, getDiff, getAgeAndRecordDiff}
 	apiRoutes.Use(c.Authorization(excludeRoutes))
 
-	// swagger:operation POST /students add-student addStudent
+	// swagger:operation POST /students add-student studentModel
 	// ---
-	// summary: Student gets all students data.
+	// summary: Get students data and add it to the db.
 	// description: Get all students info
 	// parameters:
 	// - name: Student Name
@@ -91,6 +93,7 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	//   in: body
 	//   required: true
 	//   type: string
+	//   example: domain@abc.com
 	// - name: Student Phone Number
 	//   in: body
 	//   required: false
@@ -436,15 +439,60 @@ func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	var students = &model.Student{}
+	var sum = &model.Sum{}
 
-	result, err := c.Service.GetSum(students)
+	query := "sum(roll_no+age) as student_sum"
+
+	err = c.Service.GetSum(students, sum, query)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte("Sum of age and roll no is -> " + strconv.FormatInt(result, 10)))
-	log.Println("Sum of age and roll no is -> ", result)
+	w.Write([]byte("Sum of age and roll no is -> " + strconv.FormatInt(sum.StudentSum, 10)))
+	log.Println("Sum of age and roll no is -> ", sum.StudentSum)
+
+}
+
+func (c *Controller) GetDiff(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	var students = &model.Student{}
+	var sum = &model.Sum{}
+
+	query := "abs(sum(age - roll_no)) as student_sum"
+
+	err = c.Service.GetSum(students, sum, query)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte("Diff of age and roll no is -> " + strconv.FormatInt(sum.StudentSum, 10)))
+	log.Println("Diff of age and roll no is -> ", sum.StudentSum)
+
+}
+
+func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	var students = &model.Student{}
+	var sum = &model.Sum{}
+
+	query := "sum(age) - count(*) as student_sum"
+
+	err = c.Service.GetSum(students, sum, query)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte("Age and record diff is -> " + strconv.FormatInt(sum.StudentSum, 10)))
+	log.Println("Age and record diff is -> ", sum.StudentSum)
 
 }

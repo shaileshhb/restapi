@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"log"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
@@ -64,19 +65,21 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	return nil
 }
 
-func (s *Service) GetSum(students *model.Student) (int64, error) {
+func (s *Service) GetSum(students *model.Student, sum *model.Sum, query string) error {
 
 	// if err := s.repo.GetSum()
-
 	uow := repository.NewUnitOfWork(s.DB, true)
 
-	result, err := s.repo.GetSum(uow, students)
+	err := s.repo.Select(uow, students, sum, query)
 	if err != nil {
 		uow.Complete()
-		return result, err
+		return err
 	}
 	uow.Commit()
-	return result, nil
+
+	log.Println("Service sum -> ", sum)
+
+	return nil
 
 	// age, rollNo, err := s.repo.GetSum(uow, students)
 	// log.Println("Sum of age -> ", age)

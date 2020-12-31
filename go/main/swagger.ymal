@@ -39,8 +39,8 @@
         "tags": [
           "add-student"
         ],
-        "summary": "Student gets all students data.",
-        "operationId": "addStudent",
+        "summary": "Get students data and add it to the db.",
+        "operationId": "studentModel",
         "parameters": [
           {
             "type": "string",
@@ -60,6 +60,7 @@
           },
           {
             "type": "string",
+            "example": "domain@abc.com",
             "name": "Student Email",
             "in": "body",
             "required": true

@@ -1,15 +1,55 @@
 package model
 
+// Student represents the student for this application
+//
+// It's also used as one of main axes for reporting.
+//
+// A user can have friends with whom they can share what they like.
+//
+// swagger: model studentModel
 type Student struct {
-	Base        `structs:"id,omitnested"`
-	Name        string  `gorm:"type:varchar(30)" json:"name"`
-	Age         *int    `gorm:"type:int" json:"age"`
-	RollNo      *int    `gorm:"type:int" json:"rollNo"`
+	Base `structs:"id,omitnested"`
+
+	// the name for this student
+	//
+	// required: true
+	Name string `gorm:"type:varchar(30)" json:"name"`
+
+	// the age for this student
+	//
+	// required: false
+	Age *int `gorm:"type:int" json:"age"`
+
+	// the rollno for this student
+	//
+	// required: false
+	RollNo *int `gorm:"type:int" json:"rollNo"`
+
+	// the phone number for this student
+	//
+	// required: false
 	PhoneNumber *string `gorm:"type:varchar(10)" json:"phone"`
-	Email       string  `gorm:"type:varchar(50)" json:"email"`
-	IsMale      *bool   `json:"isMale"`
-	Date        *string `gorm:"type:date" json:"date"`
-	DateTime    *string `gorm:"type:datetime" json:"dateTime"`
+
+	// the email for this student
+	//
+	// required: true
+	// example: user@provider.net
+	Email string `gorm:"type:varchar(50)" json:"email"`
+
+	// the ismale for this student
+	//
+	// required: false
+	IsMale *bool `json:"isMale"`
+
+	// the date for this student
+	//
+	// required: false
+	Date *string `gorm:"type:date" json:"date"`
+
+	// the datetime for this student
+	//
+	// required: false
+	DateTime *string `gorm:"type:datetime" json:"dateTime"`
 }
 
 // type DateTimestamp struct {

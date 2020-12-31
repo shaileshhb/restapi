@@ -32,10 +32,17 @@ func Where(condition string, value string) QueryProcessor {
 	}
 }
 
+// Filter will filter the results
+func Filter(condition string, args ...interface{}) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		db = db.Where(condition, args...)
+		return db, nil
+	}
+}
+
 func Search(condition string, value string, entity interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		// student := &model.Student{}
 		if value != "" {
 			if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
 				return nil, errors.New("Same name already exists")
@@ -126,17 +133,17 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	return nil
 }
 
-func (g *GormRepository) GetSum(uow *UnitOfWork, entity interface{}) (int64, error) {
+func (g *GormRepository) Select(uow *UnitOfWork, entity interface{}, out interface{}, query string) error {
 
 	db := uow.DB
 	var err error
-	var result int64
 
-	row := db.Debug().Model(entity).Select("sum(age+roll_no)").Row()
-	if err = row.Scan(&result); err != nil {
-		return result, nil
+	if err = db.Debug().Model(entity).Select(query).Scan(out).Error; err != nil {
+		return err
 	}
+
+	log.Println("In Repo Get Sum", out)
 	// db.Debug().Raw("SELECT SUM(age) FROM students").Scan(&age)
 
-	return result, nil
+	return nil
 }
