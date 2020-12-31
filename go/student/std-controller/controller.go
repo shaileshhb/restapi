@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -43,6 +44,8 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	//         description: Bad request
 	getHandler := apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
+	getSum := apiRoutes.HandleFunc("/students/sum", c.GetSum).Methods("GET")
+
 	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
 	// apiRoutes.Use(validationUserToken)
@@ -60,11 +63,11 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	//         description: Authenticated
 	//     '404':
 	//         description: Bad request
-	getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	// getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	excludeRoutes := []*mux.Route{getHandler, getHandlerWithID}
+	excludeRoutes := []*mux.Route{getHandler, getSum}
 	apiRoutes.Use(c.Authorization(excludeRoutes))
 
 	// swagger:operation POST /students add-student addStudent
@@ -420,7 +423,6 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	err = c.Service.Delete(student, params["id"])
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Error while deleting student"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -429,11 +431,20 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func (c *Controller) GetAgeAndRollNoSum(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 
-// 	var err error
+	var err error
 
-// 	var student = &model.Student{}
+	var students = &model.Student{}
 
-// 	err = c.Service.
-// }
+	result, err := c.Service.GetSum(students)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte("Sum of age and roll no is -> " + strconv.FormatInt(result, 10)))
+	log.Println("Sum of age and roll no is -> ", result)
+
+}

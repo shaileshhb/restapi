@@ -126,14 +126,17 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	return nil
 }
 
-func (g *GormRepository) GetSum(uow *UnitOfWork, entity interface{}) (int64, int64) {
+func (g *GormRepository) GetSum(uow *UnitOfWork, entity interface{}) (int64, error) {
 
 	db := uow.DB
-	// var err error
-	var age int64
-	var rollNo int64
+	var err error
+	var result int64
+
 	row := db.Debug().Model(entity).Select("sum(age+roll_no)").Row()
-	row.Scan(&age)
+	if err = row.Scan(&result); err != nil {
+		return result, nil
+	}
 	// db.Debug().Raw("SELECT SUM(age) FROM students").Scan(&age)
-	return age, rollNo
+
+	return result, nil
 }

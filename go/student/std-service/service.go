@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
@@ -37,11 +36,6 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	}
 	uow.Commit()
 
-	age, rollNo := s.repo.GetSum(uow, students)
-	log.Println("Sum of age -> ", age)
-	log.Println("Sum of rollNo -> ", rollNo)
-	log.Println("Sum of age and rollNo -> ", age+rollNo)
-
 	utility.TrimDate(students)
 	utility.TrimDateTime(students)
 
@@ -70,18 +64,26 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	return nil
 }
 
-// func (s *Service) GetSum(students *model.Student) error {
+func (s *Service) GetSum(students *model.Student) (int64, error) {
 
-// 	// if err := s.repo.GetSum()
+	// if err := s.repo.GetSum()
 
-// 	uow := repository.NewUnitOfWork(s.DB, true)
+	uow := repository.NewUnitOfWork(s.DB, true)
 
-// 	age, rollNo, err := s.repo.GetSum(uow, students)
-// 	log.Println("Sum of age -> ", age)
-// 	log.Println("Sum of rollNo -> ", rollNo)
-// 	log.Println("Sum of age and rollNo -> ", age+rollNo)
+	result, err := s.repo.GetSum(uow, students)
+	if err != nil {
+		uow.Complete()
+		return result, err
+	}
+	uow.Commit()
+	return result, nil
 
-// }
+	// age, rollNo, err := s.repo.GetSum(uow, students)
+	// log.Println("Sum of age -> ", age)
+	// log.Println("Sum of rollNo -> ", rollNo)
+	// log.Println("Sum of age and rollNo -> ", age+rollNo)
+
+}
 
 func (s *Service) AddNewStudent(student *model.Student) error {
 
