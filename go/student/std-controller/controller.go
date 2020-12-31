@@ -43,10 +43,10 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	//     '404':
 	//         description: Bad request
 	getHandler := apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-
 	getSum := apiRoutes.HandleFunc("/students/sum", c.GetSum).Methods("GET")
 	getDiff := apiRoutes.HandleFunc("/students/diff", c.GetDiff).Methods("GET")
 	getAgeAndRecordDiff := apiRoutes.HandleFunc("/students/recordsDiff", c.GetDiffOfAgeAndRecord).Methods("GET")
+	checkAge := apiRoutes.HandleFunc("/students/age", c.GetAge).Methods("GET")
 
 	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
@@ -69,7 +69,7 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 
 	// getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	excludeRoutes := []*mux.Route{getHandler, getSum, getDiff, getAgeAndRecordDiff}
+	excludeRoutes := []*mux.Route{getHandler, getSum, getDiff, getAgeAndRecordDiff, checkAge}
 	apiRoutes.Use(c.Authorization(excludeRoutes))
 
 	// swagger:operation POST /students add-student studentModel
@@ -241,7 +241,6 @@ func (c *Controller) Authorization(excludedRoutes []*mux.Route) func(http.Handle
 				} else {
 					http.Error(w, "User Not Authorized", http.StatusUnauthorized)
 					// fmt.Fprintf(w, "Not Authorized")
-					log.Println("Hello world")
 				}
 			} else {
 				next.ServeHTTP(w, r)
@@ -488,5 +487,29 @@ func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Reques
 
 	w.Write([]byte("Age and record diff is -> " + strconv.FormatInt(sum.StudentSum, 10)))
 	log.Println("Age and record diff is -> ", sum.StudentSum)
+
+}
+
+func (c *Controller) GetAge(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	var students = &[]model.Student{}
+
+	err = c.Service.GetAge(students)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	studentJSON, err := json.Marshal(students)
+	if err != nil {
+		log.Println(err)
+		w.Write([]byte("Could not convert to json"))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(studentJSON)
 
 }

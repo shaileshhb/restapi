@@ -112,6 +112,24 @@ func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum)
 	return nil
 }
 
+func (s *Service) GetAge(students *[]model.Student) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryCondition := "age > ?"
+	minAge := 18
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, minAge))
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
 func (s *Service) AddNewStudent(student *model.Student) error {
 
 	if err := s.Validate(student); err != nil {
@@ -199,10 +217,6 @@ func (s *Service) Validate(student *model.Student) error {
 
 	if student.Email == "" || !emailPattern.MatchString(student.Email) {
 		return errors.New("Email is invalid")
-	}
-
-	if student.Age != nil && (*student.Age) < 18 {
-		return errors.New("Age cannot be less than 18")
 	}
 
 	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
