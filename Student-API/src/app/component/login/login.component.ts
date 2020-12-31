@@ -2,7 +2,10 @@ import { Component, OnInit  } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
+import { Keepalive } from '@ng-idle/keepalive';
 import { CookieService } from 'ngx-cookie-service';
+import { ITokenResponses } from 'src/app/ITokenResponse';
 import { LoginService } from '../../service/login.service';
 
 @Component({
@@ -15,6 +18,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   registerForm: FormGroup;
   login = "Login";
+  tokens: ITokenResponses;
 
   constructor(
     private formBuilder: FormBuilder, 
@@ -54,19 +58,17 @@ export class LoginComponent implements OnInit {
   validateUser() {
 
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
-
-      // console.log(response)
-      
+      // this.tokens = response
+      // console.log(this.tokens)
       this.setLoginCookie(response)
-
       console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
       this.router.navigate(['/students'])
-      
+
     },
     (err) => {
-      alert("Error:" + err)
-      console.log("Error:" + err);
+      alert("Error:" + err.error)
+      console.log("Error:" + err.error);
       
     })
 
@@ -90,7 +92,9 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/students'])
     },
     err => {
-      alert("Error:" + err)
+      console.log(err.error);
+      
+      alert("Error:" + err.error)
       // alert(err)
     })
     
@@ -99,7 +103,7 @@ export class LoginComponent implements OnInit {
   setLoginCookie(value: any) {
 
     const expiryTime = new Date();
-    expiryTime.setMinutes(expiryTime.getMinutes() + 1);
+    expiryTime.setMinutes(expiryTime.getMinutes() + 2);
 
     console.log(expiryTime);
     

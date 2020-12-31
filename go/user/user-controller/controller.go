@@ -11,15 +11,15 @@ import (
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 	"github.com/shaileshhb/restapi/model"
-	userservice "github.com/shaileshhb/restapi/user/user-service"
+	service "github.com/shaileshhb/restapi/user/user-service"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Controller struct {
-	Service *userservice.UserService
+	Service *service.UserService
 }
 
-func NewController(service *userservice.UserService) *Controller {
+func NewController(service *service.UserService) *Controller {
 	return &Controller{
 		Service: service,
 	}
@@ -53,30 +53,32 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
-	user.Password = string(hashPassword)
-
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	user.Password = string(hashPassword)
 
 	err = c.Service.Add(user)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Error while adding user, " + err.Error()))
-		return
-	}
-	w.Write([]byte(user.ID.String()))
-	tokenString, err := c.generateJWT(user.ID, w)
-	if err != nil {
-		w.Write([]byte("Token string failed"))
-		log.Println("Token string failed")
+		// w.Write([]byte("Error while adding user, " + err.Error()))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte(tokenString))
-	log.Println("User successfully added")
+	log.Println("User ID -> ", user.ID)
+	// tokenString, err := c.generateJWT(user.ID, w)
+	// if err != nil {
+	// 	w.Write([]byte("Token string failed"))
+	// 	log.Println("Token string failed")
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+	// w.Write([]byte(tokenString))
+	// log.Println("User successfully added", tokenString)
 
 }
 
@@ -123,24 +125,35 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := c.generateJWT(validateUser.ID, w)
+	// var tokenResponse = model.TokenResponse{}
+
+	tokenResponse, err := c.generateJWT(validateUser.ID, w)
 	if err != nil {
-		w.Write([]byte("Token string failed"))
+		// w.Write([]byte("Token string failed"))
 		log.Println("Token string failed")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Println(tokenResponse)
 
-	// log.Println(tokenString)
-	w.Write([]byte(tokenString))
+	// response, err := json.Marshal(tokenResponse)
+	// if err != nil {
+	// 	log.Println("Token string failed")
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+	// log.Println(string(response))
+	w.Write([]byte(tokenResponse))
 
 }
 
 func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (string, error) {
 
 	// secret key
+	var jwtKey = []byte("some_secret_key")
 
-	expirationTime := time.Now().Add(1 * time.Minute)
+	expirationTime := time.Now().Add(2 * time.Minute)
 
 	// Creating JWT Claim which includes username and claims
 	claims := &model.Claim{
@@ -150,24 +163,63 @@ func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (strin
 		},
 	}
 
+	// Access Token
 	// token having algo form signing method and the claim
 	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := userToken.SignedString(model.JwtKey)
+	accessTokenString, err := userToken.SignedString(jwtKey)
 	if err != nil {
 		// w.Write([]byte("Failed"))
 		// http.Error(w, err.Error(), http.StatusBadRequest)
 		// log.Println("Username or password is invalid")
-		return tokenString, err
+		return "", err
 	}
 
-	return tokenString, nil
-
-	// Setting up the cookie for userToken
-	// http.SetCookie(w, &http.Cookie{
-	// 	Name:    "UserToken",
-	// 	Value:   tokenString,
-	// 	Expires: expirationTime,
-	// })
+	return accessTokenString, nil
 
 }
+
+// func (c *Controller) generateJWT(userID uuid.UUID, tokens *model.TokenResponse, w http.ResponseWriter) error {
+
+// 	// secret key
+// 	var jwtKey = []byte("some_secret_key")
+
+// 	expirationTime := time.Now().Add(2 * time.Minute)
+
+// 	// Creating JWT Claim which includes username and claims
+// 	claims := &model.Claim{
+// 		ID: userID,
+// 		StandardClaims: jwt.StandardClaims{
+// 			ExpiresAt: expirationTime.Unix(),
+// 		},
+// 	}
+
+// 	// Access Token
+// 	// token having algo form signing method and the claim
+// 	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+// 	accessTokenString, err := userToken.SignedString(jwtKey)
+// 	if err != nil {
+// 		// w.Write([]byte("Failed"))
+// 		// http.Error(w, err.Error(), http.StatusBadRequest)
+// 		// log.Println("Username or password is invalid")
+// 		return err
+// 	}
+
+// 	// Refresh Token
+// 	refreshToken := jwt.New(jwt.SigningMethodHS256)
+// 	refreshTokenClaims := refreshToken.Claims.(jwt.MapClaims)
+// 	refreshTokenClaims["sub"] = 1
+// 	refreshTokenClaims["exp"] = time.Now().Add(2 * time.Minute)
+
+// 	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	tokens.AccessToken = accessTokenString
+// 	tokens.RefreshToken = refreshTokenString
+
+// 	return nil
+
+// }

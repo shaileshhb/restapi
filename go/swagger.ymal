@@ -1,0 +1,173 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Example Swagger spec.\n\nSchemes: [http]",
+    "title": "Student API",
+    "contact": {
+      "name": "ABC",
+      "email": "admin@studentAPI.in"
+    },
+    "version": "0.0.1"
+  },
+  "host": "8080",
+  "paths": {
+    "/students": {
+      "get": {
+        "description": "Returns Student name, email, rollno, age, date, gender, phone-number of all the students",
+        "tags": [
+          "get-all-students"
+        ],
+        "summary": "Get all students",
+        "operationId": "getStudents",
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          },
+          "404": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "post": {
+        "description": "Get all students info",
+        "tags": [
+          "add-student"
+        ],
+        "summary": "Student gets all students data.",
+        "operationId": "addStudent",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "Student Name",
+            "in": "body",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "Student Age",
+            "in": "body"
+          },
+          {
+            "type": "integer",
+            "name": "Student Roll No",
+            "in": "body"
+          },
+          {
+            "type": "string",
+            "name": "Student Email",
+            "in": "body",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "Student Phone Number",
+            "in": "body"
+          },
+          {
+            "type": "string",
+            "name": "DOB",
+            "in": "body"
+          },
+          {
+            "type": "boolean",
+            "name": "Student Gender",
+            "in": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          },
+          "404": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "description": "Returns Student name, email, rollno, age, date, gender, phone-number of the specified students",
+        "tags": [
+          "get-student"
+        ],
+        "summary": "List the repositories owned by the given author.",
+        "operationId": "getStudent",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "Student ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          },
+          "404": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "put": {
+        "description": "Update student",
+        "tags": [
+          "update-student"
+        ],
+        "summary": "Update student details",
+        "operationId": "updateStudent",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "Student ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          },
+          "404": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Student",
+        "tags": [
+          "delete-student"
+        ],
+        "summary": "Delete Student details",
+        "operationId": "deleteStudent",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "Student ID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          },
+          "404": {
+            "description": "Bad request"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    }
+  }
+}

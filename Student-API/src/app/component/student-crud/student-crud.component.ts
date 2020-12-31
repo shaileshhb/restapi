@@ -53,7 +53,7 @@ export class StudentCrudComponent implements OnInit {
       this.login = "Logout"
       this.students = data;
       for (let i = 0; i < this.students.length; i++) {
-        this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
+        // this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
         if(this.students[i].isMale != null) {
           this.students[i].isMale = this.students[i].isMale == true ? "Male" : "Female"         
         } else {
@@ -64,8 +64,8 @@ export class StudentCrudComponent implements OnInit {
       
     },
     (err) => {
-      console.log('HTTP Error', err)
-      alert("Error: " + err.statusText)
+      console.log('HTTP Error', err.error)
+      alert("Error: " + err.error)
       if (err.status == 401) {
         this.router.navigateByUrl('/login')
         this.modalService.dismissAll() 
@@ -112,7 +112,7 @@ export class StudentCrudComponent implements OnInit {
           gender: response[0].isMale
         });
       },
-      (err) => console.log('HTTP Error', err)
+      (err) => console.log('HTTP Error', err.error)
       );
     }
 
@@ -140,8 +140,8 @@ export class StudentCrudComponent implements OnInit {
         this.modalService.dismissAll();
       },
       (err) => {
-        console.log('HTTP Error', err)
-        alert("Error: " + err.statusText)
+        console.log('HTTP Error', err.error)
+        alert("Error: " + err.error)
         
         if (err.status == 401) {
           this.router.navigateByUrl('/login')
@@ -171,8 +171,8 @@ export class StudentCrudComponent implements OnInit {
         this.modalService.dismissAll();
       },
       (err) => {
-        console.log('HTTP Error', err)
-        alert("Error: " + err.statusText)
+        console.log('HTTP Error', err.error)
+        alert("Error: " + err.error)
 
         if (err.status == 401) {
           this.router.navigateByUrl('/login')
@@ -193,8 +193,8 @@ export class StudentCrudComponent implements OnInit {
 
         },
         (err) => {
-          console.log('HTTP Error', err)
-          alert("Error: " + err.statusText)
+          console.log('HTTP Error', err.error)
+          alert("Error: " + err.error)
             
           if (err.status == 401) {
             this.router.navigateByUrl('/login')

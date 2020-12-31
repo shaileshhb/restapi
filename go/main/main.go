@@ -1,3 +1,22 @@
+// Student API
+//
+// Example Swagger spec.
+//
+//	Schemes: [http]
+//	BasePath: http://localhost:8080
+//	Version: 0.0.1
+//	Contact: ABC<admin@studentAPI.in>
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//      SecurityDefinitions:
+//          basic:
+//              type: basic
+// swagger:meta
 package main
 
 import (
@@ -13,7 +32,6 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	_ "github.com/shaileshhb/restapi/docs"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"

@@ -10,6 +10,7 @@ import (
 func ConvertStructToMap(student *model.Student, id string) map[string]interface{} {
 
 	studentMap := structs.Map(student)
+	log.Println("Students -> ", studentMap)
 
 	if student.RollNo == nil {
 		studentMap["RollNo"] = nil

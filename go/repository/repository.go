@@ -2,9 +2,9 @@ package repository
 
 import (
 	"errors"
+	"log"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/model"
 )
 
 type Repository interface {
@@ -32,13 +32,13 @@ func Where(condition string, value string) QueryProcessor {
 	}
 }
 
-func Search(condition string, value string) QueryProcessor {
+func Search(condition string, value string, entity interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		student := &model.Student{}
+		// student := &model.Student{}
 		if value != "" {
-			if !db.Debug().Where(condition, value).First(student).RecordNotFound() {
-				return nil, errors.New("Student with same name already exists")
+			if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
+				return nil, errors.New("Same name already exists")
 			}
 		}
 		return db, nil
@@ -70,7 +70,7 @@ func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}, queryProcessor
 	db := uow.DB
 	var err error
 
-	// log.Println(queryProcessors)
+	log.Println("Inside Repo Add", queryProcessors == nil)
 
 	if queryProcessors != nil {
 		for _, queryProcessor := range queryProcessors {
@@ -124,4 +124,16 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 		return err
 	}
 	return nil
+}
+
+func (g *GormRepository) GetSum(uow *UnitOfWork, entity interface{}) (int64, int64) {
+
+	db := uow.DB
+	// var err error
+	var age int64
+	var rollNo int64
+	row := db.Debug().Model(entity).Select("sum(age+roll_no)").Row()
+	row.Scan(&age)
+	// db.Debug().Raw("SELECT SUM(age) FROM students").Scan(&age)
+	return age, rollNo
 }

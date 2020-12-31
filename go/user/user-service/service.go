@@ -26,8 +26,8 @@ func (s *UserService) Get(user *model.User, username string) error {
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	queryCondition := "username=?"
-	queryProcessors = append(queryProcessors, repository.Where(queryCondition, username))
+	// queryCondition := "username=?"
+	// queryProcessors = append(queryProcessors, repository.Where(queryCondition, username))
 
 	if err := s.repo.Get(uow, user, queryProcessors); err != nil {
 		uow.Complete()
@@ -47,7 +47,7 @@ func (s *UserService) Add(user *model.User) error {
 	var queryProcessors []repository.QueryProcessor
 
 	checkName := "username = ?"
-	queryProcessors = append(queryProcessors, repository.Search(checkName, user.Username))
+	queryProcessors = append(queryProcessors, repository.Search(checkName, user.Username, user))
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"log"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
@@ -36,6 +37,11 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	}
 	uow.Commit()
 
+	age, rollNo := s.repo.GetSum(uow, students)
+	log.Println("Sum of age -> ", age)
+	log.Println("Sum of rollNo -> ", rollNo)
+	log.Println("Sum of age and rollNo -> ", age+rollNo)
+
 	utility.TrimDate(students)
 	utility.TrimDateTime(students)
 
@@ -64,6 +70,19 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	return nil
 }
 
+// func (s *Service) GetSum(students *model.Student) error {
+
+// 	// if err := s.repo.GetSum()
+
+// 	uow := repository.NewUnitOfWork(s.DB, true)
+
+// 	age, rollNo, err := s.repo.GetSum(uow, students)
+// 	log.Println("Sum of age -> ", age)
+// 	log.Println("Sum of rollNo -> ", rollNo)
+// 	log.Println("Sum of age and rollNo -> ", age+rollNo)
+
+// }
+
 func (s *Service) AddNewStudent(student *model.Student) error {
 
 	if err := s.Validate(student); err != nil {
@@ -73,7 +92,7 @@ func (s *Service) AddNewStudent(student *model.Student) error {
 	var queryProcessors []repository.QueryProcessor
 
 	checkName := "name = ?"
-	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name))
+	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
 
 	structToMap.EmptyToNull(student)
 
@@ -103,7 +122,7 @@ func (s *Service) Update(student *model.Student, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
 
 	checkName := "name = ?"
-	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name))
+	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 

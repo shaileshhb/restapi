@@ -15,6 +15,8 @@ import { LoginComponent } from './component/login/login.component';
 import { MasterNavbarComponent } from './component/master-navbar/master-navbar.component';
 import { StudentCrudComponent } from './component/student-crud/student-crud.component';
 import { CookieService } from 'ngx-cookie-service';
+import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
+import { MomentModule } from 'angular2-moment';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { CookieService } from 'ngx-cookie-service';
     FormsModule,
     ReactiveFormsModule,
     NgbModule,
+    NgIdleKeepaliveModule.forRoot(),
+    MomentModule
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]
