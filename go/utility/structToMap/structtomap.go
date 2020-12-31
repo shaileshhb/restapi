@@ -36,11 +36,11 @@ func ConvertStructToMap(student *model.Student, id string) map[string]interface{
 		studentMap["Date"] = *student.Date
 	}
 
-	if student.DateTime == nil {
-		studentMap["DateTime"] = nil
-	} else {
-		studentMap["DateTime"] = *student.DateTime
-	}
+	// if student.DateTime == nil {
+	// 	studentMap["DateTime"] = nil
+	// } else {
+	// 	studentMap["DateTime"] = *student.DateTime
+	// }
 
 	log.Println("In struct to map, student:", student)
 
@@ -70,9 +70,9 @@ func EmptyToNull(student *model.Student) {
 		}
 	}
 
-	if student.DateTime != nil {
-		if *student.DateTime == "" {
-			student.DateTime = nil
-		}
-	}
+	// if student.DateTime != nil {
+	// 	if *student.DateTime == "" {
+	// 		student.DateTime = nil
+	// 	}
+	// }
 }

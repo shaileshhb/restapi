@@ -6,6 +6,6 @@ export interface IStudentDTO {
     email: string;
     phone: string;
     date: string;
-    dateTime: string;
+    // dateTime: string;
     isMale: boolean;
 }

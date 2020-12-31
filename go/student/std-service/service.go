@@ -1,4 +1,4 @@
-package service
+package stdservice
 
 import (
 	"errors"
@@ -36,15 +36,15 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	}
 	uow.Commit()
 
-	utility.TrimDate(students)
-	utility.TrimDateTime(students)
+	utility.TrimDates(students)
+	// utility.TrimDateTime(students)
 
 	return nil
 
 }
 
 // Get returns students as per the id
-func (s *Service) Get(students *[]model.Student, id string) error {
+func (s *Service) Get(students *model.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -59,7 +59,7 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	uow.Commit()
 
 	utility.TrimDate(students)
-	utility.TrimDateTime(students)
+	// utility.TrimDateTime(students)
 
 	return nil
 }

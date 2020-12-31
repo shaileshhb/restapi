@@ -1,19 +1,16 @@
-package controller
+package stdcontroller
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/model"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
+	"github.com/shaileshhb/restapi/utility/excluderoute"
 )
 
 type Controller struct {
@@ -27,8 +24,6 @@ func NewController(service *stdservice.Service) *Controller {
 }
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
-
-	// router.Path("/").HandlerFunc()
 
 	apiRoutes := router.PathPrefix("/").Subrouter()
 	// apiRoutes.Use(validationUserToken)
@@ -65,12 +60,11 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	//         description: Authenticated
 	//     '404':
 	//         description: Bad request
-	apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
+	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	// getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-
-	excludeRoutes := []*mux.Route{getHandler, getSum, getDiff, getAgeAndRecordDiff, checkAge}
-	apiRoutes.Use(c.Authorization(excludeRoutes))
+	excludeRoutes := []*mux.Route{getHandler, getHandlerWithID, getSum, getDiff, getAgeAndRecordDiff, checkAge}
+	apiRoutes.Use(excluderoute.Authorization(excludeRoutes))
 
 	// swagger:operation POST /students add-student studentModel
 	// ---
@@ -147,148 +141,46 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 
 }
 
-func (c *Controller) Authorization(excludedRoutes []*mux.Route) func(http.Handler) http.Handler {
-	// Cache the regex object of each route (obviously for performance purposes)
+// func validationUserToken(endpoint http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	var excludedRoutesRegexp []*regexp.Regexp
-	rl := len(excludedRoutes)
-	for i := 0; i < rl; i++ {
-		r := excludedRoutes[i]
-		// log.Println("Routes -> ", r)
-		pathRegexp, _ := r.GetPathRegexp()
-		log.Println("Path Regexp -> ", pathRegexp)
+// 		var jwtKey = []byte("some_secret_key")
 
-		regx, _ := regexp.Compile(pathRegexp)
-		log.Println("Regx for comparing -> ", regx)
+// 		if r.Header["Token"][0] != "" {
 
-		excludedRoutesRegexp = append(excludedRoutesRegexp, regx)
-	}
-	log.Println("ExculdedRoutes -> ", excludedRoutesRegexp)
+// 			claims := &model.Claim{}
 
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 			token, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
+// 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+// 					return nil, fmt.Errorf("There was an error")
+// 				}
+// 				return jwtKey, nil
+// 			})
+// 			if err != nil {
+// 				if err == jwt.ErrSignatureInvalid {
+// 					w.WriteHeader(http.StatusUnauthorized)
+// 					return
+// 				}
+// 				w.WriteHeader(http.StatusBadRequest)
+// 				return
+// 			}
 
-			log.Println("Inside validation")
+// 			log.Println("Token->", *token)
+// 			log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
 
-			exclude := false
-			requestMethod := r.Method
+// 			if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) < 60*time.Second {
+// 				// refresh
+// 			}
 
-			log.Println("Request Method -> ", requestMethod)
-
-			for i := 0; i < rl; i++ {
-				excludedRoute := excludedRoutes[i]
-				methods, _ := excludedRoute.GetMethods()
-				ml := len(methods)
-				log.Println("Route Method ->", methods, "lenght -> ", ml)
-
-				methodMatched := false
-				if ml < 1 {
-					log.Println("Making method matched true")
-					methodMatched = true
-				} else {
-					for j := 0; j < ml; j++ {
-						log.Println("Methods[j] -> ", methods[j], "Request Method -> ", requestMethod)
-						if methods[j] == requestMethod {
-							methodMatched = true
-							break
-						}
-					}
-				}
-				log.Println("Matched ->", methodMatched)
-				if methodMatched {
-					uri := r.RequestURI
-					log.Println("Excluded Routes ->", excludedRoutesRegexp[i], "URI -> ", uri)
-					if excludedRoutesRegexp[i].MatchString(uri) {
-						exclude = true
-						break
-					}
-				}
-			}
-			if !exclude {
-				// validationUserToken(next)
-				log.Println("Token -> ", r.Header["Token"])
-				var jwtKey = []byte("some_secret_key")
-
-				if r.Header["Token"] != nil {
-
-					claims := &model.Claim{}
-
-					token, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
-						if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-							return nil, fmt.Errorf("There was an error")
-						}
-						return jwtKey, nil
-					})
-					if err != nil {
-						if err == jwt.ErrSignatureInvalid {
-							w.WriteHeader(http.StatusUnauthorized)
-							return
-						}
-						w.WriteHeader(http.StatusBadRequest)
-						return
-					}
-
-					log.Println("Token->", *token)
-					log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
-
-					// if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) < 60*time.Second {
-					// 	refresh
-					// }
-
-					if token.Valid {
-						next.ServeHTTP(w, r)
-					}
-				} else {
-					http.Error(w, "User Not Authorized", http.StatusUnauthorized)
-					// fmt.Fprintf(w, "Not Authorized")
-				}
-			} else {
-				next.ServeHTTP(w, r)
-			}
-		})
-	}
-}
-
-func validationUserToken(endpoint http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		var jwtKey = []byte("some_secret_key")
-
-		if r.Header["Token"][0] != "" {
-
-			claims := &model.Claim{}
-
-			token, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("There was an error")
-				}
-				return jwtKey, nil
-			})
-			if err != nil {
-				if err == jwt.ErrSignatureInvalid {
-					w.WriteHeader(http.StatusUnauthorized)
-					return
-				}
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			log.Println("Token->", *token)
-			log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
-
-			if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) < 60*time.Second {
-				// refresh
-			}
-
-			if token.Valid {
-				endpoint.ServeHTTP(w, r)
-			}
-		} else {
-			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
-			// fmt.Fprintf(w, "Not Authorized")
-		}
-	})
-}
+// 			if token.Valid {
+// 				endpoint.ServeHTTP(w, r)
+// 			}
+// 		} else {
+// 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+// 			// fmt.Fprintf(w, "Not Authorized")
+// 		}
+// 	})
+// }
 
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
@@ -300,7 +192,6 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	err = c.Service.GetAll(&students)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Student not found"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -308,7 +199,6 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	studentJSON, err := json.Marshal(students)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Could not convert to json"))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -321,7 +211,7 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var students = []model.Student{}
+	var students = model.Student{}
 	params := mux.Vars(r)
 
 	err = c.Service.Get(&students, params["id"])

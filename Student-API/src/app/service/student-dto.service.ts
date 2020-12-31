@@ -15,15 +15,19 @@ export class StudentDTOService {
 
   constructor(private http: HttpClient, private cookieService: CookieService) { }
 
-  getStudentDetails(studentID?: string): Observable<IStudentDTO[]> {
+  getStudentDetails(): Observable<IStudentDTO[]> {
 
     let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
 
-    if(studentID == undefined) {
-      return this.http.get<IStudentDTO[]>(this.baseURL, {'headers' : httpHeaders});
-    } else {
-      return this.http.get<IStudentDTO[]>(this.baseURL + "/" + studentID, {'headers' : httpHeaders});
-    }
+    return this.http.get<IStudentDTO[]>(this.baseURL, {'headers' : httpHeaders});
+
+  }
+
+  getStudentDetail(studentID: string): Observable<IStudentDTO> {
+
+    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+
+    return this.http.get<IStudentDTO>(this.baseURL + "/" + studentID, {'headers' : httpHeaders});
 
   }
 

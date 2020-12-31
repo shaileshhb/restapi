@@ -1,10 +1,9 @@
-<app-master-navbar [loggedInValue]="login"></app-master-navbar>
-<!-- <app-master-navbar [loggedInValue]="login" (hideRegister)="userRegister($event)"></app-master-navbar> -->
-
+<app-master-navbar></app-master-navbar>
 
 <div class="container">
     <br>
-    <button class="btn btn-primary" (click) = "setAddAction(); openStudentModalForm(studentModal)">ADD STUDENT</button>
+    <button class="btn btn-outline-primary" *ngIf="userLoggedIn" (click) = "setAddAction(); openStudentModalForm(studentModal)">Add Student</button> &nbsp;
+    <!-- <button class="btn btn-outline-primary"  (click) = "showInventory(); openStudentModalForm(inventoryModal)">Check Inventory</button> -->
     <br>
     <br>
     <div *ngIf="students.length != 0; else noStudents">
@@ -17,10 +16,12 @@
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Date</th>
-                <th>DateTime</th>
+                <!-- <th>DateTime</th> -->
                 <th>Gender</th>
-                <th>Update Student</th>
-                <th>Delete Student</th>
+                <th>View</th>
+                <th>Inventory</th>
+                <th *ngIf="userLoggedIn">Update Student</th>
+                <th *ngIf="userLoggedIn">Delete Student</th>
             </tr>
             <tr *ngFor="let student of students">
                 <td>{{student.id}}</td>
@@ -30,10 +31,12 @@
                 <td>{{student.email}}</td>
                 <td>{{student.phone}}</td>
                 <td>{{student.date}}</td>
-                <td>{{student.dateTime}}</td>
+                <!-- <td>{{student.dateTime}}</td> -->
                 <td>{{student.isMale}}</td>
-                <td><button class="btn btn-outline-warning" (click) = "prepopulate(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
-                <td><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
+                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openStudentModalForm(studentModal)" >VIEW</button></td>
+                <td><button class="btn btn-outline-primary"  (click) = "showInventory(); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
+                <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
+                <td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
             </tr>
         </table>
     </div>
@@ -41,113 +44,166 @@
     <ng-template #noStudents>
         <h4>Students Record Not Found</h4>
     </ng-template>
-
-    
-    <ng-template #studentModal let-modal>
-    
-        <div class="modal-header">
-            <h4 class="modal-title">{{addOrUpdateAction | uppercase}} FORM</h4>
-            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-                <span aria-hidden="true">&times;</span>
-              </button>
-        </div>
-    
-        <div class="modal-body">
-            
-            <form [formGroup]="studentForm">
-    
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="nameId" >Name</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="nameId" formControlName="name" required>
-                        <div class="text-danger" *ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
-                            <div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
-                            <div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
-                    <div class="col-sm-6">
-                        <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
-                    </div>
-                    <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
-                        <div *ngIf="studentForm.get('rollNo').errors.min">Please enter Roll No</div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="ageId">Age</label>
-                    <div class="col-sm-6">
-                        <input type="number" class="form-control" id="ageId" formControlName="age">
-                    </div>
-                    <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
-                        <div *ngIf="studentForm.get('age').errors.min">Age should be greater than 18</div>
-                    </div>
-                </div> 
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="emailId" >Email</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="emailId" formControlName="email">
-                        <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
-                            <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
-                            <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="phoneId" >Phone Number</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="phoneId" appEmtpyToNull formControlName="phone">
-                        <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
-                            <div *ngIf="studentForm.get('phone').errors.minLength">Phone number should have 10 digits</div>
-                            <div *ngIf="studentForm.get('phone').errors.pattern">Phone number should contain only digits</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="dateId" >Date</label>
-                    <div class="col-sm-6">
-                        <input type="date" class="form-control" id="dateId" formControlName="date">
-                    </div>
-                    <!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
-                        <div *ngIf="studentForm.get('date').errors.required">Date is required</div>
-                    </div> -->
-                </div>
-                <div class="form-group row">
-                    <label class="control-label col-sm-2" for="dateTimeId" >Date With Time</label>
-                    <div class="col-sm-6">
-                        <input type="datetime-local" class="form-control" id="dateTimeId" formControlName="dateTime" step="1">
-                    </div>
-                    <!-- <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
-                        <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
-                    </div> -->
-                </div>                             
-                <fieldset class="form-group">
-                    <div class="row">
-                        <label class="control-label col-sm-2" >Gender</label>
-                        <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
-                            <span >
-                                <label>Male</label>&nbsp;
-                                <input type="radio" name="gender" [value] = true formControlName="gender">
-                            </span>
-                        </div>
-                        <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
-                            <span>
-                                <label>Female</label>&nbsp;
-                                <input type="radio" name="gender" [value] = false formControlName="gender">
-                            </span>
-                        </div>
-                    </div>
-                </fieldset>   
-
-                <!-- <div>{{studentForm.valid}}</div> -->
-
-                <div class="form-group">
-                    <button [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
-                </div>
-                
-            </form>
-        </div>
-    
-    </ng-template>
 </div>
+
+<ng-template #studentModal let-modal>
+    
+    <div class="modal-header">
+        <h4 class="modal-title">{{formTitle | uppercase}} FORM</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+    </div>
+
+    <div class="modal-body">
+        
+        <form [formGroup]="studentForm">
+
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="nameId" >Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="nameId" formControlName="name" required>
+                    <div class="text-danger" *ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
+                        <div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
+                        <div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
+                <div class="col-sm-6">
+                    <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
+                </div>
+                <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
+                    <div *ngIf="studentForm.get('rollNo').errors.min">Please enter Roll No</div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="ageId">Age</label>
+                <div class="col-sm-6">
+                    <input type="number" class="form-control" id="ageId" formControlName="age">
+                </div>
+                <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
+                    <div *ngIf="studentForm.get('age').errors.min">Age should be greater than 18</div>
+                </div>
+            </div> 
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="emailId" >Email</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="emailId" formControlName="email">
+                    <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
+                        <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
+                        <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="phoneId" >Phone Number</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="phoneId" appEmtpyToNull formControlName="phone">
+                    <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
+                        <div *ngIf="studentForm.get('phone').errors.minLength">Phone number should have 10 digits</div>
+                        <div *ngIf="studentForm.get('phone').errors.pattern">Phone number should contain only digits</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="dateId" >Date</label>
+                <div class="col-sm-6">
+                    <input type="date" class="form-control" id="dateId" formControlName="date">
+                </div>
+                <!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
+                    <div *ngIf="studentForm.get('date').errors.required">Date is required</div>
+                </div> -->
+            </div>
+            <!-- <div class="form-group row">
+                <label class="control-label col-sm-2" for="dateTimeId" >Date With Time</label>
+                <div class="col-sm-6">
+                    <input type="datetime-local" class="form-control" id="dateTimeId" formControlName="dateTime" step="1">
+                </div>
+                <div class="text-danger" *ngIf="studentForm.get('dateTime').invalid && (studentForm.get('dateTime').dirty || studentForm.get('dateTime').touched)">
+                    <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
+                </div>
+            </div>                              -->
+            <fieldset class="form-group">
+                <div class="row">
+                    <label class="control-label col-sm-2" >Gender</label>
+                    <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
+                        <span >
+                            <label>Male</label>&nbsp;
+                            <input type="radio" name="gender" [value] = true formControlName="gender">
+                        </span>
+                    </div>
+                    <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
+                        <span>
+                            <label>Female</label>&nbsp;
+                            <input type="radio" name="gender" [value] = false formControlName="gender">
+                        </span>
+                    </div>
+                </div>
+            </fieldset>   
+
+            <!-- <div>{{studentForm.valid}}</div> -->
+            <div *ngIf="isViewClicked">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Book ID</th>
+                        <th>Student ID</th>
+                        <th>Issue Date</th>
+                        <th>Returned Flag</th>
+                    </tr>
+                    <tr *ngFor="let issue of bookIssues">
+                        <td>{{issue.bookID}}</td>
+                        <td>{{issue.studentID}}</td>
+                        <td>{{issue.issueDate}}</td>
+                        <td>{{issue.returnedFlag}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="form-group">
+                <button *ngIf="userLoggedIn" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
+            </div>
+            
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #inventoryModal let-modal>
+
+    <div class="modal-header">
+        <h4 class="modal-title">{{formTitle | uppercase}} FORM</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+    </div>
+
+    <div class="modal-body">
+        <table class="table table-bordered">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Stock</th>
+            </tr>
+            <tr *ngFor="let book of books">
+                <td>{{book.id}}</td>
+                <td>{{book.name}}</td>
+                <td>{{book.stock}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Stock</th>
+        </tr>
+        <tr *ngFor="let book of books">
+            <td>{{book.id}}</td>
+            <td>{{book.name}}</td>
+            <td>{{book.stock}}</td>
+        </tr>
+    </table> -->
+
+</ng-template>

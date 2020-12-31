@@ -32,6 +32,10 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/book/bookcontroller"
+	"github.com/shaileshhb/restapi/book/bookservice"
+	"github.com/shaileshhb/restapi/bookissue/issuecontroller"
+	"github.com/shaileshhb/restapi/bookissue/issueservice"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
@@ -50,7 +54,11 @@ func main() {
 	}
 	fmt.Println("DB connected Successfully")
 
-	db.AutoMigrate(&model.User{}, &model.Student{})
+	db.AutoMigrate(&model.User{}, &model.Student{}, &model.Book{}, &model.BookIssue{})
+
+	// Setting Foreign keys
+	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "CASCADE", "RESTRICT")
+	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "CASCADE", "RESTRICT")
 
 	router := mux.NewRouter()
 	if router == nil {
@@ -67,10 +75,17 @@ func main() {
 	//student
 	serv := stdservice.NewService(repos, db)
 	controller := stdcontroller.NewController(serv)
-
 	controller.RegisterRoutes(router)
 
-	// db.AutoMigrate()
+	// book
+	bookserv := bookservice.NewBookService(repos, db)
+	bookController := bookcontroller.NewBookController(bookserv)
+	bookController.RegisterBookRoutes(router)
+
+	// issues
+	issuesServ := issueservice.NewIssueService(repos, db)
+	issueController := issuecontroller.NewIssueController(issuesServ)
+	issueController.RegisterIssueRoutes(router)
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})

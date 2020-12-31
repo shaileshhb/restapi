@@ -1,4 +1,4 @@
-package controller
+package usercontroller
 
 import (
 	"encoding/json"

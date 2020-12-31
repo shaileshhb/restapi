@@ -5,7 +5,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link" *ngIf="isUserLoggedIn" routerLink = "/students">Students List</a>
+        <a class="nav-item nav-link" routerLink = "/students">Students List</a>
         <a class="nav-item nav-link" routerLink="/login" (click)="loginToggle()">{{loggedInValue}}</a>
       </div>
     </div>

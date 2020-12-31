@@ -11,8 +11,7 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class MasterNavbarComponent implements OnInit {
 
-  @Input() loggedInValue;
-  isUserLoggedIn: boolean;
+  loggedInValue: string = "Login";
 
   constructor(
     private cookieService: CookieService,
@@ -22,26 +21,22 @@ export class MasterNavbarComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-
-    console.log(this.cookieService.get("Token"));
-
     if (this.cookieService.get("Token") == "") {
-      this.isUserLoggedIn = false
+      this.loggedInValue = "Login"
     } else {
-      this.isUserLoggedIn = true
-      // this.setUserIdleState()
+      this.loggedInValue = "Logout"
     }
-
   }
 
   loginToggle() {
 
-    console.log(this.loggedInValue, this.isUserLoggedIn);
+    console.log(this.loggedInValue);
     
-    if (this.loggedInValue == "Logout") {
-      console.log("inside logout");
+    if (this.cookieService.get("Token") != "") {
       this.cookieService.delete("Token")
-      this.isUserLoggedIn = false
+      this.loggedInValue = "Login"
+    } else {
+      this.loggedInValue = "Logout"
     }
   }
 

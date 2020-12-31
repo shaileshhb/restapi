@@ -39,7 +39,7 @@ type Student struct {
 	// the ismale for this student
 	//
 	// required: false
-	IsMale *bool `json:"isMale"`
+	IsMale *bool `gorm:"type:tinyint" json:"isMale"`
 
 	// the date for this student
 	//
@@ -49,7 +49,8 @@ type Student struct {
 	// the datetime for this student
 	//
 	// required: false
-	DateTime *string `gorm:"type:datetime" json:"dateTime"`
+	// DateTime *string `gorm:"type:datetime" json:"dateTime"`
+
 }
 
 // type DateTimestamp struct {
