@@ -441,9 +441,7 @@ func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 	var students = &model.Student{}
 	var sum = &model.Sum{}
 
-	query := "sum(roll_no+age) as student_sum"
-
-	err = c.Service.GetSum(students, sum, query)
+	err = c.Service.GetSum(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -462,9 +460,7 @@ func (c *Controller) GetDiff(w http.ResponseWriter, r *http.Request) {
 	var students = &model.Student{}
 	var sum = &model.Sum{}
 
-	query := "abs(sum(age - roll_no)) as student_sum"
-
-	err = c.Service.GetSum(students, sum, query)
+	err = c.Service.GetDiff(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -483,9 +479,7 @@ func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Reques
 	var students = &model.Student{}
 	var sum = &model.Sum{}
 
-	query := "sum(age) - count(*) as student_sum"
-
-	err = c.Service.GetSum(students, sum, query)
+	err = c.Service.GetDiffOfAgeAndRecord(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

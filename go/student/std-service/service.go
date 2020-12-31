@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
@@ -65,10 +64,12 @@ func (s *Service) Get(students *[]model.Student, id string) error {
 	return nil
 }
 
-func (s *Service) GetSum(students *model.Student, sum *model.Sum, query string) error {
+func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
 
 	// if err := s.repo.GetSum()
 	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "sum(age + roll_no) as student_sum"
 
 	err := s.repo.Select(uow, students, sum, query)
 	if err != nil {
@@ -76,16 +77,39 @@ func (s *Service) GetSum(students *model.Student, sum *model.Sum, query string) 
 		return err
 	}
 	uow.Commit()
-
-	log.Println("Service sum -> ", sum)
-
 	return nil
+}
 
-	// age, rollNo, err := s.repo.GetSum(uow, students)
-	// log.Println("Sum of age -> ", age)
-	// log.Println("Sum of rollNo -> ", rollNo)
-	// log.Println("Sum of age and rollNo -> ", age+rollNo)
+func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
 
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "abs(sum(age - roll_no)) as student_sum"
+
+	err := s.repo.Select(uow, students, sum, query)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "sum(age) - count(*) as student_sum"
+
+	err := s.repo.Select(uow, students, sum, query)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
 }
 
 func (s *Service) AddNewStudent(student *model.Student) error {
