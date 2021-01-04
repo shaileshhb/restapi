@@ -41,12 +41,12 @@ func Filter(condition string, args ...interface{}) QueryProcessor {
 	}
 }
 
-func Search(condition string, value string, entity interface{}) QueryProcessor {
+func Search(condition string, value interface{}, entity interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if value != "" {
 			if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
-				return nil, errors.New("Same name already exists")
+				return nil, errors.New("Entry Already exists")
 			}
 		}
 		return db, nil

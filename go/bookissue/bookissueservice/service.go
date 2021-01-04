@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
+
 )
 
 type IssueService struct {
@@ -33,10 +34,10 @@ func (s *IssueService) GetAll(issues *[]model.BookIssue) error {
 	return nil
 }
 
-func (s *IssueService) Penalty(penalty *[]model.BookIssueWithPenalty) error {
+// func (s *IssueService) Penalty(penalty *[]model.BookIssueWithPenalty) error {
 
-	return nil
-}
+// 	return nil
+// }
 
 func (s *IssueService) Get(bookIssue *model.BookIssue, id string) error {
 
@@ -55,9 +56,16 @@ func (s *IssueService) Get(bookIssue *model.BookIssue, id string) error {
 	return nil
 }
 
-func (s *IssueService) AddNewBook(bookIssue *model.BookIssue) error {
+func (s *IssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 
 	var queryProcessors []repository.QueryProcessor
+
+	searchQuery := "student_id=?"
+	// studentID, err := uuid.FromString(bookIssue.StudentID)
+	// if err != nil {
+	// 	return err
+	// }
+	queryProcessors = append(queryProcessors, repository.Search(searchQuery, bookIssue.StudentID, bookIssue))
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)

@@ -3,7 +3,6 @@
 <div class="container">
     <br>
     <button class="btn btn-outline-primary" *ngIf="userLoggedIn" (click) = "setAddAction(); openStudentModalForm(studentModal)">Add Student</button> &nbsp;
-    <!-- <button class="btn btn-outline-primary"  (click) = "showInventory(); openStudentModalForm(inventoryModal)">Check Inventory</button> -->
     <br>
     <br>
     <div *ngIf="students.length != 0; else noStudents">
@@ -33,8 +32,8 @@
                 <td>{{student.date}}</td>
                 <!-- <td>{{student.dateTime}}</td> -->
                 <td>{{student.isMale}}</td>
-                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openStudentModalForm(studentModal)" >VIEW</button></td>
-                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
+                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openStudentModalForm(viewModal)" >VIEW</button></td>
+                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id, student.bookIssues); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
                 <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
                 <td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
             </tr>
@@ -143,39 +142,49 @@
                 </div>
             </fieldset>   
 
-            <!-- <div>{{studentForm.valid}}</div> -->
-            <div *ngIf="isViewClicked">
-                <div *ngIf="bookIssues.length != 0; else noBooksIssued">
-                    <table class="table table-bordered table-responsive">
-                        <tr>
-                            <th>Book ID</th>
-                            <!-- <th>Student ID</th> -->
-                            <th>Issue Date</th>
-                            <th>Returned</th>
-                            <th>Penalty</th>
-                            <th *ngIf="userLoggedIn">Return Book</th>
-                        </tr>
-                        <tr *ngFor="let bookIssue of bookIssues">
-                            <td>{{bookIssue.bookID}}</td>
-                            <!-- <td>{{bookIssue.studentID}}</td> -->
-                            <td>{{bookIssue.issueDate}}</td>
-                            <td>{{bookIssue.returnedFlag}}</td>
-                            <td>Calculating.........</td>
-                            <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" [disabled]="bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <ng-template #noBooksIssued>
-                    <h4>Books Not Issued</h4>
-                </ng-template>
-            </div>
-
             <div class="form-group">
-                <button *ngIf="userLoggedIn && !isViewClicked" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
+                <button *ngIf="userLoggedIn" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
             </div>
             
         </form>
+    </div>
+</ng-template>
+
+<ng-template #viewModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">INVENTORY</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+    </div>
+
+    <div class="modal-body">
+        <div *ngIf="isViewClicked">
+            <div *ngIf="bookIssues.length != 0; else noBooksIssued">
+                <table class="table table-bordered table-responsive">
+                    <tr>
+                        <th>Book ID</th>
+                        <!-- <th>Student ID</th> -->
+                        <th>Issue Date</th>
+                        <th>Returned</th>
+                        <th>Penalty</th>
+                        <th *ngIf="userLoggedIn">Return Book</th>
+                    </tr>
+                    <tr *ngFor="let bookIssue of bookIssues">
+                        <td>{{bookIssue.bookID}}</td>
+                        <!-- <td>{{bookIssue.studentID}}</td> -->
+                        <td>{{bookIssue.issueDate}}</td>
+                        <td>{{bookIssue.returnedFlag}}</td>
+                        <td>{{bookIssue.penalty}}</td>
+                        <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" [disabled]="bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button></td>
+                    </tr>
+                </table>
+            </div>
+
+            <ng-template #noBooksIssued>
+                <h4>Books Not Issued</h4>
+            </ng-template>
+        </div>
     </div>
 </ng-template>
 

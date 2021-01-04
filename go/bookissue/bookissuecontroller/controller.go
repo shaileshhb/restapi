@@ -31,9 +31,9 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 
 	getBookIssues := apiRoutes.HandleFunc("/bookIssues", i.GetAllBookIssues).Methods("GET")
 	getBookIssue := apiRoutes.HandleFunc("/bookIssues/{id}", i.GetBookIssues).Methods("GET")
-	penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
+	// penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
 
-	excludedRoutes := []*mux.Route{getBookIssues, getBookIssue, penalty}
+	excludedRoutes := []*mux.Route{getBookIssues, getBookIssue}
 	apiRoutes.Use(excluderoute.Authorization(excludedRoutes))
 
 	apiRoutes.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
@@ -84,18 +84,18 @@ func (i *BookIssueController) GetBookIssues(w http.ResponseWriter, r *http.Reque
 	log.Println("Book Issue Successfully returned")
 }
 
-func (i *BookIssueController) GetPenalty(w http.ResponseWriter, r *http.Request) {
+// func (i *BookIssueController) GetPenalty(w http.ResponseWriter, r *http.Request) {
 
-	var bookPenalty = []model.BookIssueWithPenalty{}
+// 	var bookPenalty = []model.BookIssueWithPenalty{}
 
-	err := i.service.Penalty(&bookPenalty)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	log.Println(bookPenalty)
-}
+// 	err := i.service.Penalty(&bookPenalty)
+// 	if err != nil {
+// 		log.Println(err)
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+// 	log.Println(bookPenalty)
+// }
 
 func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Request) {
 
@@ -120,7 +120,7 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 
 	log.Println("Book in controller", bookIssue)
 
-	err = i.service.AddNewBook(bookIssue)
+	err = i.service.AddNewBookIssue(bookIssue)
 	if err != nil {
 		log.Println("error from add", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

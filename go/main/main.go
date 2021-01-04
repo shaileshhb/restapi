@@ -129,3 +129,9 @@ func main() {
 // left join book_issues
 // on id = book_id
 // group by book_id
+
+
+// penalty update
+// SELECT book_id, student_id, issue_date, returned_flag, abs(DATEDIFF(issue_date, CURDATE()))-10.0,
+// 	if(abs(DATEDIFF(issue_date, CURDATE())) > 10 and returned_flag = false, (abs(DATEDIFF(issue_date, CURDATE()))-10)*2.5, 0) penalty
+// FROM book_issues

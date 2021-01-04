@@ -3,4 +3,5 @@ export interface IBookIssue {
     issueDate: string;
     returnedFlag: boolean
     studentID: string;
+    penalty: number;
 }

@@ -27,6 +27,7 @@ export class StudentCrudComponent implements OnInit {
   formTitle: string;
   userLoggedIn: boolean = false;
   isViewClicked: boolean = false;
+  isBookIssued: boolean = false;
   modalRef: any;
   
   constructor(
@@ -72,30 +73,6 @@ export class StudentCrudComponent implements OnInit {
     this.getStudents();
    }
 
-  getStudents():void{
-    this.studentService.getStudentDetails().subscribe((data)=>{
-      this.students = data;
-      for (let i = 0; i < this.students.length; i++) {
-        // this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
-        if(this.students[i].isMale != null) {
-          this.students[i].isMale = this.students[i].isMale == true ? "Male" : "Female"         
-        } else {
-          this.students[i].isMale = ""
-        }
-      }
-      console.log(this.students);
-      
-    },
-    (err) => {
-      console.log('HTTP Error', err.error)
-      alert("Error: " + err.error)
-      if (err.status == 401) {
-        this.router.navigateByUrl('/login')
-        this.modalService.dismissAll() 
-      }
-    }
-    );
-  }
 
   // userRegister(registerValue) {
   //   console.log(registerValue);
@@ -128,10 +105,7 @@ export class StudentCrudComponent implements OnInit {
 
   setViewAction(id: string): void {
     this.studentFormBuild()
-    this.formTitle = "View"
     this.isViewClicked = true
-
-    console.log(this.isViewClicked);
     
     this.prepopulate(id)
     // this.loadBookIssueData(id)
@@ -160,6 +134,31 @@ export class StudentCrudComponent implements OnInit {
       
     },
     (err) => console.log('HTTP Error', err.error)
+    );
+  }
+
+  getStudents():void{
+    this.studentService.getStudentDetails().subscribe((data)=>{
+      this.students = data;
+      for (let i = 0; i < this.students.length; i++) {
+        // this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
+        if(this.students[i].isMale != null) {
+          this.students[i].isMale = this.students[i].isMale == true ? "Male" : "Female"         
+        } else {
+          this.students[i].isMale = ""
+        }
+      }
+      console.log(this.students);
+      
+    },
+    (err) => {
+      console.log('HTTP Error', err.error)
+      alert("Error: " + err.error)
+      if (err.status == 401) {
+        this.router.navigateByUrl('/login')
+        this.modalService.dismissAll() 
+      }
+    }
     );
   }
 
@@ -257,17 +256,27 @@ export class StudentCrudComponent implements OnInit {
   // book issue
   loadBookIssueData(id: string): void {
 
-    this.bookIssues = []
-    this.bookIssueService.getBookIssues().subscribe((response) => {
-
-      for(var i=0; i < response.length; i++) {
-        if (id == response[i].studentID) {
-          console.log(response[i]);
-          this.bookIssues.push(response[i])
-        }
-      }
-
+    this.studentService.getStudentDetail(id).subscribe((response) => {
+      this.bookIssues = response.bookIssues
+    },
+    err => {
+      alert("ERROR")
+      console.log(err.error);
+      
     })
+
+
+    // this.bookIssues = []
+    // this.bookIssueService.getBookIssues().subscribe((response) => {
+
+    //   for(var i=0; i < response.length; i++) {
+    //     if (id == response[i].studentID) {
+    //       console.log(response[i]);
+    //       this.bookIssues.push(response[i])
+    //     }
+    //   }
+
+    // })
   }
 
   returnBookIssued(bookID: string, studentID: string) {
@@ -290,8 +299,10 @@ export class StudentCrudComponent implements OnInit {
   }
 
   // books
-  showInventory(studentID: string) {
+  showInventory(studentID: string, bookIssues) {
 
+    console.log(bookIssues);
+    
     this.bookService.getBooks().subscribe((response) => {
       localStorage.setItem('studentID', studentID)
       this.books = response
@@ -314,7 +325,7 @@ export class StudentCrudComponent implements OnInit {
   }
 
   issueBook() {
-    
+
     this.bookIssueService.addNewBookIssue({
       "bookID": this.bookIssueForm.get('bookID').value,
       "studentID": this.bookIssueForm.get('studentID').value,
@@ -326,7 +337,9 @@ export class StudentCrudComponent implements OnInit {
       this.getStudents()
     },
     err => {
+      alert("Error: " + err.error)
       console.log("Error: " , err.error);
+      this.modalRef.close()
       
     })
   }

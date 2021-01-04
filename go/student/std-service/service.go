@@ -2,12 +2,14 @@ package stdservice
 
 import (
 	"errors"
+	"log"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	"github.com/shaileshhb/restapi/utility"
+	"github.com/shaileshhb/restapi/utility/calculatepenalty"
 	"github.com/shaileshhb/restapi/utility/structToMap"
 )
 
@@ -61,8 +63,26 @@ func (s *Service) Get(students *model.Student, id string) error {
 	uow.Commit()
 
 	utility.TrimDate(students)
+	s.UpdatePenalty(&students.BookIssues)
 	// utility.TrimDateTime(students)
 
+	return nil
+}
+
+func (s *Service) UpdatePenalty(bookIssues *[]model.BookIssue) error {
+
+	log.Println("BookID From UPDATE PENALTY")
+
+	uow := repository.NewUnitOfWork(s.DB, false)
+	var queryProcessors []repository.QueryProcessor
+
+	calculatepenalty.Penalty(bookIssues)
+
+	if err := s.repo.Update(uow, bookIssues, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 	return nil
 }
 
@@ -98,6 +118,8 @@ func (s *Service) Update(student *model.Student, id string) error {
 		return err
 	}
 
+	log.Println("Book Issues -> ", student.BookIssues)
+
 	// studentMap := structToMap.ConvertStructToMap(student, id)
 
 	var queryProcessors []repository.QueryProcessor
@@ -106,6 +128,8 @@ func (s *Service) Update(student *model.Student, id string) error {
 
 	checkName := "name = ?"
 	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
+
+	// bookAlreadyIssuedSearch := ""
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
