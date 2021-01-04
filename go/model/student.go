@@ -51,6 +51,7 @@ type Student struct {
 	// required: false
 	// DateTime *string `gorm:"type:datetime" json:"dateTime"`
 
+	BookIssues []BookIssue `json:"bookIssues"`
 }
 
 // type DateTimestamp struct {

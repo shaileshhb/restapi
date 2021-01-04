@@ -1,4 +1,4 @@
-package issueservice
+package bookissueservice
 
 import (
 	"github.com/jinzhu/gorm"
@@ -33,15 +33,20 @@ func (s *IssueService) GetAll(issues *[]model.BookIssue) error {
 	return nil
 }
 
-func (s *IssueService) Get(issue *model.BookIssue, id string) error {
+func (s *IssueService) Penalty(penalty *[]model.BookIssueWithPenalty) error {
+
+	return nil
+}
+
+func (s *IssueService) Get(bookIssue *model.BookIssue, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	queryCondition := "id=?"
+	queryCondition := "book_id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
-	if err := s.repo.Get(uow, issue, queryProcessors); err != nil {
+	if err := s.repo.Get(uow, bookIssue, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -50,14 +55,14 @@ func (s *IssueService) Get(issue *model.BookIssue, id string) error {
 	return nil
 }
 
-func (s *IssueService) AddNewBook(issue *model.BookIssue) error {
+func (s *IssueService) AddNewBook(bookIssue *model.BookIssue) error {
 
 	var queryProcessors []repository.QueryProcessor
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Add(uow, issue, queryProcessors); err != nil {
+	if err := s.repo.Add(uow, bookIssue, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -66,7 +71,24 @@ func (s *IssueService) AddNewBook(issue *model.BookIssue) error {
 	return nil
 }
 
-func (s *IssueService) Delete(issue *model.BookIssue, id string) error {
+func (s *IssueService) UpdateBook(bookIssue *model.BookIssue, bookID string) error {
+
+	var queryProcessors []repository.QueryProcessor
+	var queryCondition = "book_id=?"
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, bookID))
+
+	uow := repository.NewUnitOfWork(s.DB, false)
+
+	if err := s.repo.Update(uow, bookIssue, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+
+}
+
+func (s *IssueService) Delete(bookIssue *model.BookIssue, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
@@ -74,7 +96,7 @@ func (s *IssueService) Delete(issue *model.BookIssue, id string) error {
 	queryCondition := "id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
-	if err := s.repo.Delete(uow, issue, queryProcessors); err != nil {
+	if err := s.repo.Delete(uow, bookIssue, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}

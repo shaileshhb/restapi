@@ -7,7 +7,7 @@
     <br>
     <br>
     <div *ngIf="students.length != 0; else noStudents">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-responsive">
             <tr>
                 <th>ID</th>
                 <th>Name</th>
@@ -34,7 +34,7 @@
                 <!-- <td>{{student.dateTime}}</td> -->
                 <td>{{student.isMale}}</td>
                 <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openStudentModalForm(studentModal)" >VIEW</button></td>
-                <td><button class="btn btn-outline-primary"  (click) = "showInventory(); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
+                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
                 <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
                 <td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
             </tr>
@@ -145,24 +145,34 @@
 
             <!-- <div>{{studentForm.valid}}</div> -->
             <div *ngIf="isViewClicked">
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Book ID</th>
-                        <th>Student ID</th>
-                        <th>Issue Date</th>
-                        <th>Returned Flag</th>
-                    </tr>
-                    <tr *ngFor="let issue of bookIssues">
-                        <td>{{issue.bookID}}</td>
-                        <td>{{issue.studentID}}</td>
-                        <td>{{issue.issueDate}}</td>
-                        <td>{{issue.returnedFlag}}</td>
-                    </tr>
-                </table>
+                <div *ngIf="bookIssues.length != 0; else noBooksIssued">
+                    <table class="table table-bordered table-responsive">
+                        <tr>
+                            <th>Book ID</th>
+                            <!-- <th>Student ID</th> -->
+                            <th>Issue Date</th>
+                            <th>Returned</th>
+                            <th>Penalty</th>
+                            <th *ngIf="userLoggedIn">Return Book</th>
+                        </tr>
+                        <tr *ngFor="let bookIssue of bookIssues">
+                            <td>{{bookIssue.bookID}}</td>
+                            <!-- <td>{{bookIssue.studentID}}</td> -->
+                            <td>{{bookIssue.issueDate}}</td>
+                            <td>{{bookIssue.returnedFlag}}</td>
+                            <td>Calculating.........</td>
+                            <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" [disabled]="bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <ng-template #noBooksIssued>
+                    <h4>Books Not Issued</h4>
+                </ng-template>
             </div>
 
             <div class="form-group">
-                <button *ngIf="userLoggedIn" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
+                <button *ngIf="userLoggedIn && !isViewClicked" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
             </div>
             
         </form>
@@ -172,7 +182,7 @@
 <ng-template #inventoryModal let-modal>
 
     <div class="modal-header">
-        <h4 class="modal-title">{{formTitle | uppercase}} FORM</h4>
+        <h4 class="modal-title">INVENTORY</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -183,27 +193,54 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Stock</th>
+                <th>In-Stock</th>
+                <th>Total</th>
+                <th *ngIf="userLoggedIn">Issue</th>
             </tr>
             <tr *ngFor="let book of books">
                 <td>{{book.id}}</td>
                 <td>{{book.name}}</td>
-                <td>{{book.stock}}</td>
+                <td>{{book.inStock}}</td>
+                <td>{{book.totalStock}}</td>
+                <!-- <td>Calculating........</td> -->
+                <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" (click)="prepopulateBook(book.id); openStudentModalForm(issueDate, 'lg')">Issue</button></td>
             </tr>
         </table>
     </div>
 
-    <!-- <table class="table table-bordered">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Stock</th>
-        </tr>
-        <tr *ngFor="let book of books">
-            <td>{{book.id}}</td>
-            <td>{{book.name}}</td>
-            <td>{{book.stock}}</td>
-        </tr>
-    </table> -->
+</ng-template>
+
+<ng-template #issueDate let-modal>
+
+    <div class="modal-header">
+        <h4 class="modal-title">ISSUE DATE</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+    </div>
+
+    <div class="modal-body">
+        <form [formGroup]="bookIssueForm">
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="bookID" >Book ID</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="bookID" formControlName="bookID">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="studentID" >Student ID</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="studentID" formControlName="studentID">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="dateId" >Date</label>
+                <div class="col-sm-6">
+                    <input type="datetime-local" class="form-control" id="dateId" formControlName="issueDate">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-outline-primary" [disabled]="!bookIssueForm.valid" (click)="issueBook()">Submit</button>
+        </form>
+    </div>
 
 </ng-template>

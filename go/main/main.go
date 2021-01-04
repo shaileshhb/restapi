@@ -34,8 +34,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/book/bookcontroller"
 	"github.com/shaileshhb/restapi/book/bookservice"
-	"github.com/shaileshhb/restapi/bookissue/issuecontroller"
-	"github.com/shaileshhb/restapi/bookissue/issueservice"
+	"github.com/shaileshhb/restapi/bookissue/bookissuecontroller"
+	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
@@ -83,9 +83,9 @@ func main() {
 	bookController.RegisterBookRoutes(router)
 
 	// issues
-	issuesServ := issueservice.NewIssueService(repos, db)
-	issueController := issuecontroller.NewIssueController(issuesServ)
-	issueController.RegisterIssueRoutes(router)
+	issuesServ := bookissueservice.NewIssueService(repos, db)
+	issueController := bookissuecontroller.NewBookIssueController(issuesServ)
+	issueController.RegisterBookIssueRoutes(router)
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
@@ -120,3 +120,12 @@ func main() {
 	os.Exit(0)
 
 }
+
+// availability query
+// select id, stock,
+// 	if(returned_flag = false, abs(stock - count(book_id)), stock) total,
+// 	returned_flag
+// from books
+// left join book_issues
+// on id = book_id
+// group by book_id

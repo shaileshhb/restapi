@@ -1,9 +1,9 @@
 package model
 
 type Sum struct {
-	StudentSum int64
+	N int64
 }
 
 type Difference struct {
-	StudentDiff int64
+	N int64
 }

@@ -2,10 +2,8 @@ package excluderoute
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
@@ -25,41 +23,41 @@ func Authorization(excludedRoutes []*mux.Route) func(http.Handler) http.Handler 
 
 		excludedRoutesRegexp = append(excludedRoutesRegexp, regx)
 	}
-	log.Println("ExculdedRoutes -> ", excludedRoutesRegexp)
+	// log.Println("ExculdedRoutes -> ", excludedRoutesRegexp)
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			log.Println("Inside validation")
+			// log.Println("Inside validation")
 
 			exclude := false
 			requestMethod := r.Method
 
-			log.Println("Request Method -> ", requestMethod)
+			// log.Println("Request Method -> ", requestMethod)
 
 			for i := 0; i < rl; i++ {
 				excludedRoute := excludedRoutes[i]
 				methods, _ := excludedRoute.GetMethods()
 				ml := len(methods)
-				log.Println("Route Method ->", methods, "lenght -> ", ml)
+				// log.Println("Route Method ->", methods, "lenght -> ", ml)
 
 				methodMatched := false
 				if ml < 1 {
-					log.Println("Making method matched true")
+					// log.Println("Making method matched true")
 					methodMatched = true
 				} else {
 					for j := 0; j < ml; j++ {
-						log.Println("Methods[j] -> ", methods[j], "Request Method -> ", requestMethod)
+						// log.Println("Methods[j] -> ", methods[j], "Request Method -> ", requestMethod)
 						if methods[j] == requestMethod {
 							methodMatched = true
 							break
 						}
 					}
 				}
-				log.Println("Matched ->", methodMatched)
+				// log.Println("Matched ->", methodMatched)
 				if methodMatched {
 					uri := r.RequestURI
-					log.Println("Excluded Routes ->", excludedRoutesRegexp[i], "URI -> ", uri)
+					// log.Println("Excluded Routes ->", excludedRoutesRegexp[i], "URI -> ", uri)
 					if excludedRoutesRegexp[i].MatchString(uri) {
 						exclude = true
 						break
@@ -68,7 +66,7 @@ func Authorization(excludedRoutes []*mux.Route) func(http.Handler) http.Handler 
 			}
 			if !exclude {
 				// validationUserToken(next)
-				log.Println("Token -> ", r.Header["Token"])
+				// log.Println("Token -> ", r.Header["Token"])
 				var jwtKey = []byte("some_secret_key")
 
 				if r.Header["Token"] != nil {
@@ -83,15 +81,17 @@ func Authorization(excludedRoutes []*mux.Route) func(http.Handler) http.Handler 
 					})
 					if err != nil {
 						if err == jwt.ErrSignatureInvalid {
-							w.WriteHeader(http.StatusUnauthorized)
+							http.Error(w, "User Not Authorized", http.StatusUnauthorized)
+							// w.WriteHeader(http.StatusUnauthorized)
 							return
 						}
-						w.WriteHeader(http.StatusBadRequest)
+						http.Error(w, "User Not Authorized", http.StatusBadRequest)
+						// w.WriteHeader(http.StatusBadRequest)
 						return
 					}
 
-					log.Println("Token->", *token)
-					log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
+					// log.Println("Token->", *token)
+					// log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
 
 					// if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) < 60*time.Second {
 					// 	refresh

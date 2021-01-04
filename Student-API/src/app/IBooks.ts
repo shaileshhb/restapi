@@ -1,5 +1,6 @@
 export interface IBooks {
     id: string;
     name: string;
-    stock: number;
+    inStock: number;
+    totalStock: number;
 }

@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	Get(uow *UnitOfWork, out interface{}) error
+	GetCount(uow *UnitOfWork, out interface{}, count *int, queryProcessors []QueryProcessor) error
 	Add(uow *UnitOfWork, entity interface{}) error
 	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
@@ -52,7 +53,52 @@ func Search(condition string, value string, entity interface{}) QueryProcessor {
 	}
 }
 
-func (*GormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
+func Model() QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		db = db.Model(out)
+
+		return db, nil
+	}
+}
+
+func Preload(preloadAssociation []string) QueryProcessor {
+
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		if preloadAssociation != nil {
+			for _, association := range preloadAssociation {
+				db = db.Debug().Preload(association)
+			}
+		}
+		return db, nil
+	}
+}
+
+func GroupBy(groupBy []string) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		for _, entity := range groupBy {
+			db = db.Group(entity)
+		}
+		return db, nil
+	}
+}
+
+func Select(query string) QueryProcessor {
+
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		db = db.Select(query)
+		return db, nil
+	}
+}
+
+func Join(query string) QueryProcessor {
+
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		db = db.Joins(query)
+		return db, nil
+	}
+}
+
+func (g *GormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
 	var err error
@@ -94,7 +140,7 @@ func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}, queryProcessor
 	return nil
 }
 
-func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error {
+func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
 	var err error
@@ -108,7 +154,7 @@ func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, entityMap m
 		}
 	}
 
-	if err := db.Debug().Updates(entityMap).Error; err != nil {
+	if err := db.Debug().Model(entity).Update(entity).Error; err != nil {
 		return err
 	}
 	return nil
@@ -133,7 +179,7 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	return nil
 }
 
-func (g *GormRepository) Select(uow *UnitOfWork, entity interface{}, out interface{}, query string) error {
+func (g *GormRepository) SelectQuery(uow *UnitOfWork, entity interface{}, out interface{}, query string) error {
 
 	db := uow.DB
 	var err error
@@ -142,8 +188,23 @@ func (g *GormRepository) Select(uow *UnitOfWork, entity interface{}, out interfa
 		return err
 	}
 
-	log.Println("In Repo Get Sum", out)
-	// db.Debug().Raw("SELECT SUM(age) FROM students").Scan(&age)
-
 	return nil
+}
+
+func (g *GormRepository) Scan(uow *UnitOfWork, entity interface{}, out interface{}, queryProcessors []QueryProcessor) error {
+
+	db := uow.DB
+	var err error
+
+	if queryProcessors != nil {
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+		}
+	}
+
+	if err = db.Debug().Scan(out).Error; err != nil {
+		return err
+	}
+	return nil
+
 }

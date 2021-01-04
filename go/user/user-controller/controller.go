@@ -153,7 +153,7 @@ func (c *Controller) generateJWT(userID uuid.UUID, w http.ResponseWriter) (strin
 	// secret key
 	var jwtKey = []byte("some_secret_key")
 
-	expirationTime := time.Now().Add(2 * time.Minute)
+	expirationTime := time.Now().Add(5 * time.Minute)
 
 	// Creating JWT Claim which includes username and claims
 	claims := &model.Claim{

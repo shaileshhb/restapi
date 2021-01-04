@@ -203,7 +203,7 @@ func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(studentJSON)
-	log.Println("Student Successfully returned")
+	log.Println("Student Successfully returned -> ", students)
 
 }
 
@@ -300,7 +300,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// w.Write([]byte("Student successfully updated"))
+	w.Write([]byte(student.ID.String()))
 	log.Println("Student successfully updated")
 
 }
@@ -318,7 +318,7 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// w.Write([]byte(student.ID.String()))
+	w.Write([]byte(student.ID.String()))
 	log.Println("Student successfully deleted")
 
 }
@@ -337,8 +337,8 @@ func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Sum of age and roll no is -> " + strconv.FormatInt(sum.StudentSum, 10)))
-	log.Println("Sum of age and roll no is -> ", sum.StudentSum)
+	w.Write([]byte("Sum of age and roll no is -> " + strconv.FormatInt(sum.N, 10)))
+	log.Println("Sum of age and roll no is -> ", sum.N)
 
 }
 
@@ -356,8 +356,8 @@ func (c *Controller) GetDiff(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Diff of age and roll no is -> " + strconv.FormatInt(sum.StudentSum, 10)))
-	log.Println("Diff of age and roll no is -> ", sum.StudentSum)
+	w.Write([]byte("Diff of age and roll no is -> " + strconv.FormatInt(sum.N, 10)))
+	log.Println("Diff of age and roll no is -> ", sum.N)
 
 }
 
@@ -375,8 +375,8 @@ func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Write([]byte("Age and record diff is -> " + strconv.FormatInt(sum.StudentSum, 10)))
-	log.Println("Age and record diff is -> ", sum.StudentSum)
+	w.Write([]byte("Age and record diff is -> " + strconv.FormatInt(sum.N, 10)))
+	log.Println("Age and record diff is -> ", sum.N)
 
 }
 

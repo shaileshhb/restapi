@@ -17,17 +17,17 @@ export class StudentDTOService {
 
   getStudentDetails(): Observable<IStudentDTO[]> {
 
-    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+    // let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
 
-    return this.http.get<IStudentDTO[]>(this.baseURL, {'headers' : httpHeaders});
+    return this.http.get<IStudentDTO[]>(this.baseURL);
 
   }
 
   getStudentDetail(studentID: string): Observable<IStudentDTO> {
 
-    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+    // let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
 
-    return this.http.get<IStudentDTO>(this.baseURL + "/" + studentID, {'headers' : httpHeaders});
+    return this.http.get<IStudentDTO>(this.baseURL + "/" + studentID);
 
   }
 
@@ -42,7 +42,7 @@ export class StudentDTOService {
 
   }
 
-  updateExisitingStudent(id: string, studentDetails: any): Observable<IStudentDTO> {
+  updateExisitingStudent(id: string, studentDetails: any): Observable<string> {
 
     let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': this.cookieService.get("Token") } );
     let studentJSON: string = JSON.stringify(studentDetails); 
@@ -50,16 +50,16 @@ export class StudentDTOService {
     console.log(studentJSON);
     
     
-    return this.http.put<IStudentDTO>(this.baseURL + "/" + id, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.put<string>(this.baseURL + "/" + id, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
 
   } 
 
-  deleteStudent(studentID: string): Observable<IStudentDTO> {
+  deleteStudent(studentID: string): Observable<string> {
     console.log(studentID);
     
     let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
 
-    return this.http.delete<IStudentDTO>(this.baseURL + "/" +studentID, {'headers': httpHeaders, responseType:'text' as 'json'});
+    return this.http.delete<string>(this.baseURL + "/" +studentID, {'headers': httpHeaders, responseType:'text' as 'json'});
   }
 
 }

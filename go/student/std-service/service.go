@@ -29,6 +29,7 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
 
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
@@ -49,6 +50,7 @@ func (s *Service) Get(students *model.Student, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
 	queryCondition := "id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
@@ -61,72 +63,6 @@ func (s *Service) Get(students *model.Student, id string) error {
 	utility.TrimDate(students)
 	// utility.TrimDateTime(students)
 
-	return nil
-}
-
-func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
-
-	// if err := s.repo.GetSum()
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	query := "sum(age + roll_no) as student_sum"
-
-	err := s.repo.Select(uow, students, sum, query)
-	if err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
-
-	// if err := s.repo.GetSum()
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	query := "abs(sum(age - roll_no)) as student_sum"
-
-	err := s.repo.Select(uow, students, sum, query)
-	if err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum) error {
-
-	// if err := s.repo.GetSum()
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	query := "sum(age) - count(*) as student_sum"
-
-	err := s.repo.Select(uow, students, sum, query)
-	if err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) GetAge(students *[]model.Student) error {
-
-	// if err := s.repo.GetSum()
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	var queryProcessors []repository.QueryProcessor
-	queryCondition := "age > ?"
-	minAge := 18
-	queryProcessors = append(queryProcessors, repository.Where(queryCondition, minAge))
-
-	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
 	return nil
 }
 
@@ -162,7 +98,7 @@ func (s *Service) Update(student *model.Student, id string) error {
 		return err
 	}
 
-	studentMap := structToMap.ConvertStructToMap(student, id)
+	// studentMap := structToMap.ConvertStructToMap(student, id)
 
 	var queryProcessors []repository.QueryProcessor
 	checkID := "id = ?"
@@ -173,7 +109,7 @@ func (s *Service) Update(student *model.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Update(uow, student, studentMap, queryProcessors); err != nil {
+	if err := s.repo.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -238,5 +174,71 @@ func (s *Service) Validate(student *model.Student) error {
 	// 	return errors.New("Gender is required")
 	// }
 
+	return nil
+}
+
+func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "sum(age + roll_no) as n"
+
+	err := s.repo.SelectQuery(uow, students, sum, query)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "abs(sum(age - roll_no)) as n"
+
+	err := s.repo.SelectQuery(uow, students, sum, query)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	query := "sum(age) - count(*) as n"
+
+	err := s.repo.SelectQuery(uow, students, sum, query)
+	if err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) GetAge(students *[]model.Student) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryCondition := "age > ?"
+	minAge := 18
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, minAge))
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 	return nil
 }

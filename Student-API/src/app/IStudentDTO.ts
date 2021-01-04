@@ -1,3 +1,5 @@
+import { IBookIssue } from "./IBookIssue";
+
 export interface IStudentDTO {
     id: string;
     name: string;
@@ -8,4 +10,5 @@ export interface IStudentDTO {
     date: string;
     // dateTime: string;
     isMale: boolean;
+    bookIssues: IBookIssue[];
 }

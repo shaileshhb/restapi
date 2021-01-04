@@ -21,19 +21,35 @@ func NewBookService(repo *repository.GormRepository, db *gorm.DB) *BookService {
 	}
 }
 
-func (s *BookService) GetAllBooks(books *[]model.Book) error {
+func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
+	var book = model.Book{}
 	var queryProcessors []repository.QueryProcessor
 
-	if err := s.repo.Get(uow, books, queryProcessors); err != nil {
+	queryProcessors = append(queryProcessors, repository.Model())
+
+	selectQuery := "books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as in_stock, books.stock as total_stock"
+	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
+
+	joinQuery := "left join book_issues on books.id = book_issues.book_id"
+	queryProcessors = append(queryProcessors, repository.Join(joinQuery))
+
+	groupBy := "books.id"
+	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
+
+	if err := s.repo.Scan(uow, &book, books, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
 
+	uow.Commit()
 	return nil
+
+	// s.DB.Debug().Model(books).Select("books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag").Joins("left join book_issues on books.id = book_issues.book_id").Group("books.id").Scan(joinBookIssue)
+	// // SELECT books.id as id, books.name as name, books.stock as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag FROM `books` inner join book_issues on books.id = book_issues.book_id WHERE `books`.`deleted_at` IS NULL GROUP BY books.id
+
 }
 
 func (s *BookService) GetBook(book *model.Book, id string) error {
@@ -51,6 +67,41 @@ func (s *BookService) GetBook(book *model.Book, id string) error {
 	uow.Commit()
 	return nil
 }
+
+// func (s *BookService) GetTotalBooksAvailable(joinBookIssue *[]model.BookAvailability) error {
+
+// 	// s.DB.Debug().Model(book).Select("*").Joins("left join book_issues on id = book_id").Scan(joinBookIssue)
+// 	// SELECT * FROM `books` left join book_issues on id = book_id WHERE `books`.`deleted_at` IS NULL
+
+// 	uow := repository.NewUnitOfWork(s.DB, true)
+
+// 	var book = model.Book{}
+// 	var queryProcessors []repository.QueryProcessor
+
+// 	queryProcessors = append(queryProcessors, repository.Model())
+
+// 	selectQuery := "books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag"
+// 	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
+
+// 	joinQuery := "inner join book_issues on books.id = book_issues.book_id"
+// 	queryProcessors = append(queryProcessors, repository.Join(joinQuery))
+
+// 	groupBy := "books.id"
+// 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
+
+// 	if err := s.repo.Scan(uow, &book, joinBookIssue, queryProcessors); err != nil {
+// 		uow.Complete()
+// 		return err
+// 	}
+
+// 	uow.Commit()
+// 	return nil
+
+// 	// s.DB.Debug().Model(books).Select("books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag").Joins("left join book_issues on books.id = book_issues.book_id").Group("books.id").Scan(joinBookIssue)
+// 	// // SELECT books.id as id, books.name as name, books.stock as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag FROM `books` inner join book_issues on books.id = book_issues.book_id WHERE `books`.`deleted_at` IS NULL GROUP BY books.id
+// 	// return nil
+
+// }
 
 func (s *BookService) AddNewBook(book *model.Book) error {
 
@@ -75,29 +126,29 @@ func (s *BookService) AddNewBook(book *model.Book) error {
 	return nil
 }
 
-// func (s *BookService) Update(book *model.Book, id string) error {
+func (s *BookService) Update(book *model.Book, id string) error {
 
-// 	if err := s.Validate(book); err != nil {
-// 		return err
-// 	}
+	if err := s.Validate(book); err != nil {
+		return err
+	}
 
-// 	var queryProcessors []repository.QueryProcessor
-// 	checkID := "id = ?"
-// 	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
+	var queryProcessors []repository.QueryProcessor
+	checkID := "id = ?"
+	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
 
-// 	checkName := "name = ?"
-// 	queryProcessors = append(queryProcessors, repository.Search(checkName, book.Name, book))
+	// checkName := "name = ?"
+	// queryProcessors = append(queryProcessors, repository.Search(checkName, book.Name, book))
 
-// 	uow := repository.NewUnitOfWork(s.DB, false)
+	uow := repository.NewUnitOfWork(s.DB, false)
 
-// 	if err := s.repo.Update(uow, book, ?????, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-// 	uow.Commit()
+	if err := s.repo.Update(uow, book, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 
-// 	return nil
-// }
+	return nil
+}
 
 func (s *BookService) Delete(book *model.Book, id string) error {
 

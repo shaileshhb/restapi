@@ -17,14 +17,17 @@ import { StudentDTOService } from 'src/app/service/student-dto.service';
 export class StudentCrudComponent implements OnInit {
 
   students = [];
+  // bookIssue: IBookIssue
   books = [];
   bookIssues: IBookIssue[] = [];
   id: string;
   studentForm: FormGroup;
+  bookIssueForm: FormGroup;
   studentAPI: IStudentDTO;
   formTitle: string;
   userLoggedIn: boolean = false;
   isViewClicked: boolean = false;
+  modalRef: any;
   
   constructor(
     private studentService:StudentDTOService,
@@ -35,14 +38,14 @@ export class StudentCrudComponent implements OnInit {
     private modalService: NgbModal,
     private cookieService: CookieService
     ) { 
-      this.formBuild();
+      this.studentFormBuild();
   }
 
-  formBuild(){
+  studentFormBuild(){
     this.studentForm = this.formBuilder.group({
       rollNo: ['', [Validators.min(1)]],
       name: ['', [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: ['', [Validators.min(17)]],
+      age: ['', [Validators.min(5)]],
       phone: ['', [Validators.minLength(10), Validators.pattern("^[0-9]*$")]],
       date: [],
       dateTime: [],
@@ -51,6 +54,14 @@ export class StudentCrudComponent implements OnInit {
         Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
     });
   }
+
+  bookIssueFormBuilder() {
+    this.bookIssueForm = this.formBuilder.group({
+      bookID: [{value: '', disabled: true}],
+      studentID: [{value: '', disabled: true}],
+      issueDate: ['', [Validators.required]]
+    })
+  } 
   
   ngOnInit(): void {
     if (this.cookieService.get("Token") != "") {
@@ -93,7 +104,7 @@ export class StudentCrudComponent implements OnInit {
   validate():void{
   
     if(this.studentForm.valid){
-      if(this.formTitle == "add"){
+      if(this.formTitle == "Add"){
         this.addStudent();
       }
       else{
@@ -103,62 +114,53 @@ export class StudentCrudComponent implements OnInit {
   }
 
   setAddAction():void{
-    this.formBuild();
+    this.studentFormBuild();
     this.formTitle = "Add"
     this.isViewClicked = false
   }
 
   setUpdateAction(id: string): void {
-    this.formBuild()
+    this.studentFormBuild()
     this.formTitle = "Update"
     this.isViewClicked = false
     this.prepopulate(id)
   }
 
   setViewAction(id: string): void {
-    this.formBuild()
+    this.studentFormBuild()
     this.formTitle = "View"
     this.isViewClicked = true
 
     console.log(this.isViewClicked);
     
     this.prepopulate(id)
-    this.loadBookIssueData(id)
+    // this.loadBookIssueData(id)
   }
 
   prepopulate(id:string):void {
       
     this.studentService.getStudentDetail(id).subscribe((response) => {
       
-      console.log(response);
+      // console.log(response);
       
+      this.bookIssues = response.bookIssues
+
       this.studentForm.patchValue({
         name: response.name,
         rollNo: response.rollNo,
         age: response.age,
         phone: response.phone,
         date: response.date,
-        // dateTime: response[0].dateTime,
+        // dateTime: response.dateTime,
         email: response.email,
         gender: response.isMale
       });
+
+      console.log(this.bookIssues);
+      
     },
     (err) => console.log('HTTP Error', err.error)
     );
-  }
-
-  loadBookIssueData(id: string): void {
-
-    this.bookIssueService.getBookIssues().subscribe((response) => {
-
-      for(var i=0; i < response.length; i++) {
-        if (id == response[i].studentID) {
-          console.log(response[i]);
-          this.bookIssues.push(response[i])
-        }
-      }
-
-    })
   }
 
   addStudent():void{
@@ -172,7 +174,8 @@ export class StudentCrudComponent implements OnInit {
       phone: (this.studentForm.get('phone').value == "") ? null : this.studentForm.get('phone').value,
       date: (this.studentForm.get('date').value == "") ? null : this.studentForm.get('date').value,
       // dateTime: (this.studentForm.get('dateTime').value == "") ? null : this.studentForm.get('dateTime').value,
-      isMale: this.studentForm.get('gender').value
+      isMale: this.studentForm.get('gender').value,
+      bookIssues: [],
     };
     console.log(this.studentAPI);
     
@@ -182,7 +185,7 @@ export class StudentCrudComponent implements OnInit {
       
       this.getStudents();
       alert("Student added");
-      this.modalService.dismissAll();
+      this.modalRef.close();
     },
     (err) => {
       console.log('HTTP Error', err.error)
@@ -190,7 +193,7 @@ export class StudentCrudComponent implements OnInit {
       
       if (err.status == 401) {
         this.router.navigateByUrl('/login')
-        this.modalService.dismissAll() 
+        this.modalRef.close() 
       }
 
     }
@@ -213,7 +216,7 @@ export class StudentCrudComponent implements OnInit {
     subscribe((data)=>{        
       this.getStudents();
       alert("Student updated");
-      this.modalService.dismissAll();
+      this.modalRef.close();
     },
     (err) => {
       console.log('HTTP Error', err.error)
@@ -221,7 +224,7 @@ export class StudentCrudComponent implements OnInit {
 
       if (err.status == 401) {
         this.router.navigateByUrl('/login')
-        this.modalService.dismissAll() 
+        this.modalRef.close() 
       }
       
     }
@@ -234,7 +237,7 @@ export class StudentCrudComponent implements OnInit {
 
         this.getStudents();
         alert("Student deleted");
-        this.modalService.dismissAll();
+        this.modalRef.close();
 
       },
       (err) => {
@@ -243,7 +246,7 @@ export class StudentCrudComponent implements OnInit {
           
         if (err.status == 401) {
           this.router.navigateByUrl('/login')
-          this.modalService.dismissAll() 
+          this.modalRef.close() 
         }
         
       }
@@ -251,23 +254,99 @@ export class StudentCrudComponent implements OnInit {
     }
   }
 
-  showInventory(): void {
+  // book issue
+  loadBookIssueData(id: string): void {
+
+    this.bookIssues = []
+    this.bookIssueService.getBookIssues().subscribe((response) => {
+
+      for(var i=0; i < response.length; i++) {
+        if (id == response[i].studentID) {
+          console.log(response[i]);
+          this.bookIssues.push(response[i])
+        }
+      }
+
+    })
+  }
+
+  returnBookIssued(bookID: string, studentID: string) {
+
+    if (confirm("Are you sure?")) {
+      this.bookIssueService.updateBookIssue(bookID, {
+        "returnedFlag": true,
+      }).subscribe(response => {
+        console.log(response);
+        
+        alert("Book Successfully returned")
+        this.loadBookIssueData(studentID)
+        // this.modalService.dismissAll()
+      },
+      err => {
+        console.log('HTTP Error', err.error)
+        // alert("Error: " + err.error)
+      })
+    }
+  }
+
+  // books
+  showInventory(studentID: string) {
 
     this.bookService.getBooks().subscribe((response) => {
+      localStorage.setItem('studentID', studentID)
       this.books = response
       console.log(response);
       
+    },
+    err => {
+      console.log("ERROR: ", err.error);
+      // alert("ERROR: ", err.error)
     })
-
   }
-  
-  openStudentModalForm(studentModel: any) {
+
+  prepopulateBook(id: string) {
+
+    this.bookIssueFormBuilder()
+    this.bookIssueForm.patchValue({
+      bookID: id,
+      studentID: localStorage.getItem('studentID')
+    })
+  }
+
+  issueBook() {
+    
+    this.bookIssueService.addNewBookIssue({
+      "bookID": this.bookIssueForm.get('bookID').value,
+      "studentID": this.bookIssueForm.get('studentID').value,
+      "issueDate": this.bookIssueForm.get('issueDate').value,
+      "returnedFlag": false,
+    }).subscribe(response => {
+      alert("Book successfully issued")
+      this.modalService.dismissAll()
+      this.getStudents()
+    },
+    err => {
+      console.log("Error: " , err.error);
+      
+    })
+  }
+
+
+  openStudentModalForm(modalContent: any, modalSize?:any) {
     // if (this.cookieService.get("Token") == "") {
     //   alert("Session has expired. Please login")
     //   this.router.navigateByUrl("/login");
     //   return
-    // }
-     this.modalService.open(studentModel, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size:'xl'})
+    // }   
+
+    let size
+
+    if (modalSize == undefined) {
+      size = 'xl'
+    } else {
+      size = modalSize
+    }    
+    this.modalRef = this.modalService.open(modalContent, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size: size})
   }
   
 }
