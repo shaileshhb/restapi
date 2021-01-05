@@ -10,5 +10,4 @@ export interface IStudentDTO {
     date: string;
     // dateTime: string;
     isMale: boolean;
-    bookIssues: IBookIssue[];
 }

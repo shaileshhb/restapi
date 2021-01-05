@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
@@ -13,10 +14,10 @@ import (
 )
 
 type BookIssueController struct {
-	service *bookissueservice.IssueService
+	service *bookissueservice.BookIssueService
 }
 
-func NewBookIssueController(service *bookissueservice.IssueService) *BookIssueController {
+func NewBookIssueController(service *bookissueservice.BookIssueService) *BookIssueController {
 
 	return &BookIssueController{
 		service: service,
@@ -29,11 +30,11 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 
 	apiRoutes.Use()
 
-	getBookIssues := apiRoutes.HandleFunc("/bookIssues", i.GetAllBookIssues).Methods("GET")
-	getBookIssue := apiRoutes.HandleFunc("/bookIssues/{id}", i.GetBookIssues).Methods("GET")
+	getBookIssues := apiRoutes.HandleFunc("/bookIssues/{studentID}", i.GetAllBookIssues).Methods("GET")
+	// getBookIssue := apiRoutes.HandleFunc("/bookIssues/{studentid}", i.GetBookIssues).Methods("GET")
 	// penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
 
-	excludedRoutes := []*mux.Route{getBookIssues, getBookIssue}
+	excludedRoutes := []*mux.Route{getBookIssues}
 	apiRoutes.Use(excluderoute.Authorization(excludedRoutes))
 
 	apiRoutes.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
@@ -41,33 +42,35 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 	apiRoutes.HandleFunc("/bookIssues/{id}", i.DeleteBookIssue).Methods("DELETE")
 }
 
+// func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
+
+// 	var bookIssues = []model.BookIssue{}
+	
+// 	err := i.service.GetAll(&bookIssues)
+// 	if err != nil {
+// 		log.Println(err)
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	bookIssueJSON, err := json.Marshal(bookIssues)
+// 	if err != nil {
+// 		log.Println(err)
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+// 	w.Write(bookIssueJSON)
+// 	log.Println("Book Issue Successfully returned", string(bookIssueJSON))
+// }
+
 func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
 
-	var bookIssues = []model.BookIssue{}
-
-	err := i.service.GetAll(&bookIssues)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	bookIssueJSON, err := json.Marshal(bookIssues)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	w.Write(bookIssueJSON)
-	log.Println("Book Issue Successfully returned", string(bookIssueJSON))
-}
-
-func (i *BookIssueController) GetBookIssues(w http.ResponseWriter, r *http.Request) {
-
-	var bookIssue = model.BookIssue{}
+	var bookIssue = []model.BookIssue{}
 	params := mux.Vars(r)
 
-	err := i.service.Get(&bookIssue, params["id"])
+	log.Println("student id ->", params["studentID"])
+
+	err := i.service.GetAll(&bookIssue, params["studentID"])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -81,46 +84,37 @@ func (i *BookIssueController) GetBookIssues(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	w.Write(bookIssueJSON)
-	log.Println("Book Issue Successfully returned")
+	log.Println("Book Issue Successfully returned", bookIssue)
 }
-
-// func (i *BookIssueController) GetPenalty(w http.ResponseWriter, r *http.Request) {
-
-// 	var bookPenalty = []model.BookIssueWithPenalty{}
-
-// 	err := i.service.Penalty(&bookPenalty)
-// 	if err != nil {
-// 		log.Println(err)
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	log.Println(bookPenalty)
-// }
 
 func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	log.Printf("\nINSIDE ADD STUDENT\n")
+	log.Printf("\nINSIDE ADD Book Issue\n")
 
-	var bookIssue = &model.BookIssue{}
-	issueRespomse, err := ioutil.ReadAll(r.Body)
+	var bookIssue = model.BookIssue{}
+	issueResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = json.Unmarshal(issueRespomse, bookIssue)
+	err = json.Unmarshal(issueResponse, &bookIssue)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Println("Book in controller", bookIssue)
+	currentTime := time.Now()
+	// currentTime.Format("2006-01-02T15:04:05")
+	currentTimeInString := currentTime.String()
+	currentTimeInString = currentTimeInString[:19]
+	bookIssue.IssueDate = currentTimeInString
 
-	err = i.service.AddNewBookIssue(bookIssue)
+	err = i.service.AddNewBookIssue(&bookIssue)
 	if err != nil {
 		log.Println("error from add", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

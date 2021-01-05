@@ -212,7 +212,7 @@
                 <td>{{book.inStock}}</td>
                 <td>{{book.totalStock}}</td>
                 <!-- <td>Calculating........</td> -->
-                <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" (click)="prepopulateBook(book.id); openStudentModalForm(issueDate, 'lg')">Issue</button></td>
+                <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" (click)="issueBook(book.id)">Issue</button></td>
             </tr>
         </table>
     </div>

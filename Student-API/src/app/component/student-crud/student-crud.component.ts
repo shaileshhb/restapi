@@ -101,24 +101,36 @@ export class StudentCrudComponent implements OnInit {
     this.formTitle = "Update"
     this.isViewClicked = false
     this.prepopulate(id)
+    console.log(id);
+    
   }
 
   setViewAction(id: string): void {
     this.studentFormBuild()
     this.isViewClicked = true
     
-    this.prepopulate(id)
-    // this.loadBookIssueData(id)
+    // this.prepopulate(id)
+    this.loadBookIssueData(id)
   }
 
   prepopulate(id:string):void {
       
     this.studentService.getStudentDetail(id).subscribe((response) => {
       
-      // console.log(response);
+      console.log(response);
       
-      this.bookIssues = response.bookIssues
-
+      this.studentAPI = {
+        id: id,
+        name: response.name,
+        rollNo: response.rollNo,
+        age: response.age,
+        phone: response.phone,
+        date: response.date,
+        // dateTime: response.dateTime,
+        email: response.email,
+        isMale: response.isMale 
+      }
+      
       this.studentForm.patchValue({
         name: response.name,
         rollNo: response.rollNo,
@@ -129,8 +141,6 @@ export class StudentCrudComponent implements OnInit {
         email: response.email,
         gender: response.isMale
       });
-
-      console.log(this.bookIssues);
       
     },
     (err) => console.log('HTTP Error', err.error)
@@ -174,7 +184,6 @@ export class StudentCrudComponent implements OnInit {
       date: (this.studentForm.get('date').value == "") ? null : this.studentForm.get('date').value,
       // dateTime: (this.studentForm.get('dateTime').value == "") ? null : this.studentForm.get('dateTime').value,
       isMale: this.studentForm.get('gender').value,
-      bookIssues: [],
     };
     console.log(this.studentAPI);
     
@@ -201,8 +210,10 @@ export class StudentCrudComponent implements OnInit {
 
   updateStudent():void{
 
-    this.studentService.updateExisitingStudent(this.id, {
-      "id":this.id,
+    console.log(this.studentAPI.id);
+
+    this.studentService.updateExisitingStudent(this.studentAPI.id, {
+      "id": this.studentAPI.id,
       "rollNo": this.studentForm.get('rollNo').value, 
       "name": this.studentForm.get('name').value, 
       "age": this.studentForm.get('age').value, 
@@ -212,7 +223,7 @@ export class StudentCrudComponent implements OnInit {
       // "dateTime": this.studentForm.get('dateTime').value,
       "isMale": this.studentForm.get('gender').value
     }).
-    subscribe((data)=>{        
+    subscribe((data) => {        
       this.getStudents();
       alert("Student updated");
       this.modalRef.close();
@@ -256,8 +267,8 @@ export class StudentCrudComponent implements OnInit {
   // book issue
   loadBookIssueData(id: string): void {
 
-    this.studentService.getStudentDetail(id).subscribe((response) => {
-      this.bookIssues = response.bookIssues
+    this.bookIssueService.getBookIssues(id).subscribe((response) => {
+      this.bookIssues = response
     },
     err => {
       alert("ERROR")
@@ -283,7 +294,9 @@ export class StudentCrudComponent implements OnInit {
 
     if (confirm("Are you sure?")) {
       this.bookIssueService.updateBookIssue(bookID, {
+        "studentID": studentID,
         "returnedFlag": true,
+        "penalty": 0.0
       }).subscribe(response => {
         console.log(response);
         
@@ -307,7 +320,6 @@ export class StudentCrudComponent implements OnInit {
       localStorage.setItem('studentID', studentID)
       this.books = response
       console.log(response);
-      
     },
     err => {
       console.log("ERROR: ", err.error);
@@ -324,16 +336,17 @@ export class StudentCrudComponent implements OnInit {
     })
   }
 
-  issueBook() {
+  issueBook(bookID: string) {
 
     this.bookIssueService.addNewBookIssue({
-      "bookID": this.bookIssueForm.get('bookID').value,
-      "studentID": this.bookIssueForm.get('studentID').value,
-      "issueDate": this.bookIssueForm.get('issueDate').value,
+      "bookID": bookID,
+      "studentID": localStorage.getItem('studentID'),
+      // "issueDate": this.bookIssueForm.get('issueDate').value,
       "returnedFlag": false,
+      "penalty": 0.0
     }).subscribe(response => {
       alert("Book successfully issued")
-      this.modalService.dismissAll()
+      this.modalRef.close()
       this.getStudents()
     },
     err => {
@@ -343,7 +356,6 @@ export class StudentCrudComponent implements OnInit {
       
     })
   }
-
 
   openStudentModalForm(modalContent: any, modalSize?:any) {
     // if (this.cookieService.get("Token") == "") {

@@ -33,14 +33,6 @@ func Where(condition string, value interface{}) QueryProcessor {
 	}
 }
 
-// Filter will filter the results
-func Filter(condition string, args ...interface{}) QueryProcessor {
-	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Where(condition, args...)
-		return db, nil
-	}
-}
-
 func Search(condition string, value interface{}, entity interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
@@ -154,7 +146,8 @@ func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, queryProces
 		}
 	}
 
-	if err := db.Debug().Model(entity).Update(entity).Error; err != nil {
+	// .Model(entity)
+	if err := db.Debug().Update(entity).Error; err != nil {
 		return err
 	}
 	return nil

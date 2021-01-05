@@ -9,7 +9,6 @@ import (
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	"github.com/shaileshhb/restapi/utility"
-	"github.com/shaileshhb/restapi/utility/calculatepenalty"
 	"github.com/shaileshhb/restapi/utility/structToMap"
 )
 
@@ -63,28 +62,28 @@ func (s *Service) Get(students *model.Student, id string) error {
 	uow.Commit()
 
 	utility.TrimDate(students)
-	s.UpdatePenalty(&students.BookIssues)
+	// s.UpdatePenalty(&students.BookIssues)
 	// utility.TrimDateTime(students)
 
 	return nil
 }
 
-func (s *Service) UpdatePenalty(bookIssues *[]model.BookIssue) error {
+// func (s *Service) UpdatePenalty(bookIssues *[]model.BookIssue) error {
 
-	log.Println("BookID From UPDATE PENALTY")
+// 	log.Println("BookID From UPDATE PENALTY")
 
-	uow := repository.NewUnitOfWork(s.DB, false)
-	var queryProcessors []repository.QueryProcessor
+// 	uow := repository.NewUnitOfWork(s.DB, false)
+// 	var queryProcessors []repository.QueryProcessor
 
-	calculatepenalty.Penalty(bookIssues)
+// 	calculatepenalty.Penalty(bookIssues)
 
-	if err := s.repo.Update(uow, bookIssues, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
+// 	if err := s.repo.Update(uow, bookIssues, queryProcessors); err != nil {
+// 		uow.Complete()
+// 		return err
+// 	}
+// 	uow.Commit()
+// 	return nil
+// }
 
 func (s *Service) AddNewStudent(student *model.Student) error {
 
@@ -126,8 +125,8 @@ func (s *Service) Update(student *model.Student, id string) error {
 	checkID := "id = ?"
 	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
 
-	checkName := "name = ?"
-	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
+	// checkName := "name = ?"
+	// queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
 
 	// bookAlreadyIssuedSearch := ""
 
@@ -148,6 +147,21 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	var queryProcessors []repository.QueryProcessor
+
+	// var bookIssue = []model.BookIssue{}
+	// query := "student_id=?"
+	// queryProcessors = append(queryProcessors, repository.Where(query, id))
+
+	// if err := s.repo.Get(uow, &bookIssue, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
+	// }
+
+	// if len(bookIssue) > 0 {
+	// 	return errors.New("Please return all issued books")
+	// }
+
+
 	queryCondition := "id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 

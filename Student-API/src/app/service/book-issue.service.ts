@@ -16,10 +16,10 @@ export class BookIssueService {
     private cookieService: CookieService
   ) { }
 
-  getBookIssues(): Observable<IBookIssue[]> {
+  getBookIssues(studentID: string): Observable<IBookIssue[]> {
 
     // let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
-    return this.http.get<IBookIssue[]>(this.baseURL)
+    return this.http.get<IBookIssue[]>(this.baseURL + "/" + studentID)
   }
 
   addNewBookIssue(bookIssueDetails): Observable<any> {

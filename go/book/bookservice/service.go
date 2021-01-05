@@ -30,7 +30,7 @@ func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 
 	queryProcessors = append(queryProcessors, repository.Model())
 
-	selectQuery := "books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as in_stock, books.stock as total_stock"
+	selectQuery := "books.id as id, books.name as name, if(sum(returned_flag=0)>0, abs(stock - sum(returned_flag=0)), stock) as in_stock, books.stock as total_stock"
 	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
 
 	joinQuery := "left join book_issues on books.id = book_issues.book_id"
@@ -67,41 +67,6 @@ func (s *BookService) GetBook(book *model.Book, id string) error {
 	uow.Commit()
 	return nil
 }
-
-// func (s *BookService) GetTotalBooksAvailable(joinBookIssue *[]model.BookAvailability) error {
-
-// 	// s.DB.Debug().Model(book).Select("*").Joins("left join book_issues on id = book_id").Scan(joinBookIssue)
-// 	// SELECT * FROM `books` left join book_issues on id = book_id WHERE `books`.`deleted_at` IS NULL
-
-// 	uow := repository.NewUnitOfWork(s.DB, true)
-
-// 	var book = model.Book{}
-// 	var queryProcessors []repository.QueryProcessor
-
-// 	queryProcessors = append(queryProcessors, repository.Model())
-
-// 	selectQuery := "books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag"
-// 	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
-
-// 	joinQuery := "inner join book_issues on books.id = book_issues.book_id"
-// 	queryProcessors = append(queryProcessors, repository.Join(joinQuery))
-
-// 	groupBy := "books.id"
-// 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
-
-// 	if err := s.repo.Scan(uow, &book, joinBookIssue, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-
-// 	uow.Commit()
-// 	return nil
-
-// 	// s.DB.Debug().Model(books).Select("books.id as id, books.name as name, if(returned_flag = false, abs(stock - count(book_id)), stock) as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag").Joins("left join book_issues on books.id = book_issues.book_id").Group("books.id").Scan(joinBookIssue)
-// 	// // SELECT books.id as id, books.name as name, books.stock as total_stock, books.stock as stock, book_issues.returned_flag as returned_flag FROM `books` inner join book_issues on books.id = book_issues.book_id WHERE `books`.`deleted_at` IS NULL GROUP BY books.id
-// 	// return nil
-
-// }
 
 func (s *BookService) AddNewBook(book *model.Book) error {
 
@@ -169,8 +134,12 @@ func (s *BookService) Delete(book *model.Book, id string) error {
 func (s *BookService) Validate(book *model.Book) error {
 	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 
-	if book.Name == "" || !namePattern.MatchString(book.Name) {
+	if book.Name == "" {
 		return errors.New("Name is required")
+	}
+
+	if !namePattern.MatchString(book.Name) {
+		return errors.New("Name is invalid")
 	}
 
 	if book.Stock == nil {

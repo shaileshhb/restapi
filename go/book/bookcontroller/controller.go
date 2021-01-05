@@ -56,7 +56,7 @@ func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(bookJoinJSON)
-	log.Println("Join Books -> ", books)
+	// log.Println("Join Books -> ", books)
 }
 
 func (c *BookController) GetBook(w http.ResponseWriter, r *http.Request) {

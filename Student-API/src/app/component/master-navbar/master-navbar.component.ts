@@ -30,13 +30,11 @@ export class MasterNavbarComponent implements OnInit {
 
   loginToggle() {
 
-    console.log(this.loggedInValue);
-    
-    if (this.cookieService.get("Token") != "") {
-      this.cookieService.delete("Token")
-      this.loggedInValue = "Login"
+    if (this.loggedInValue == "Login") {
+      this.router.navigateByUrl('/login')
     } else {
-      this.loggedInValue = "Logout"
+      this.cookieService.delete("Token")
+
     }
   }
 

@@ -57,8 +57,8 @@ func main() {
 	db.AutoMigrate(&model.User{}, &model.Student{}, &model.Book{}, &model.BookIssue{})
 
 	// Setting Foreign keys
-	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "CASCADE", "RESTRICT")
-	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "CASCADE", "RESTRICT")
+	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "RESTRICT")
+	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "RESTRICT")
 
 	router := mux.NewRouter()
 	if router == nil {
@@ -123,12 +123,12 @@ func main() {
 
 // availability query
 // select id, stock,
-// 	if(returned_flag = false, abs(stock - count(book_id)), stock) total,
+// 	if(sum(returned_flag=0)>0, abs(stock - sum(returned_flag=0)), stock) total,
 // 	returned_flag
 // from books
 // left join book_issues
 // on id = book_id
-// group by book_id
+// group by id
 
 
 // penalty update
