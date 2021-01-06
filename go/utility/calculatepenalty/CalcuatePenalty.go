@@ -25,7 +25,7 @@ func Penalty(bookIssues *[]model.BookIssue) error {
 		log.Println("Penalty Before-> ", (*bookIssues)[i].Penalty)
 
 		if days > 10 && !isBookReturned {
-			(*bookIssues)[i].Penalty = float64(days - 10) * 2.5
+			(*bookIssues)[i].Penalty = float64(days-10) * 2.5
 			log.Println("Updated Penalty -> ", ((*bookIssues)[i].Penalty))
 		}
 
@@ -33,7 +33,7 @@ func Penalty(bookIssues *[]model.BookIssue) error {
 			(*bookIssues)[i].Penalty = 0.0
 		}
 
-		// (*bookIssues)[i].IssueDate = (*bookIssues)[i].IssueDate
+		(*bookIssues)[i].IssueDate = (*bookIssues)[i].IssueDate[:19]
 	}
 	return nil
 }
