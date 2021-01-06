@@ -357,12 +357,7 @@ export class StudentCrudComponent implements OnInit {
     })
   }
 
-  openStudentModalForm(modalContent: any, modalSize?:any) {
-    // if (this.cookieService.get("Token") == "") {
-    //   alert("Session has expired. Please login")
-    //   this.router.navigateByUrl("/login");
-    //   return
-    // }   
+  openModal(modalContent: any, modalSize?:any) {  
 
     let size
 
@@ -372,6 +367,17 @@ export class StudentCrudComponent implements OnInit {
       size = modalSize
     }    
     this.modalRef = this.modalService.open(modalContent, {ariaLabelledBy: 'modal-basic-title', backdrop:'static', size: size})
+  }
+
+  openModalAfterAuthentication(modalContent: any, modalSize?:any) {
+
+    if (this.cookieService.get("Token") == "") {
+      alert("Session has expired. Please login")
+      this.router.navigateByUrl("/login");
+      return
+    }
+    
+    this.openModal(modalContent, modalSize)
   }
   
 }

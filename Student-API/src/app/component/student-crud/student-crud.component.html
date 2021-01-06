@@ -2,7 +2,7 @@
 
 <div class="container">
     <br>
-    <button class="btn btn-outline-primary" *ngIf="userLoggedIn" (click) = "setAddAction(); openStudentModalForm(studentModal)">Add Student</button> &nbsp;
+    <button class="btn btn-outline-primary" *ngIf="userLoggedIn" (click) = "setAddAction(); openModalAfterAuthentication(studentModal)">Add Student</button> &nbsp;
     <br>
     <br>
     <div *ngIf="students.length != 0; else noStudents">
@@ -32,9 +32,9 @@
                 <td>{{student.date}}</td>
                 <!-- <td>{{student.dateTime}}</td> -->
                 <td>{{student.isMale}}</td>
-                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openStudentModalForm(viewModal)" >VIEW</button></td>
-                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id, student.bookIssues); openStudentModalForm(inventoryModal)">Check Inventory</button></td>
-                <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openStudentModalForm(studentModal)" >UPDATE</button></td>
+                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openModal(viewModal)" >VIEW</button></td>
+                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id, student.bookIssues); openModal(inventoryModal)">Check Inventory</button></td>
+                <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openModalAfterAuthentication(studentModal)" >UPDATE</button></td>
                 <td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
             </tr>
         </table>

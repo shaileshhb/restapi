@@ -161,7 +161,6 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	// 	return errors.New("Please return all issued books")
 	// }
 
-
 	queryCondition := "id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
@@ -217,18 +216,21 @@ func (s *Service) Validate(student *model.Student) error {
 
 func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
 
-	// if err := s.repo.GetSum()
 	uow := repository.NewUnitOfWork(s.DB, true)
+	var queryProcessors []repository.QueryProcessor
+
+	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
 
 	query := "sum(age + roll_no) as n"
+	queryProcessors = append(queryProcessors, repository.Select(query))
 
-	err := s.repo.SelectQuery(uow, students, sum, query)
-	if err != nil {
+	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
 	uow.Commit()
 	return nil
+
 }
 
 func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
@@ -236,10 +238,13 @@ func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
 	// if err := s.repo.GetSum()
 	uow := repository.NewUnitOfWork(s.DB, true)
 
-	query := "abs(sum(age - roll_no)) as n"
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
 
-	err := s.repo.SelectQuery(uow, students, sum, query)
-	if err != nil {
+	query := "abs(sum(age - roll_no)) as n"
+	queryProcessors = append(queryProcessors, repository.Select(query))
+
+	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -254,8 +259,12 @@ func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum)
 
 	query := "sum(age) - count(*) as n"
 
-	err := s.repo.SelectQuery(uow, students, sum, query)
-	if err != nil {
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
+
+	queryProcessors = append(queryProcessors, repository.Select(query))
+
+	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}

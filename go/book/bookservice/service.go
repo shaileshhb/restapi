@@ -28,9 +28,11 @@ func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 	var book = model.Book{}
 	var queryProcessors []repository.QueryProcessor
 
-	queryProcessors = append(queryProcessors, repository.Model())
+	queryProcessors = append(queryProcessors, repository.Model(book))
 
 	selectQuery := "books.id as id, books.name as name, if(sum(returned_flag=0)>0, abs(stock - sum(returned_flag=0)), stock) as in_stock, books.stock as total_stock"
+	// selectQuery := "books.id as id, books.name as name, abs(stock - sum(returned_flag=0)) as in_stock, books.stock as total_stock"
+
 	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
 
 	joinQuery := "left join book_issues on books.id = book_issues.book_id"
@@ -39,7 +41,7 @@ func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 	groupBy := "books.id"
 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
 
-	if err := s.repo.Scan(uow, &book, books, queryProcessors); err != nil {
+	if err := s.repo.Scan(uow, books, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}

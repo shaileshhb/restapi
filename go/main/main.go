@@ -130,8 +130,15 @@ func main() {
 // on id = book_id
 // group by id
 
+// When if statement removed then it returns null
 
 // penalty update
 // SELECT book_id, student_id, issue_date, returned_flag, abs(DATEDIFF(issue_date, CURDATE()))-10.0,
 // 	if(abs(DATEDIFF(issue_date, CURDATE())) > 10 and returned_flag = false, (abs(DATEDIFF(issue_date, CURDATE()))-10)*2.5, 0) penalty
 // FROM book_issues
+
+// Query 1
+// select (count(books.id) - count(book_issues.book_id)) - sum(penalty) as diff
+// from books
+// left join book_issues
+// on books.id = book_id

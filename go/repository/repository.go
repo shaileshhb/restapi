@@ -45,9 +45,9 @@ func Search(condition string, value interface{}, entity interface{}) QueryProces
 	}
 }
 
-func Model() QueryProcessor {
+func Model(entity interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Model(out)
+		db = db.Model(entity)
 
 		return db, nil
 	}
@@ -172,26 +172,14 @@ func (g *GormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	return nil
 }
 
-func (g *GormRepository) SelectQuery(uow *UnitOfWork, entity interface{}, out interface{}, query string) error {
-
-	db := uow.DB
-	var err error
-
-	if err = db.Debug().Model(entity).Select(query).Scan(out).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (g *GormRepository) Scan(uow *UnitOfWork, entity interface{}, out interface{}, queryProcessors []QueryProcessor) error {
+func (g *GormRepository) Scan(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
 	var err error
 
 	if queryProcessors != nil {
 		for _, queryProcessor := range queryProcessors {
-			db, err = queryProcessor(db, entity)
+			db, err = queryProcessor(db, out)
 		}
 	}
 
