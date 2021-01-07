@@ -292,7 +292,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	log.Println("PhoneNumber -> ", student.PhoneNumber)
 	log.Println("ID -> ", params["id"])
 	err = c.Service.Update(student, params["id"])
 	if err != nil {

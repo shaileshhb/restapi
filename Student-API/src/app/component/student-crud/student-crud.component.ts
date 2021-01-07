@@ -180,8 +180,8 @@ export class StudentCrudComponent implements OnInit {
       name: this.studentForm.get('name').value, 
       age: (this.studentForm.get('age').value == "") ? null : this.studentForm.get('age').value, 
       email: this.studentForm.get('email').value,
-      phone: (this.studentForm.get('phone').value == "") ? null : this.studentForm.get('phone').value,
-      date: (this.studentForm.get('date').value == "") ? null : this.studentForm.get('date').value,
+      phone: this.studentForm.get('phone').value,
+      date: this.studentForm.get('date').value,
       // dateTime: (this.studentForm.get('dateTime').value == "") ? null : this.studentForm.get('dateTime').value,
       isMale: this.studentForm.get('gender').value,
     };
@@ -210,7 +210,7 @@ export class StudentCrudComponent implements OnInit {
 
   updateStudent():void{
 
-    console.log(this.studentAPI.id);
+    console.log(this.studentForm.get('phone').value);
 
     this.studentService.updateExisitingStudent(this.studentAPI.id, {
       "id": this.studentAPI.id,

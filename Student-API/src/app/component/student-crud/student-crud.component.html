@@ -99,7 +99,7 @@
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="phoneId" >Phone Number</label>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control" id="phoneId" appEmtpyToNull formControlName="phone">
+                    <input type="text" class="form-control" id="phoneId" formControlName="phone">
                     <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
                         <div *ngIf="studentForm.get('phone').errors.minLength">Phone number should have 10 digits</div>
                         <div *ngIf="studentForm.get('phone').errors.pattern">Phone number should contain only digits</div>

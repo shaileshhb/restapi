@@ -13,38 +13,38 @@ type Student struct {
 	// the name for this student
 	//
 	// required: true
-	Name string `gorm:"type:varchar(30)" json:"name"`
+	Name string `gorm:"type:varchar(30)" json:"name, omitempty"`
 
 	// the age for this student
 	//
 	// required: false
-	Age *int `gorm:"type:int" json:"age"`
+	Age *int `gorm:"type:int" json:"age, omitempty"`
 
 	// the rollno for this student
 	//
 	// required: false
-	RollNo *int `gorm:"type:int" json:"rollNo"`
+	RollNo *int `gorm:"type:int" json:"rollNo, omitempty"`
 
 	// the phone number for this student
 	//
 	// required: false
-	PhoneNumber *string `gorm:"type:varchar(10)" json:"phone"`
+	PhoneNumber *string `gorm:"type:varchar(10)" json:"phone, omitempty"`
 
 	// the email for this student
 	//
 	// required: true
 	// example: user@provider.net
-	Email string `gorm:"type:varchar(50)" json:"email"`
+	Email string `gorm:"type:varchar(50)" json:"email, omitempty"`
 
 	// the ismale for this student
 	//
 	// required: false
-	IsMale *bool `gorm:"type:tinyint" json:"isMale"`
+	IsMale *bool `gorm:"type:tinyint" json:"isMale, omitempty"`
 
 	// the date for this student
 	//
 	// required: false
-	Date *string `gorm:"type:date" json:"date"`
+	Date *string `gorm:"type:date" json:"date, omitempty"`
 
 	// the datetime for this student
 	//
