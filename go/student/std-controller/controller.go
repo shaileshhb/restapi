@@ -390,33 +390,17 @@ func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	var students = []model.Student{}
-	var search = model.SearchQuery{}
 
 	params := r.URL.Query()
-	name, ok := params["name"]
-	if ok {
-		search.Name = name[0]
-	}
-	email, ok := params["email"]
-	if ok {
-		search.Email = email[0]
-	}
-	age, ok := params["age"]
-	if ok {
-		search.Age = age[0]
-	}
-	start, ok := params["start"]
-	if ok {
-		search.DateFrom = start[0]
-	}
-	end, ok := params["end"]
-	if ok {
-		search.DateTo = end[0]
+
+	log.Println("Params -> ", params)
+
+	if len(params) == 0 {
+		c.GetAllStudents(w, r)
+		return
 	}
 
-	log.Println("Params -> ", search)
-
-	err = c.Service.Search(&students, search)
+	err = c.Service.Search(&students, params)
 	if err != nil {
 		log.Println("Error in Search -> ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

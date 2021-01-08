@@ -145,72 +145,38 @@ func (s *Service) Update(student *model.Student, id string) error {
 func (s *Service) Delete(student *model.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
-
+	var totalCount int
 	var queryProcessors []repository.QueryProcessor
 
 	// var bookIssue = []model.BookIssue{}
-	// query := "student_id=?"
-	// queryProcessors = append(queryProcessors, repository.Where(query, id))
+	query := "student_id=?"
+	queryProcessors = append(queryProcessors, repository.Where(query, id))
 
 	// if err := s.repo.Get(uow, &bookIssue, queryProcessors); err != nil {
 	// 	uow.Complete()
 	// 	return err
 	// }
 
-	// if len(bookIssue) > 0 {
-	// 	return errors.New("Please return all issued books")
-	// }
-
-	queryCondition := "id=?"
-	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
-
-	if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
+	if err := s.repo.GetCount(uow, model.BookIssue{}, &totalCount, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
-	uow.Commit()
-	return nil
-}
 
-func (s *Service) Validate(student *model.Student) error {
+	log.Println(totalCount)
 
-	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
-	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-	phonePattern := regexp.MustCompile("^[0-9]*$")
-	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}`)
-
-	if student.Name == "" || !namePattern.MatchString(student.Name) {
-		return errors.New("Name is required")
+	if totalCount > 0 {
+		return errors.New("Please return all issued books")
 	}
 
-	if student.RollNo != nil && (*student.RollNo) < 0 {
-		return errors.New("Roll number is invalid")
-	}
+	queryProcessors = nil
+	queryCondition := "id=?"
+	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
-	if student.Email == "" || !emailPattern.MatchString(student.Email) {
-		return errors.New("Email is invalid")
-	}
-
-	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
-		// log.Println(len(*student.PhoneNumber) >= 10, phonePattern.MatchString(*student.PhoneNumber))
-		return errors.New("Phone number should be only numbers and atleast 10 digits")
-	}
-
-	// if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
-	// 	return errors.New("Date time is invalid")
-
+	// if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
 	// }
-
-	// if student.Date != nil && !datePattern.MatchString((*student.Date)) {
-	// 	return errors.New("Date is invalid")
-
-	// }
-
-	// if student.IsMale == nil {
-	// 	return errors.New("Gender is required")
-	// }
-
+	// uow.Commit()
 	return nil
 }
 
@@ -272,98 +238,41 @@ func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum)
 	return nil
 }
 
-func (s *Service) Search(students *[]model.Student, search model.SearchQuery) error {
+func (s *Service) Search(students *[]model.Student, params map[string][]string) error {
 
 	var err error
 	uow := repository.NewUnitOfWork(s.DB, true)
 
-	// var queryProcessors []repository.QueryProcessor
-	// queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
-
-	// queryString := "name LIKE ? AND email LIKE ? AND age >= ? AND date >= ? AND date <=?"
-	// nameLIKE := "%" + search.Name + "%"
-	// emailLIKE := "%" + search.Email + "%"
-	// queryProcessors = append(queryProcessors, repository.Where(queryString, nameLIKE, emailLIKE, search.Age, search.DateFrom, search.DateTo))
-
-	if err = s.repo.Get(uow, students, s.createQueryProcessor(search)); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) searchName(students *[]model.Student, name string) error {
-
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	var queryProcessors []repository.QueryProcessor
-	queryString := "name LIKE ?"
-	nameString := "%" + name + "%"
-	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryString, nameString))
-
-	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) searchEmail(students *[]model.Student, email string) error {
-
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	var queryProcessors []repository.QueryProcessor
-	queryString := "email LIKE ?"
-	emailString := "%" + email + "%"
-	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryString, emailString))
-
-	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) searchAge(students *[]model.Student, age string) error {
-
-	// if err := s.repo.GetSum()
-	uow := repository.NewUnitOfWork(s.DB, true)
-
-	var queryProcessors []repository.QueryProcessor
-	queryCondition := "age > ?"
-	minAge := age
-	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryCondition, minAge))
-
-	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
-		return err
-	}
-	uow.Commit()
-	return nil
-}
-
-func (s *Service) searchDate(students *[]model.Student, dateFrom string, dateTo string) error {
-
-	uow := repository.NewUnitOfWork(s.DB, true)
-
 	var queryProcessors []repository.QueryProcessor
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
+	var query string
 
-	if dateFrom == " " {
-		date := "date <= ?"
-		queryProcessors = append(queryProcessors, repository.Where(date, dateTo))
-	} else if dateTo == " " {
-		date := "date >= ?"
-		queryProcessors = append(queryProcessors, repository.Where(date, dateFrom))
-	} else {
-		date := "date >= ? AND date <= ?"
-		queryProcessors = append(queryProcessors, repository.Where(date, dateFrom, dateTo))
+	for key, value := range params {
+
+		if key == "age" {
+			query = key + " >= ?"
+			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
+		}
+
+		if key == "start" {
+			query = "date >= ?"
+			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
+		}
+
+		if key == "end" {
+			query = "date <= ?"
+			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
+		}
+
+		if key == "name" || key == "email" {
+			query = key + " LIKE ?"
+			queryValue := "%" + value[0] + "%"
+			queryProcessors = append(queryProcessors, repository.Where(query, queryValue))
+		}
+
 	}
 
-	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+	if err = s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
@@ -371,38 +280,44 @@ func (s *Service) searchDate(students *[]model.Student, dateFrom string, dateTo 
 	return nil
 }
 
-func (s *Service) createQueryProcessor(search model.SearchQuery) []repository.QueryProcessor {
+func (s *Service) Validate(student *model.Student) error {
 
-	var queryProcessors []repository.QueryProcessor
+	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
+	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
+	phonePattern := regexp.MustCompile("^[0-9]*$")
+	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}`)
 
-	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
-
-	nameLIKE := "%" + search.Name + "%"
-	emailLIKE := "%" + search.Email + "%"
-
-	if search.Name != "" {
-		nameQuery := "name LIKE ?"
-		queryProcessors = append(queryProcessors, repository.Where(nameQuery, nameLIKE))
+	if student.Name == "" || !namePattern.MatchString(student.Name) {
+		return errors.New("Name is required")
 	}
 
-	if search.Email != "" {
-		name := "email LIKE ?"
-		queryProcessors = append(queryProcessors, repository.Where(name, emailLIKE))
+	if student.RollNo != nil && (*student.RollNo) < 0 {
+		return errors.New("Roll number is invalid")
 	}
 
-	if search.Age != "" {
-		age := "age > ?"
-		queryProcessors = append(queryProcessors, repository.Where(age, search.Age))
-	}
-	if search.DateFrom != "" {
-		start := "date >= ?"
-		queryProcessors = append(queryProcessors, repository.Where(start, search.DateFrom))
-	}
-	if search.DateTo != "" {
-		end := "date <= ?"
-		queryProcessors = append(queryProcessors, repository.Where(end, search.DateTo))
+	if student.Email == "" || !emailPattern.MatchString(student.Email) {
+		return errors.New("Email is invalid")
 	}
 
-	return queryProcessors
+	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
+		// log.Println(len(*student.PhoneNumber) >= 10, phonePattern.MatchString(*student.PhoneNumber))
+		return errors.New("Phone number should be only numbers and atleast 10 digits")
+	}
 
+	// if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
+	// 	return errors.New("Date time is invalid")
+
+	// }
+
+	// if student.Date != nil && !datePattern.MatchString((*student.Date)) {
+	// 	return errors.New("Date is invalid")
+
+	// }
+
+	// if student.IsMale == nil {
+	// 	return errors.New("Gender is required")
+	// }
+
+	return nil
 }

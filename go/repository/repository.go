@@ -11,7 +11,8 @@ type Repository interface {
 	Get(uow *UnitOfWork, out interface{}) error
 	GetCount(uow *UnitOfWork, out interface{}, count *int, queryProcessors []QueryProcessor) error
 	Add(uow *UnitOfWork, entity interface{}) error
-	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
+	Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
+	Save(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 }
 
@@ -106,6 +107,26 @@ func (g *GormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors [
 	return nil
 }
 
+func (g *GormRepository) GetCount(uow *UnitOfWork, entity interface{}, count *int, queryProcessors []QueryProcessor) error {
+
+	db := uow.DB
+	var err error
+
+	if queryProcessors != nil {
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	if err = db.Debug().Count(count).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
@@ -129,6 +150,27 @@ func (g *GormRepository) Add(uow *UnitOfWork, entity interface{}, queryProcessor
 }
 
 func (g *GormRepository) Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
+
+	db := uow.DB
+	var err error
+
+	if queryProcessors != nil {
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// .Model(entity)
+	if err := db.Debug().Update(entity).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *GormRepository) Save(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
 
 	db := uow.DB
 	var err error
