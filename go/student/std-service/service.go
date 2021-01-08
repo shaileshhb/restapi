@@ -132,7 +132,7 @@ func (s *Service) Update(student *model.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	if err := s.repo.Update(uow, student, queryProcessors); err != nil {
+	if err := s.repo.Save(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}

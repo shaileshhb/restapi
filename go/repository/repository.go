@@ -185,7 +185,7 @@ func (g *GormRepository) Save(uow *UnitOfWork, entity interface{}, queryProcesso
 	}
 
 	// .Model(entity)
-	if err := db.Debug().Update(entity).Error; err != nil {
+	if err := db.Debug().Save(entity).Error; err != nil {
 		return err
 	}
 	return nil
