@@ -249,17 +249,19 @@ func (s *Service) Search(students *[]model.Student, params map[string][]string) 
 
 	for key, value := range params {
 
-		if key == "age" {
+		log.Println("KEY -> ", key, "VALUE -> ", value)
+
+		if key == "age" && value[0] != "" {
 			query = key + " >= ?"
 			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
 		}
 
-		if key == "start" {
+		if key == "start" && value[0] != "" {
 			query = "date >= ?"
 			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
 		}
 
-		if key == "end" {
+		if key == "end" && value[0] != "" {
 			query = "date <= ?"
 			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
 		}
