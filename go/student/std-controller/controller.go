@@ -41,7 +41,8 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	getSum := apiRoutes.HandleFunc("/students/sum", c.GetSum).Methods("GET")
 	getDiff := apiRoutes.HandleFunc("/students/diff", c.GetDiff).Methods("GET")
 	getAgeAndRecordDiff := apiRoutes.HandleFunc("/students/recordsDiff", c.GetDiffOfAgeAndRecord).Methods("GET")
-	checkAge := apiRoutes.HandleFunc("/students/age", c.GetAge).Methods("GET")
+
+	search := apiRoutes.HandleFunc("/students/search", c.Search).Methods(http.MethodGet)
 
 	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
@@ -63,7 +64,9 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	excludeRoutes := []*mux.Route{getHandler, getHandlerWithID, getSum, getDiff, getAgeAndRecordDiff, checkAge}
+	excludeRoutes := []*mux.Route{
+		getHandler, getHandlerWithID, getSum, getDiff, getAgeAndRecordDiff, search,
+	}
 	apiRoutes.Use(excluderoute.Authorization(excludeRoutes))
 
 	// swagger:operation POST /students add-student studentModel
@@ -213,6 +216,8 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	var students = model.Student{}
 	params := mux.Vars(r)
+
+	log.Println("GET STUDENT -> ", params["id"])
 
 	err = c.Service.Get(&students, params["id"])
 	if err != nil {
@@ -381,26 +386,49 @@ func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Reques
 
 }
 
-func (c *Controller) GetAge(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+	var students = []model.Student{}
+	var search = model.SearchQuery{}
 
-	var students = &[]model.Student{}
+	params := r.URL.Query()
+	name, ok := params["name"]
+	if ok {
+		search.Name = name[0]
+	}
+	email, ok := params["email"]
+	if ok {
+		search.Email = email[0]
+	}
+	age, ok := params["age"]
+	if ok {
+		search.Age = age[0]
+	}
+	start, ok := params["start"]
+	if ok {
+		search.DateFrom = start[0]
+	}
+	end, ok := params["end"]
+	if ok {
+		search.DateTo = end[0]
+	}
 
-	err = c.Service.GetAge(students)
+	log.Println("Params -> ", search)
+
+	err = c.Service.Search(&students, search)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error in Search -> ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	studentJSON, err := json.Marshal(students)
 	if err != nil {
-		log.Println(err)
-		w.Write([]byte("Could not convert to json"))
+		log.Println("Error in json -> ", studentJSON)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write(studentJSON)
 
+	log.Println("Student Searched -> ", students)
+	w.Write(studentJSON)
 }

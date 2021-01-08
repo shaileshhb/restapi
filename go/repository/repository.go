@@ -23,12 +23,10 @@ func NewGormRepository() *GormRepository {
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
-func Where(condition string, value interface{}) QueryProcessor {
+func Where(condition string, value ...interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		if value != "" {
-			db = db.Debug().Model(out).Where(condition, value)
-		}
+		db = db.Debug().Model(out).Where(condition, value...)
 		return db, nil
 	}
 }
@@ -36,10 +34,8 @@ func Where(condition string, value interface{}) QueryProcessor {
 func Search(condition string, value interface{}, entity interface{}) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		if value != "" {
-			if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
-				return nil, errors.New("Entry Already exists")
-			}
+		if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
+			return nil, errors.New("Entry Already exists")
 		}
 		return db, nil
 	}

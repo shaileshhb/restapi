@@ -23,6 +23,7 @@ export class StudentCrudComponent implements OnInit {
   id: string;
   studentForm: FormGroup;
   bookIssueForm: FormGroup;
+  searchStudentForm: FormGroup;
   studentAPI: IStudentDTO;
   formTitle: string;
   userLoggedIn: boolean = false;
@@ -39,20 +40,31 @@ export class StudentCrudComponent implements OnInit {
     private modalService: NgbModal,
     private cookieService: CookieService
     ) { 
+      this.studentSearchFormBuild();
       this.studentFormBuild();
   }
 
   studentFormBuild(){
     this.studentForm = this.formBuilder.group({
-      rollNo: ['', [Validators.min(1)]],
+      rollNo: [null, [Validators.min(1)]],
       name: ['', [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: ['', [Validators.min(5)]],
+      age: [null, [Validators.min(5)]],
       phone: ['', [Validators.minLength(10), Validators.pattern("^[0-9]*$")]],
       date: [],
       dateTime: [],
       gender: [],
       email: ['', [Validators.required, Validators.email, 
         Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+    });
+  }
+
+  studentSearchFormBuild() {
+    this.searchStudentForm = this.formBuilder.group({
+      name: ['', [Validators.pattern("^[a-zA-Z_ ]+$")]],
+      age: [''],
+      dateFrom: [''],
+      dateTo: [''],
+      email: ['']
     });
   }
 
@@ -143,8 +155,9 @@ export class StudentCrudComponent implements OnInit {
       });
       
     },
-    (err) => console.log('HTTP Error', err.error)
-    );
+    (err) => {
+      console.log('HTTP Error', err.error)
+    });
   }
 
   getStudents():void{
@@ -168,17 +181,16 @@ export class StudentCrudComponent implements OnInit {
         this.router.navigateByUrl('/login')
         this.modalService.dismissAll() 
       }
-    }
-    );
+    });
   }
 
   addStudent():void{
 
     this.studentAPI = {
       id: null, 
-      rollNo: (this.studentForm.get('rollNo').value  == "") ? null : this.studentForm.get('rollNo').value, 
+      rollNo: this.studentForm.get('rollNo').value, 
       name: this.studentForm.get('name').value, 
-      age: (this.studentForm.get('age').value == "") ? null : this.studentForm.get('age').value, 
+      age: this.studentForm.get('age').value, 
       email: this.studentForm.get('email').value,
       phone: this.studentForm.get('phone').value,
       date: this.studentForm.get('date').value,
@@ -204,8 +216,7 @@ export class StudentCrudComponent implements OnInit {
         this.modalRef.close() 
       }
 
-    }
-    );
+    });
   }
 
   updateStudent():void{
@@ -237,8 +248,7 @@ export class StudentCrudComponent implements OnInit {
         this.modalRef.close() 
       }
       
-    }
-    );
+    });
   }
 
   deleteStudent(id:string):void{
@@ -259,8 +269,7 @@ export class StudentCrudComponent implements OnInit {
           this.modalRef.close() 
         }
         
-      }
-      );
+      });
     }
   }
 
@@ -355,6 +364,26 @@ export class StudentCrudComponent implements OnInit {
       this.modalRef.close()
       
     })
+  }
+
+  // search
+  searchStudent() {
+    // console.log("Student is being searched...........");
+    console.log(this.searchStudentForm.value);
+    
+    this.studentService.searchStudent(this.searchStudentForm.value).subscribe(response => {
+      console.log(response)
+      this.students = response
+    },
+    err => {
+      console.log("Error", err.error);
+      
+    })
+
+  }
+
+  resetSearchForm() {
+    this.searchStudentForm.reset()
   }
 
   openModal(modalContent: any, modalSize?:any) {  

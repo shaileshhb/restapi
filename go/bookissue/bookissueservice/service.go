@@ -1,14 +1,14 @@
 package bookissueservice
 
 import (
-	"log"
 	"errors"
+	"log"
+
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
-	"github.com/shaileshhb/restapi/utility/validateBookIssue"
 	"github.com/shaileshhb/restapi/utility/calculatepenalty"
-
+	"github.com/shaileshhb/restapi/utility/validateBookIssue"
 )
 
 type BookIssueService struct {
@@ -55,12 +55,12 @@ func (s *BookIssueService) GetAll(bookIssues *[]model.BookIssue, id string) erro
 	uow.Commit()
 	log.Println("BookIssues->", bookIssues == nil, len(*bookIssues))
 	if len(*bookIssues) != 0 {
-		s.UpdatePenalty(bookIssues)
+		s.updatePenalty(bookIssues)
 	}
 	return nil
 }
 
-func (s *BookIssueService) UpdatePenalty(bookIssues *[]model.BookIssue) error {
+func (s *BookIssueService) updatePenalty(bookIssues *[]model.BookIssue) error {
 
 	// log.Println("BookID From UPDATE PENALTY")
 
@@ -93,7 +93,6 @@ func (s *BookIssueService) UpdatePenalty(bookIssues *[]model.BookIssue) error {
 
 func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 
-
 	uow := repository.NewUnitOfWork(s.DB, false)
 	var queryProcessors []repository.QueryProcessor
 
@@ -123,7 +122,7 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 func (s *BookIssueService) UpdateBook(bookIssue *model.BookIssue, bookID string) error {
 
 	var queryProcessors []repository.QueryProcessor
-	
+
 	var queryBookID = "book_id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryBookID, bookID))
 

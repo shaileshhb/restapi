@@ -1,8 +1,56 @@
 <app-master-navbar></app-master-navbar>
 
+
+&nbsp;
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h5 *ngIf="!userLoggedIn">Search Student</h5>
+            <button class="btn btn-outline-primary float-right" *ngIf="userLoggedIn" (click) = "setAddAction(); openModalAfterAuthentication(studentModal)">Add New Student</button>            
+        </div>
+        <div class="card-body padding">
+            <form [formGroup]="searchStudentForm">
+                <div class="row float-center">
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label" for="nameID" >Name</label>
+                        <input type="text" class="form-control" id="nameID" formControlName="name" placeholder="Enter Student Name">
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label" for="emailID" >Email</label>
+                        <input type="text" class="form-control" id="emailID" formControlName="email" placeholder="Enter Student Email. Example: abc@email.com">
+                        <div class="text-danger" *ngIf="searchStudentForm.get('email').invalid && (searchStudentForm.get('email').dirty || searchStudentForm.get('email').touched)">
+                            <div *ngIf="searchStudentForm.get('email').errors.pattern">Email ID is not valid</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label" for="ageID" >Age</label>
+                        <input type="number" class="form-control" id="ageID" formControlName="age" placeholder="Enter Student Age">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label" for="dateFromID" >Date From</label>
+                        <input type="date" class="form-control" id="dateFromID" formControlName="dateFrom">
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label" for="dateToID" >Date To</label>
+                        <input type="date" class="form-control" id="dateToID" formControlName="dateTo">
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+        <div class="card-footer">
+            <div class="float-right">
+                <button class="btn btn-outline-info" (click)="searchStudent()">Submit</button> &nbsp;
+                <button class="btn btn-outline-secondary" (click)="resetSearchForm()">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <br>
-    <button class="btn btn-outline-primary" *ngIf="userLoggedIn" (click) = "setAddAction(); openModalAfterAuthentication(studentModal)">Add Student</button> &nbsp;
     <br>
     <br>
     <div *ngIf="students.length != 0; else noStudents">

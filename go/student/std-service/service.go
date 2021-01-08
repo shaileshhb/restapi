@@ -272,15 +272,35 @@ func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum)
 	return nil
 }
 
-func (s *Service) GetAge(students *[]model.Student) error {
+func (s *Service) Search(students *[]model.Student, search model.SearchQuery) error {
 
-	// if err := s.repo.GetSum()
+	var err error
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	// var queryProcessors []repository.QueryProcessor
+	// queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
+
+	// queryString := "name LIKE ? AND email LIKE ? AND age >= ? AND date >= ? AND date <=?"
+	// nameLIKE := "%" + search.Name + "%"
+	// emailLIKE := "%" + search.Email + "%"
+	// queryProcessors = append(queryProcessors, repository.Where(queryString, nameLIKE, emailLIKE, search.Age, search.DateFrom, search.DateTo))
+
+	if err = s.repo.Get(uow, students, s.createQueryProcessor(search)); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) searchName(students *[]model.Student, name string) error {
+
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	queryCondition := "age > ?"
-	minAge := 18
-	queryProcessors = append(queryProcessors, repository.Where(queryCondition, minAge))
+	queryString := "name LIKE ?"
+	nameString := "%" + name + "%"
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryString, nameString))
 
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
@@ -288,4 +308,101 @@ func (s *Service) GetAge(students *[]model.Student) error {
 	}
 	uow.Commit()
 	return nil
+}
+
+func (s *Service) searchEmail(students *[]model.Student, email string) error {
+
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryString := "email LIKE ?"
+	emailString := "%" + email + "%"
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryString, emailString))
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) searchAge(students *[]model.Student, age string) error {
+
+	// if err := s.repo.GetSum()
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryCondition := "age > ?"
+	minAge := age
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}), repository.Where(queryCondition, minAge))
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) searchDate(students *[]model.Student, dateFrom string, dateTo string) error {
+
+	uow := repository.NewUnitOfWork(s.DB, true)
+
+	var queryProcessors []repository.QueryProcessor
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
+
+	if dateFrom == " " {
+		date := "date <= ?"
+		queryProcessors = append(queryProcessors, repository.Where(date, dateTo))
+	} else if dateTo == " " {
+		date := "date >= ?"
+		queryProcessors = append(queryProcessors, repository.Where(date, dateFrom))
+	} else {
+		date := "date >= ? AND date <= ?"
+		queryProcessors = append(queryProcessors, repository.Where(date, dateFrom, dateTo))
+	}
+
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+	return nil
+}
+
+func (s *Service) createQueryProcessor(search model.SearchQuery) []repository.QueryProcessor {
+
+	var queryProcessors []repository.QueryProcessor
+
+	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
+
+	nameLIKE := "%" + search.Name + "%"
+	emailLIKE := "%" + search.Email + "%"
+
+	if search.Name != "" {
+		nameQuery := "name LIKE ?"
+		queryProcessors = append(queryProcessors, repository.Where(nameQuery, nameLIKE))
+	}
+
+	if search.Email != "" {
+		name := "email LIKE ?"
+		queryProcessors = append(queryProcessors, repository.Where(name, emailLIKE))
+	}
+
+	if search.Age != "" {
+		age := "age > ?"
+		queryProcessors = append(queryProcessors, repository.Where(age, search.Age))
+	}
+	if search.DateFrom != "" {
+		start := "date >= ?"
+		queryProcessors = append(queryProcessors, repository.Where(start, search.DateFrom))
+	}
+	if search.DateTo != "" {
+		end := "date <= ?"
+		queryProcessors = append(queryProcessors, repository.Where(end, search.DateTo))
+	}
+
+	return queryProcessors
+
 }

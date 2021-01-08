@@ -62,4 +62,9 @@ export class StudentDTOService {
     return this.http.delete<string>(this.baseURL + "/" +studentID, {'headers': httpHeaders, responseType:'text' as 'json'});
   }
 
+  searchStudent(data: any): Observable<IStudentDTO[]> {
+
+    return this.http.get<IStudentDTO[]>(`${this.baseURL}/search?name=${data.name}&email=${data.email}&age=${data.age}&start=${data.dateFrom}&end=${data.dateTo}`); 
+  }
+
 }
