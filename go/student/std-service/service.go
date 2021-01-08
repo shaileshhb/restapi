@@ -9,7 +9,6 @@ import (
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
 	"github.com/shaileshhb/restapi/utility"
-	"github.com/shaileshhb/restapi/utility/structToMap"
 )
 
 type Service struct {
@@ -96,7 +95,7 @@ func (s *Service) AddNewStudent(student *model.Student) error {
 	checkName := "name = ?"
 	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
 
-	structToMap.EmptyToNull(student)
+	utility.EmptyToNull(student)
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
@@ -119,7 +118,7 @@ func (s *Service) Update(student *model.Student, id string) error {
 
 	log.Println("Book Issues -> ", student.BookIssues)
 
-	// studentMap := structToMap.ConvertStructToMap(student, id)
+	// studentMap := utility.ConvertStructToMap(student, id)
 
 	var queryProcessors []repository.QueryProcessor
 	checkID := "id = ?"

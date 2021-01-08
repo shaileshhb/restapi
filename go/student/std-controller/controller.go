@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/model"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
-	"github.com/shaileshhb/restapi/utility/excluderoute"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type Controller struct {
@@ -67,7 +67,7 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	excludeRoutes := []*mux.Route{
 		getHandler, getHandlerWithID, getSum, getDiff, getAgeAndRecordDiff, search,
 	}
-	apiRoutes.Use(excluderoute.Authorization(excludeRoutes))
+	apiRoutes.Use(utility.Authorization(excludeRoutes))
 
 	// swagger:operation POST /students add-student studentModel
 	// ---

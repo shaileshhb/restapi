@@ -1,8 +1,9 @@
-package validateBookIssue
+package utility
 
 import (
-	"log"
 	"errors"
+	"log"
+
 	"github.com/shaileshhb/restapi/model"
 )
 

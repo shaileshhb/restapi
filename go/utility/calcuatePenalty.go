@@ -1,4 +1,4 @@
-package calculatepenalty
+package utility
 
 import (
 	"log"

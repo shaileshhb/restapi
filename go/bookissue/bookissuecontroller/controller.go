@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
 	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/utility/excluderoute"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type BookIssueController struct {
@@ -35,7 +35,7 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 	// penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
 
 	excludedRoutes := []*mux.Route{getBookIssues}
-	apiRoutes.Use(excluderoute.Authorization(excludedRoutes))
+	apiRoutes.Use(utility.Authorization(excludedRoutes))
 
 	apiRoutes.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
 	apiRoutes.HandleFunc("/bookIssues/{id}", i.UpdateBookIssue).Methods("PUT")
@@ -45,7 +45,7 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 // func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
 
 // 	var bookIssues = []model.BookIssue{}
-	
+
 // 	err := i.service.GetAll(&bookIssues)
 // 	if err != nil {
 // 		log.Println(err)

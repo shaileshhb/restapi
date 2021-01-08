@@ -1,4 +1,4 @@
-package structToMap
+package utility
 
 import (
 	"log"

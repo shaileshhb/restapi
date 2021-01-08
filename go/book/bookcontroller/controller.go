@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/book/bookservice"
 	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/utility/excluderoute"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type BookController struct {
@@ -32,7 +32,7 @@ func (c *BookController) RegisterBookRoutes(router *mux.Router) {
 	getBook := apiRoutes.HandleFunc("/books/{id}", c.GetBook).Methods("GET")
 
 	excludedRoutes := []*mux.Route{getBooks, getBook}
-	apiRoutes.Use(excluderoute.Authorization(excludedRoutes))
+	apiRoutes.Use(utility.Authorization(excludedRoutes))
 
 	apiRoutes.HandleFunc("/books", c.AddBook).Methods("POST")
 	apiRoutes.HandleFunc("/books/{id}", c.UpdateBook).Methods("PUT")

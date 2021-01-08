@@ -7,8 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
 	"github.com/shaileshhb/restapi/repository"
-	"github.com/shaileshhb/restapi/utility/calculatepenalty"
-	"github.com/shaileshhb/restapi/utility/validateBookIssue"
+	"github.com/shaileshhb/restapi/utility"
 )
 
 type BookIssueService struct {
@@ -67,7 +66,7 @@ func (s *BookIssueService) updatePenalty(bookIssues *[]model.BookIssue) error {
 	var queryProcessors []repository.QueryProcessor
 
 	log.Println("Book issues Before ->", (*bookIssues)[0].Penalty)
-	err := calculatepenalty.Penalty(bookIssues)
+	err := utility.Penalty(bookIssues)
 	if err != nil {
 		return err
 	}
@@ -105,7 +104,7 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 		return err
 	}
 
-	if err := validateBookIssue.ValidateBookIssue(bookIssue, issue); err != nil {
+	if err := utility.ValidateBookIssue(bookIssue, issue); err != nil {
 		uow.Complete()
 		return err
 	}
