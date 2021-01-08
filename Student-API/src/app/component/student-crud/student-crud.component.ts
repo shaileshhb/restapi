@@ -257,7 +257,6 @@ export class StudentCrudComponent implements OnInit {
 
         this.getStudents();
         alert("Student deleted");
-        this.modalRef.close();
 
       },
       (err) => {

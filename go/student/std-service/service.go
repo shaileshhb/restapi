@@ -149,8 +149,8 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	var queryProcessors []repository.QueryProcessor
 
 	// var bookIssue = []model.BookIssue{}
-	query := "student_id=?"
-	queryProcessors = append(queryProcessors, repository.Where(query, id))
+	query := "student_id=? AND returned_flag=?"
+	queryProcessors = append(queryProcessors, repository.Where(query, id, false))
 
 	// if err := s.repo.Get(uow, &bookIssue, queryProcessors); err != nil {
 	// 	uow.Complete()
@@ -162,7 +162,7 @@ func (s *Service) Delete(student *model.Student, id string) error {
 		return err
 	}
 
-	log.Println(totalCount)
+	log.Println("Total Count -> ", totalCount)
 
 	if totalCount > 0 {
 		return errors.New("Please return all issued books")
@@ -172,11 +172,11 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	queryCondition := "id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
-	// if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
-	// 	uow.Complete()
-	// 	return err
-	// }
-	// uow.Commit()
+	if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 	return nil
 }
 
@@ -201,7 +201,6 @@ func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
 
 func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
 
-	// if err := s.repo.GetSum()
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
@@ -220,7 +219,6 @@ func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
 
 func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum) error {
 
-	// if err := s.repo.GetSum()
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	query := "sum(age) - count(*) as n"
@@ -245,34 +243,8 @@ func (s *Service) Search(students *[]model.Student, params map[string][]string) 
 
 	var queryProcessors []repository.QueryProcessor
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
-	var query string
 
-	for key, value := range params {
-
-		log.Println("KEY -> ", key, "VALUE -> ", value)
-
-		if key == "age" && value[0] != "" {
-			query = key + " >= ?"
-			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
-		}
-
-		if key == "start" && value[0] != "" {
-			query = "date >= ?"
-			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
-		}
-
-		if key == "end" && value[0] != "" {
-			query = "date <= ?"
-			queryProcessors = append(queryProcessors, repository.Where(query, value[0]))
-		}
-
-		if key == "name" || key == "email" {
-			query = key + " LIKE ?"
-			queryValue := "%" + value[0] + "%"
-			queryProcessors = append(queryProcessors, repository.Where(query, queryValue))
-		}
-
-	}
+	utility.CreateQueryProcessor(params, &queryProcessors)
 
 	if err = s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
@@ -303,7 +275,6 @@ func (s *Service) Validate(student *model.Student) error {
 	}
 
 	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
-		// log.Println(len(*student.PhoneNumber) >= 10, phonePattern.MatchString(*student.PhoneNumber))
 		return errors.New("Phone number should be only numbers and atleast 10 digits")
 	}
 
