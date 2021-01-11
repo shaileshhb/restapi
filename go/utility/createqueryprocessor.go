@@ -40,3 +40,8 @@ func CreateQueryProcessor(params map[string][]string, queryProcessors *[]reposit
 		}
 	}
 }
+
+/*
+Search query generated
+SELECT * FROM `students`  WHERE `students`.`deleted_at` IS NULL AND ((name LIKE '%m%') AND (age >= '21') AND (email LIKE '%com%'))
+*/

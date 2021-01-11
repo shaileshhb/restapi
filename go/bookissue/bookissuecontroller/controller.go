@@ -114,6 +114,8 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 	currentTimeInString = currentTimeInString[:19]
 	bookIssue.IssueDate = currentTimeInString
 
+	log.Println("Book ID -> ", bookIssue.BookID)
+
 	err = i.service.AddNewBookIssue(&bookIssue)
 	if err != nil {
 		log.Println("error from add", err)

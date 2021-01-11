@@ -93,7 +93,21 @@ func (s *BookIssueService) updatePenalty(bookIssues *[]model.BookIssue) error {
 func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
+
+	// var book = model.Book{}
+
 	var queryProcessors []repository.QueryProcessor
+
+	// queryProcessors = append(queryProcessors, repository.Where("id=?", bookIssue.BookID))
+	// if err := s.repo.Get(uow, &book, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
+	// }
+
+	// if *book.InStock == 0 {
+	// 	return errors.New("Book is out of Stock")
+	// }
+	// queryProcessors = nil
 
 	var issue = []model.BookIssue{}
 	condition := "student_id=?"

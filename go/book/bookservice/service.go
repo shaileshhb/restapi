@@ -72,6 +72,9 @@ func (s *BookService) GetBook(book *model.Book, id string) error {
 
 func (s *BookService) AddNewBook(book *model.Book) error {
 
+	// create unit of work
+	uow := repository.NewUnitOfWork(s.DB, false)
+
 	if err := s.Validate(book); err != nil {
 		return err
 	}
@@ -80,9 +83,6 @@ func (s *BookService) AddNewBook(book *model.Book) error {
 
 	checkName := "name = ?"
 	queryProcessors = append(queryProcessors, repository.Search(checkName, book.Name, book))
-
-	// create unit of work
-	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Add(uow, book, queryProcessors); err != nil {
 		uow.Complete()
