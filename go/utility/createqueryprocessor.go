@@ -17,22 +17,26 @@ func CreateQueryProcessor(params map[string][]string, queryProcessors *[]reposit
 		if key == "age" && value[0] != "" {
 			query = key + " >= ?"
 			*queryProcessors = append(*queryProcessors, repository.Where(query, value[0]))
+			continue
 		}
 
 		if key == "start" && value[0] != "" {
 			query = "date >= ?"
 			*queryProcessors = append(*queryProcessors, repository.Where(query, value[0]))
+			continue
 		}
 
 		if key == "end" && value[0] != "" {
 			query = "date <= ?"
 			*queryProcessors = append(*queryProcessors, repository.Where(query, value[0]))
+			continue
 		}
 
 		if key == "name" || key == "email" {
 			query = key + " LIKE ?"
 			queryValue := "%" + value[0] + "%"
 			*queryProcessors = append(*queryProcessors, repository.Where(query, queryValue))
+			continue
 		}
 	}
 }

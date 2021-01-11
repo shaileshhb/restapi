@@ -109,6 +109,9 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 		return err
 	}
 
+	bookIssue.ReturnedFlag = false
+	bookIssue.Penalty = 0.0
+
 	if err := s.repo.Add(uow, bookIssue, queryProcessors); err != nil {
 		uow.Complete()
 		return err
@@ -120,6 +123,7 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 
 func (s *BookIssueService) UpdateBook(bookIssue *model.BookIssue, bookID string) error {
 
+	uow := repository.NewUnitOfWork(s.DB, false)
 	var queryProcessors []repository.QueryProcessor
 
 	var queryBookID = "book_id=?"
@@ -128,7 +132,8 @@ func (s *BookIssueService) UpdateBook(bookIssue *model.BookIssue, bookID string)
 	var queryStudentID = "student_id=?"
 	queryProcessors = append(queryProcessors, repository.Where(queryStudentID, bookIssue.StudentID))
 
-	uow := repository.NewUnitOfWork(s.DB, false)
+	bookIssue.ReturnedFlag = true
+	bookIssue.Penalty = 0.0
 
 	if err := s.repo.Update(uow, bookIssue, queryProcessors); err != nil {
 		uow.Complete()

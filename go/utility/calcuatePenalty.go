@@ -18,7 +18,7 @@ func Penalty(bookIssues *[]model.BookIssue) error {
 		}
 		diff := time.Now().Sub(t)
 		days := int(diff.Hours() / 24)
-		isBookReturned := *(*bookIssues)[i].ReturnedFlag
+		isBookReturned := (*bookIssues)[i].ReturnedFlag
 
 		log.Println("Diff -> ", diff)
 		log.Println("Current Date -> ", (*bookIssues)[i].IssueDate, "days -> ", days)

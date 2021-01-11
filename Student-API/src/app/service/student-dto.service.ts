@@ -64,7 +64,24 @@ export class StudentDTOService {
 
   searchStudent(data: any): Observable<IStudentDTO[]> {
 
-    return this.http.get<IStudentDTO[]>(`${this.baseURL}/search?name=${data.name}&email=${data.email}&age=${data.age}&start=${data.dateFrom}&end=${data.dateTo}`); 
+    console.log(data.name)
+    let url: string = this.baseURL + "/search"
+    let paramsSet:string[] = [] 
+    
+    //create query params key value pairs
+    for (let key of Object.keys(data)) {
+      let value = data[key];
+      if(value == ""){
+        continue
+      }
+      paramsSet.push(key + "=" + value);
+    }
+    if(paramsSet.length != 0){
+      url += "?" + paramsSet.join("&");
+    }
+    console.log(url)
+
+    return this.http.get<IStudentDTO[]>(`${url}`); 
   }
 
 }

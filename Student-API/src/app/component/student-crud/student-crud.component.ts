@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service';
 import { IBookIssue } from 'src/app/IBookIssue';
 import { IStudentDTO } from 'src/app/IStudentDTO';
+import { IStudentID } from 'src/app/IStudentID';
 import { BookIssueService } from 'src/app/service/book-issue.service';
 import { BooksService } from 'src/app/service/books.service';
 import { StudentDTOService } from 'src/app/service/student-dto.service';
@@ -17,19 +18,23 @@ import { StudentDTOService } from 'src/app/service/student-dto.service';
 export class StudentCrudComponent implements OnInit {
 
   students = [];
-  // bookIssue: IBookIssue
   books = [];
   bookIssues: IBookIssue[] = [];
-  id: string;
+
   studentForm: FormGroup;
   bookIssueForm: FormGroup;
   searchStudentForm: FormGroup;
-  studentAPI: IStudentDTO;
+
   formTitle: string;
+
   userLoggedIn: boolean = false;
   isViewClicked: boolean = false;
   isBookIssued: boolean = false;
   modalRef: any;
+
+  studentAPI: IStudentDTO;
+  bookIssue: IBookIssue;
+  studentID: IStudentID;
   
   constructor(
     private studentService:StudentDTOService,
@@ -86,10 +91,6 @@ export class StudentCrudComponent implements OnInit {
    }
 
 
-  // userRegister(registerValue) {
-  //   console.log(registerValue);
-  // }
-
   validate():void{
   
     if(this.studentForm.valid){
@@ -127,21 +128,15 @@ export class StudentCrudComponent implements OnInit {
 
   prepopulate(id:string):void {
       
+    this.studentID = {
+      studentID: id
+    }
+
+    console.log("prepopulate" + this.studentID.studentID);
+
     this.studentService.getStudentDetail(id).subscribe((response) => {
       
       console.log(response);
-      
-      this.studentAPI = {
-        id: id,
-        name: response.name,
-        rollNo: response.rollNo,
-        age: response.age,
-        phone: response.phone,
-        date: response.date,
-        // dateTime: response.dateTime,
-        email: response.email,
-        isMale: response.isMale 
-      }
       
       this.studentForm.patchValue({
         name: response.name,
@@ -221,7 +216,9 @@ export class StudentCrudComponent implements OnInit {
 
   updateStudent():void{
 
-    console.log(this.studentForm.get('phone').value);
+    console.log(this.studentID.studentID);
+    
+    // console.log(this.studentForm.get('phone').value);
 
     this.studentService.updateExisitingStudent(this.studentAPI.id, {
       "id": this.studentAPI.id,
@@ -303,8 +300,8 @@ export class StudentCrudComponent implements OnInit {
     if (confirm("Are you sure?")) {
       this.bookIssueService.updateBookIssue(bookID, {
         "studentID": studentID,
-        "returnedFlag": true,
-        "penalty": 0.0
+        // "returnedFlag": true,
+        // "penalty": 0.0
       }).subscribe(response => {
         console.log(response);
         
@@ -323,9 +320,12 @@ export class StudentCrudComponent implements OnInit {
   showInventory(studentID: string, bookIssues) {
 
     console.log(bookIssues);
+    this.studentID = {
+      studentID: studentID
+    }
     
     this.bookService.getBooks().subscribe((response) => {
-      localStorage.setItem('studentID', studentID)
+      // localStorage.setItem('studentID', studentID)
       this.books = response
       console.log(response);
     },
@@ -335,23 +335,16 @@ export class StudentCrudComponent implements OnInit {
     })
   }
 
-  prepopulateBook(id: string) {
-
-    this.bookIssueFormBuilder()
-    this.bookIssueForm.patchValue({
-      bookID: id,
-      studentID: localStorage.getItem('studentID')
-    })
-  }
-
   issueBook(bookID: string) {
 
+    console.log(this.studentID.studentID);
+    
     this.bookIssueService.addNewBookIssue({
       "bookID": bookID,
-      "studentID": localStorage.getItem('studentID'),
+      "studentID": this.studentID.studentID,
       // "issueDate": this.bookIssueForm.get('issueDate').value,
-      "returnedFlag": false,
-      "penalty": 0.0
+      // "returnedFlag": false,
+      // "penalty": 0.0
     }).subscribe(response => {
       alert("Book successfully issued")
       this.modalRef.close()
