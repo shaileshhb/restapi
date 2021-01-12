@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from 'rxjs';
 
 import { IStudentDTO } from "src/app/IStudentDTO"; 
 import { CookieService } from 'ngx-cookie-service';
+import { Router, UrlSerializer } from '@angular/router';
+import { DateFormatPipe } from 'angular2-moment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StudentDTOService {
 
-  // url = "http://gsmktg.azurewebsites.net/api/v1/techlabs/test/students/";
   baseURL = "http://localhost:8080/students"
 
-  constructor(private http: HttpClient, private cookieService: CookieService) { }
+  constructor(
+    private http: HttpClient, 
+    private cookieService: CookieService,
+    private router: Router,
+    private serializer: UrlSerializer,
+    ) { }
 
   getStudentDetails(): Observable<IStudentDTO[]> {
 
@@ -64,24 +70,18 @@ export class StudentDTOService {
 
   searchStudent(data: any): Observable<IStudentDTO[]> {
 
-    console.log(data.name)
-    let url: string = this.baseURL + "/search"
-    let paramsSet:string[] = [] 
-    
-    //create query params key value pairs
+    console.log(data)
+
+    let params = new HttpParams()
     for (let key of Object.keys(data)) {
-      let value = data[key];
-      if(value == ""){
+      
+      if(data[key] == "" || data[key] == null) {
         continue
       }
-      paramsSet.push(key + "=" + value);
+      params = params.set(key, data[key])
     }
-    if(paramsSet.length != 0){
-      url += "?" + paramsSet.join("&");
-    }
-    console.log(url)
 
-    return this.http.get<IStudentDTO[]>(`${url}`); 
+    return this.http.get<IStudentDTO[]>(this.baseURL + "/search", {params}); 
   }
 
 }

@@ -17,6 +17,8 @@ import { StudentCrudComponent } from './component/student-crud/student-crud.comp
 import { CookieService } from 'ngx-cookie-service';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { MomentModule } from 'angular2-moment';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,8 @@ import { MomentModule } from 'angular2-moment';
     ReactiveFormsModule,
     NgbModule,
     NgIdleKeepaliveModule.forRoot(),
-    MomentModule
+    MomentModule,
+    NgSelectModule
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]

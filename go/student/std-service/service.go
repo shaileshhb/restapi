@@ -243,13 +243,15 @@ func (s *Service) Search(students *[]model.Student, params map[string][]string) 
 	var queryProcessors []repository.QueryProcessor
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
 
-	utility.CreateQueryProcessor(params, &queryProcessors)
+	utility.CreateSearchProcessor(params, &queryProcessors)
 
 	if err = s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	}
 	uow.Commit()
+
+	utility.TrimDates(students)
 	return nil
 }
 

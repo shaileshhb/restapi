@@ -390,6 +390,7 @@ func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	var students = []model.Student{}
+	// var searchStudent = model.SearchStudent{}
 
 	params := r.URL.Query()
 

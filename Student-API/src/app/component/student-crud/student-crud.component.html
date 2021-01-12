@@ -17,7 +17,7 @@
                     </div>
                     <div class="form-group col-sm-6 col-md-4">
                         <label class="control-label" for="emailID" >Email</label>
-                        <input type="text" class="form-control" id="emailID" formControlName="email" placeholder="Enter Student Email. Example: abc@email.com">
+                        <input type="text" class="form-control" id="emailID" formControlName="email" placeholder="Enter Student Email">
                         <div class="text-danger" *ngIf="searchStudentForm.get('email').invalid && (searchStudentForm.get('email').dirty || searchStudentForm.get('email').touched)">
                             <div *ngIf="searchStudentForm.get('email').errors.pattern">Email ID is not valid</div>
                         </div>
@@ -36,8 +36,13 @@
                         <label class="control-label" for="dateToID" >Date To</label>
                         <input type="date" class="form-control" id="dateToID" formControlName="dateTo">
                     </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label class="control-label">Books</label>
+                        <ng-select formControlName="books" [multiple]="true" placeholder="Select Books">
+                            <ng-option *ngFor="let d of dropdownList" [value]="d.id">{{d.name}}</ng-option>
+                         </ng-select>
+                    </div>
                 </div>
-                
             </form>
         </div>
         <div class="card-footer">

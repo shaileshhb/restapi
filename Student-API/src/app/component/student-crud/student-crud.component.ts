@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgSelectConfig } from '@ng-select/ng-select';
+import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { CookieService } from 'ngx-cookie-service';
 import { IBookIssue } from 'src/app/IBookIssue';
 import { IStudentDTO } from 'src/app/IStudentDTO';
@@ -19,6 +21,8 @@ export class StudentCrudComponent implements OnInit {
 
   students = [];
   books = [];
+  dropdownList: any = []
+  dropdownSettings: IDropdownSettings = {};
   bookIssues: IBookIssue[] = [];
 
   studentForm: FormGroup;
@@ -43,11 +47,24 @@ export class StudentCrudComponent implements OnInit {
     private router:Router, 
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
-    private cookieService: CookieService
-    ) { 
+    private cookieService: CookieService,
+    // private config: NgSelectConfig
+    ) {
+      // this.config.appendTo = 'body';
+      // this.config.bindValue = 'value';
       this.studentSearchFormBuild();
       this.studentFormBuild();
+
   }
+
+  ngOnInit(): void {
+    if (this.cookieService.get("Token") != "") {
+      this.userLoggedIn = true
+    } else {
+      this.userLoggedIn = false
+    }
+    this.getStudents();
+   }
 
   studentFormBuild(){
     this.studentForm = this.formBuilder.group({
@@ -69,8 +86,23 @@ export class StudentCrudComponent implements OnInit {
       age: [''],
       dateFrom: [''],
       dateTo: [''],
-      email: ['']
+      email: [''],
+      books: ['']
     });
+    console.log("in student search form build");
+    
+    this.createMultiSelectFields()
+
+  }
+
+  createMultiSelectFields() {
+
+    this.bookService.getBooks().subscribe(response => {
+      this.dropdownList = response
+    })  
+    
+    console.log(this.dropdownList);
+    
   }
 
   bookIssueFormBuilder() {
@@ -80,16 +112,6 @@ export class StudentCrudComponent implements OnInit {
       issueDate: ['', [Validators.required]]
     })
   } 
-  
-  ngOnInit(): void {
-    if (this.cookieService.get("Token") != "") {
-      this.userLoggedIn = true
-    } else {
-      this.userLoggedIn = false
-    }
-    this.getStudents();
-   }
-
 
   validate():void{
   
@@ -220,8 +242,8 @@ export class StudentCrudComponent implements OnInit {
     
     // console.log(this.studentForm.get('phone').value);
 
-    this.studentService.updateExisitingStudent(this.studentAPI.id, {
-      "id": this.studentAPI.id,
+    this.studentService.updateExisitingStudent(this.studentID.studentID, {
+      "id": this.studentID.studentID,
       "rollNo": this.studentForm.get('rollNo').value, 
       "name": this.studentForm.get('name').value, 
       "age": this.studentForm.get('age').value, 
@@ -281,18 +303,6 @@ export class StudentCrudComponent implements OnInit {
       
     })
 
-
-    // this.bookIssues = []
-    // this.bookIssueService.getBookIssues().subscribe((response) => {
-
-    //   for(var i=0; i < response.length; i++) {
-    //     if (id == response[i].studentID) {
-    //       console.log(response[i]);
-    //       this.bookIssues.push(response[i])
-    //     }
-    //   }
-
-    // })
   }
 
   returnBookIssued(bookID: string, studentID: string) {
