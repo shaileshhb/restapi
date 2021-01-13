@@ -46,6 +46,9 @@
             </form>
         </div>
         <div class="card-footer">
+            <div class="float-left">
+                <button class="btn btn-outline-info" *ngIf="viewAll" (click)="getStudents()">View All</button>
+            </div>
             <div class="float-right">
                 <button class="btn btn-outline-info" (click)="searchStudent()">Submit</button> &nbsp;
                 <button class="btn btn-outline-secondary" (click)="resetSearchForm()">Reset</button>
@@ -215,19 +218,18 @@
                 <table class="table table-bordered table-responsive">
                     <tr>
                         <th>Book ID</th>
-                        <!-- <th>Student ID</th> -->
                         <th>Issue Date</th>
-                        <th>Returned</th>
                         <th>Penalty</th>
                         <th *ngIf="userLoggedIn">Return Book</th>
                     </tr>
                     <tr *ngFor="let bookIssue of bookIssues">
                         <td>{{bookIssue.bookID}}</td>
-                        <!-- <td>{{bookIssue.studentID}}</td> -->
                         <td>{{bookIssue.issueDate}}</td>
-                        <td>{{bookIssue.returnedFlag}}</td>
                         <td>{{bookIssue.penalty}}</td>
-                        <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" [disabled]="bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button></td>
+                        <td *ngIf="userLoggedIn">
+                            <button class="btn btn-outline-info" *ngIf="!bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button>
+                            <h6 class="text-info" *ngIf="bookIssue.returnedFlag">Book Returned</h6>
+                        </td>
                     </tr>
                 </table>
             </div>

@@ -3,7 +3,6 @@ import { Validators, FormBuilder, FormControl, FormGroup } from '@angular/forms'
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectConfig } from '@ng-select/ng-select';
-import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { CookieService } from 'ngx-cookie-service';
 import { IBookIssue } from 'src/app/IBookIssue';
 import { IStudentDTO } from 'src/app/IStudentDTO';
@@ -22,8 +21,7 @@ export class StudentCrudComponent implements OnInit {
   students = [];
   books = [];
   dropdownList: any = []
-  dropdownSettings: IDropdownSettings = {};
-  bookIssues: IBookIssue[] = [];
+  bookIssues = [];
 
   studentForm: FormGroup;
   bookIssueForm: FormGroup;
@@ -34,6 +32,7 @@ export class StudentCrudComponent implements OnInit {
   userLoggedIn: boolean = false;
   isViewClicked: boolean = false;
   isBookIssued: boolean = false;
+  viewAll: boolean = false;
   modalRef: any;
 
   studentAPI: IStudentDTO;
@@ -48,13 +47,9 @@ export class StudentCrudComponent implements OnInit {
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
     private cookieService: CookieService,
-    // private config: NgSelectConfig
     ) {
-      // this.config.appendTo = 'body';
-      // this.config.bindValue = 'value';
-      this.studentSearchFormBuild();
-      this.studentFormBuild();
-
+      this.studentSearchFormBuild()
+      this.studentFormBuild()
   }
 
   ngOnInit(): void {
@@ -89,7 +84,6 @@ export class StudentCrudComponent implements OnInit {
       email: [''],
       books: ['']
     });
-    console.log("in student search form build");
     
     this.createMultiSelectFields()
 
@@ -178,6 +172,7 @@ export class StudentCrudComponent implements OnInit {
   }
 
   getStudents():void{
+    this.viewAll = false
     this.studentService.getStudentDetails().subscribe((data)=>{
       this.students = data;
       for (let i = 0; i < this.students.length; i++) {
@@ -296,10 +291,14 @@ export class StudentCrudComponent implements OnInit {
 
     this.bookIssueService.getBookIssues(id).subscribe((response) => {
       this.bookIssues = response
+      for (let i = 0; i < this.bookIssues.length; i++) {
+        this.bookIssues[i].returned = (this.bookIssues[i].returnedFlag == false) ? "Not Returned" : "Returned"
+      }
+
     },
     err => {
-      alert("ERROR")
       console.log(err.error);
+      alert("ERROR"+ err.text)
       
     })
 
@@ -372,7 +371,7 @@ export class StudentCrudComponent implements OnInit {
   searchStudent() {
     // console.log("Student is being searched...........");
     console.log(this.searchStudentForm.value);
-    
+    this.viewAll = true
     this.studentService.searchStudent(this.searchStudentForm.value).subscribe(response => {
       console.log(response)
       this.students = response
@@ -386,6 +385,7 @@ export class StudentCrudComponent implements OnInit {
 
   resetSearchForm() {
     this.searchStudentForm.reset()
+    // this.getStudents()
   }
 
   openModal(modalContent: any, modalSize?:any) {  

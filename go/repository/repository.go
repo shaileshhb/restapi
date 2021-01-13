@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -26,6 +27,7 @@ type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
 func Where(condition string, value ...interface{}) QueryProcessor {
 
+	log.Println("Args ->", value)
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		db = db.Debug().Model(out).Where(condition, value...)
 		return db, nil
@@ -83,6 +85,32 @@ func Join(query string) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		db = db.Joins(query)
+		return db, nil
+	}
+}
+
+func FilterWithOperator(columnNames []string, conditions []string, operators []string, values []interface{}) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		if len(columnNames) != len(conditions) && len(conditions) != len(values) {
+			return db, nil
+		}
+
+		if len(conditions) == 1 {
+			db = db.Where(fmt.Sprintf("%v %v", columnNames[0], conditions[0]), values[0])
+			return db, nil
+		}
+		if len(columnNames)-1 != len(operators) {
+			return db, nil
+		}
+		str := ""
+		for i := 0; i < len(columnNames); i++ {
+			if i == len(columnNames)-1 {
+				str = fmt.Sprintf("%v%v %v", str, columnNames[i], conditions[i])
+			} else {
+				str = fmt.Sprintf("%v%v %v %v ", str, columnNames[i], conditions[i], operators[i])
+			}
+		}
+		db = db.Where(str, values...)
 		return db, nil
 	}
 }

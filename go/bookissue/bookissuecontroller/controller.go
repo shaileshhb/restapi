@@ -30,11 +30,11 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 
 	apiRoutes.Use()
 
-	getBookIssues := apiRoutes.HandleFunc("/bookIssues/{studentID}", i.GetAllBookIssues).Methods("GET")
-	// getBookIssue := apiRoutes.HandleFunc("/bookIssues/{studentid}", i.GetBookIssues).Methods("GET")
+	getBookIssues := apiRoutes.HandleFunc("/bookIssues", i.GetAllBookIssues).Methods("GET")
+	getBookIssue := apiRoutes.HandleFunc("/bookIssues/{studentID}", i.GetBookIssues).Methods("GET")
 	// penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
 
-	excludedRoutes := []*mux.Route{getBookIssues}
+	excludedRoutes := []*mux.Route{getBookIssues, getBookIssue}
 	apiRoutes.Use(utility.Authorization(excludedRoutes))
 
 	apiRoutes.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
@@ -42,35 +42,35 @@ func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
 	apiRoutes.HandleFunc("/bookIssues/{id}", i.DeleteBookIssue).Methods("DELETE")
 }
 
-// func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
-
-// 	var bookIssues = []model.BookIssue{}
-
-// 	err := i.service.GetAll(&bookIssues)
-// 	if err != nil {
-// 		log.Println(err)
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	bookIssueJSON, err := json.Marshal(bookIssues)
-// 	if err != nil {
-// 		log.Println(err)
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	w.Write(bookIssueJSON)
-// 	log.Println("Book Issue Successfully returned", string(bookIssueJSON))
-// }
-
 func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
+
+	var bookIssues = []model.BookIssue{}
+
+	err := i.service.GetAll(&bookIssues)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	bookIssueJSON, err := json.Marshal(bookIssues)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(bookIssueJSON)
+	log.Println("Book Issue Successfully returned", string(bookIssueJSON))
+}
+
+func (i *BookIssueController) GetBookIssues(w http.ResponseWriter, r *http.Request) {
 
 	var bookIssue = []model.BookIssue{}
 	params := mux.Vars(r)
 
 	log.Println("student id ->", params["studentID"])
 
-	err := i.service.GetAll(&bookIssue, params["studentID"])
+	err := i.service.Get(&bookIssue, params["studentID"])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -108,6 +108,11 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	log.Println("===============================================================")
+	log.Println("StudentID ->", bookIssue.StudentID)
+	log.Println("BookID -> ", bookIssue.BookID)
+	log.Println("===============================================================")
+
 	currentTime := time.Now()
 	// currentTime.Format("2006-01-02T15:04:05")
 	currentTimeInString := currentTime.String()
@@ -123,14 +128,14 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	w.Write([]byte(bookIssue.BookID.String()))
+	w.Write([]byte(bookIssue.ID.String()))
 	log.Println("Book successfully added", bookIssue.BookID)
 }
 
 func (i *BookIssueController) UpdateBookIssue(w http.ResponseWriter, r *http.Request) {
 
 	var err error
-	var bookIssue = &model.BookIssue{}
+	var bookIssue = model.BookIssue{}
 
 	params := mux.Vars(r)
 
@@ -143,15 +148,16 @@ func (i *BookIssueController) UpdateBookIssue(w http.ResponseWriter, r *http.Req
 	}
 
 	log.Println("Book Issue response", string(bookIssueResponse))
+	log.Println("ID ->", params["id"])
 
-	err = json.Unmarshal(bookIssueResponse, bookIssue)
+	err = json.Unmarshal(bookIssueResponse, &bookIssue)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = i.service.UpdateBook(bookIssue, params["id"])
+	err = i.service.UpdateBook(&bookIssue, params["id"])
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("Error while updating book issue"))
@@ -159,14 +165,8 @@ func (i *BookIssueController) UpdateBookIssue(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	bookIssueJSON, err := json.Marshal(bookIssue)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	// w.Write([]byte(bookIssue.BookID.String()))
-	log.Println("Book Issue successfully updated", string(bookIssueJSON))
+	w.Write([]byte(bookIssue.ID.String()))
+	log.Println("Book Issue successfully updated", bookIssue)
 }
 
 func (i *BookIssueController) DeleteBookIssue(w http.ResponseWriter, r *http.Request) {

@@ -7,7 +7,7 @@ import (
 	"github.com/shaileshhb/restapi/repository"
 )
 
-func CreateSearchProcessor(params map[string][]string, queryProcessors *[]repository.QueryProcessor) {
+func CreateSearchQuery(params map[string][]string, queryProcessors *[]repository.QueryProcessor) {
 
 	var query string
 
@@ -56,17 +56,12 @@ func CreateSearchProcessor(params map[string][]string, queryProcessors *[]reposi
 			log.Println("value[0] -> ", value[0])
 			bookID := strings.Split(value[0], ",")
 
-			query = ""
-			for i := 0; i < len(bookID); i++ {
-				if i == 0 {
-					query = "book_id = " + "'" + bookID[i] + "'"
-					continue
-				}
-				query += " OR book_id = " + "'" + bookID[i] + "'"
-			}
+			query = "book_id IN (?)"
+
 			log.Println("Book IDs -> ", bookID)
 			log.Println("Query -> ", query)
-			*queryProcessors = append(*queryProcessors, repository.Where(query))
+
+			*queryProcessors = append(*queryProcessors, repository.Where(query, bookID))
 		}
 	}
 }
@@ -76,9 +71,19 @@ Search query generated
 SELECT * FROM `students`  WHERE `students`.`deleted_at` IS NULL AND ((name LIKE '%m%') AND (age >= '21') AND (email LIKE '%com%'))
 
 Select query with books
-SELECT * FROM `students` LEFT JOIN book_issues
-on students.id = book_issues.student_id
-WHERE `students`.`deleted_at` IS NULL AND ((name LIKE '%a%')
-AND (date >= '2020-12-15') AND (date <= '2021-01-21') AND (book_id = '195eb692-9fc3-4bf7-acba-f6e36c17b041' OR book_id = '444a5f39-0477-480a-a991-899968eabb27')))
+SELECT * FROM `students` LEFT JOIN book_issues on students.id = book_issues.student_id
+WHERE `students`.`deleted_at` IS NULL AND ((returned_flag = false) AND
+(book_id in ( '4b0aa6eb-e851-4cf5-8cb6-837d2a63c0dd', '2ae5f77c-96aa-4191-8f48-9fc6cd4a6083' )))
 GROUP BY students.id
 */
+
+func AddToSlice(columnName string, condition string, operator string, value interface{},
+	columnNames *[]string, conditions *[]string, operators *[]string, values *[]interface{}) {
+
+	if len(*columnNames) != 0 {
+		*operators = append(*operators, operator)
+	}
+	*columnNames = append(*columnNames, columnName)
+	*conditions = append(*conditions, condition)
+	*values = append(*values, value)
+}

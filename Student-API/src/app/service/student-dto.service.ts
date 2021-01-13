@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 
 import { IStudentDTO } from "src/app/IStudentDTO"; 
 import { CookieService } from 'ngx-cookie-service';
-import { Router, UrlSerializer } from '@angular/router';
-import { DateFormatPipe } from 'angular2-moment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +15,6 @@ export class StudentDTOService {
   constructor(
     private http: HttpClient, 
     private cookieService: CookieService,
-    private router: Router,
-    private serializer: UrlSerializer,
     ) { }
 
   getStudentDetails(): Observable<IStudentDTO[]> {

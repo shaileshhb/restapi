@@ -394,8 +394,7 @@ func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
 
 	params := r.URL.Query()
 
-	log.Println("Params -> ", params)
-
+	log.Println("Params Eamil len -> ", len(params["email"]))
 	if len(params) == 0 {
 		c.GetAllStudents(w, r)
 		return

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model"
@@ -242,8 +243,9 @@ func (s *Service) Search(students *[]model.Student, params map[string][]string) 
 
 	var queryProcessors []repository.QueryProcessor
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
+	s.createSearchQueries(params, &queryProcessors)
 
-	utility.CreateSearchProcessor(params, &queryProcessors)
+	// utility.CreateSearchQuery(params, &queryProcessors)
 
 	if err = s.repo.Get(uow, students, queryProcessors); err != nil {
 		uow.Complete()
@@ -253,6 +255,62 @@ func (s *Service) Search(students *[]model.Student, params map[string][]string) 
 
 	utility.TrimDates(students)
 	return nil
+}
+
+func (s *Service) createSearchQueries(params map[string][]string, queryProcessors *[]repository.QueryProcessor) {
+
+	var columnNames []string
+	var conditions []string
+	var values []interface{}
+	var operators []string
+
+	if name := params["name"]; len(name) > 0 {
+		utility.AddToSlice("name", "LIKE ?", "OR", "%"+name[0]+"%", &columnNames, &conditions, &operators, &values)
+	}
+	if email := params["email"]; len(email) > 0 {
+		utility.AddToSlice("email", "LIKE ?", "OR", "%"+email[0]+"%", &columnNames, &conditions, &operators, &values)
+	}
+	if age := params["age"]; len(age) > 0 {
+		utility.AddToSlice("age", ">= ?", "OR", age[0], &columnNames, &conditions, &operators, &values)
+	}
+	if dateFrom := params["dateFrom"]; len(dateFrom) > 0 {
+		utility.AddToSlice("date", ">= ?", "OR", dateFrom[0], &columnNames, &conditions, &operators, &values)
+	}
+	if dateTo := params["dateTo"]; len(dateTo) > 0 {
+		if len(params["dateFrom"]) > 0 {
+			utility.AddToSlice("date", "<= ?", "AND", dateTo[0], &columnNames, &conditions, &operators, &values)
+		} else {
+			utility.AddToSlice("date", "<= ?", "OR", dateTo[0], &columnNames, &conditions, &operators, &values)
+		}
+	}
+	if books := params["books"]; len(params["books"]) > 0 {
+		var query string
+		selectQuery := "*"
+		*queryProcessors = append(*queryProcessors, repository.Select(selectQuery))
+
+		query = "LEFT JOIN book_issues on students.id = book_issues.student_id"
+		*queryProcessors = append(*queryProcessors, repository.Join(query))
+
+		groupBy := "students.id"
+		*queryProcessors = append(*queryProcessors, repository.GroupBy([]string{groupBy}))
+
+		query = "returned_flag = false"
+		*queryProcessors = append(*queryProcessors, repository.Where(query))
+
+		bookID := strings.Split(books[0], ",")
+
+		utility.AddToSlice("book_id", "IN (?)", "OR", bookID, &columnNames, &conditions, &operators, &values)
+	}
+
+	log.Println("===================================================================================================")
+	log.Println("Column Names -> ", columnNames)
+	log.Println("conditions -> ", conditions)
+	log.Println("values Names -> ", values)
+	log.Println("operators Names -> ", operators)
+	log.Println("===================================================================================================")
+
+	*queryProcessors = append(*queryProcessors, repository.FilterWithOperator(columnNames, conditions, operators, values))
+
 }
 
 func (s *Service) Validate(student *model.Student) error {

@@ -22,24 +22,25 @@ func NewIssueService(repo *repository.GormRepository, db *gorm.DB) *BookIssueSer
 	}
 }
 
-// func (s *BookIssueService) GetAll(bookIssue *[]model.BookIssue) error {
+func (s *BookIssueService) GetAll(bookIssue *[]model.BookIssue) error {
 
-// 	uow := repository.NewUnitOfWork(s.DB, true)
+	log.Println("Inside get all book issues")
+	uow := repository.NewUnitOfWork(s.DB, true)
 
-// 	var queryProcessors []repository.QueryProcessor
+	var queryProcessors []repository.QueryProcessor
 
-// 	if err := s.repo.Get(uow, bookIssue, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-// 	uow.Commit()
+	if err := s.repo.Get(uow, bookIssue, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
 
-// 	return nil
-// }
+	return nil
+}
 
-func (s *BookIssueService) GetAll(bookIssues *[]model.BookIssue, id string) error {
+func (s *BookIssueService) Get(bookIssues *[]model.BookIssue, id string) error {
 
-	log.Println("Get all called, id ->", id)
+	log.Println("Get called, id ->", id)
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -94,9 +95,9 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
-	// var book = model.Book{}
-
 	var queryProcessors []repository.QueryProcessor
+
+	// var book = model.BookAvailability{}
 
 	// queryProcessors = append(queryProcessors, repository.Where("id=?", bookIssue.BookID))
 	// if err := s.repo.Get(uow, &book, queryProcessors); err != nil {
@@ -110,12 +111,15 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 	// queryProcessors = nil
 
 	var issue = []model.BookIssue{}
-	condition := "student_id=?"
-	queryProcessors = append(queryProcessors, repository.Where(condition, bookIssue.StudentID))
 
-	if err := s.repo.Get(uow, &issue, queryProcessors); err != nil {
-		uow.Complete()
-		return err
+	if bookIssue.StudentID != nil {
+		condition := "student_id=?"
+		queryProcessors = append(queryProcessors, repository.Where(condition, bookIssue.StudentID))
+
+		if err := s.repo.Get(uow, &issue, queryProcessors); err != nil {
+			uow.Complete()
+			return err
+		}
 	}
 
 	if err := utility.ValidateBookIssue(bookIssue, issue); err != nil {
@@ -131,6 +135,13 @@ func (s *BookIssueService) AddNewBookIssue(bookIssue *model.BookIssue) error {
 		return err
 	}
 	uow.Commit()
+
+	// log.Println("SAVE METHOD in add")
+	// if err := s.repo.Save(uow, bookIssue, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
+	// }
+	// uow.Commit()
 
 	return nil
 }
@@ -186,3 +197,50 @@ func (s *BookIssueService) Validate(bookIssue *model.BookIssue) error {
 
 	return nil
 }
+
+/*
+func (s *BookIssueService) UpdateBook(bookIssue *model.BookIssue, id string) error {
+
+	log.Println("Update book issue")
+
+	uow := repository.NewUnitOfWork(s.DB, false)
+
+	// var bookIssues = []model.BookIssue{}
+	var queryProcessors []repository.QueryProcessor
+
+	// var queryBookID = "book_id=?"
+	// queryProcessors = append(queryProcessors, repository.Where(queryBookID, bookID))
+
+	// var queryStudentID = "student_id=?"
+	// queryProcessors = append(queryProcessors, repository.Where(queryStudentID, bookIssue.StudentID))
+
+	var query = "id=?"
+	queryProcessors = append(queryProcessors, repository.Where(query, id))
+
+	// if err := s.repo.Get(uow, &bookIssues, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
+	// }
+	log.Println("BookIssue -> ", bookIssue.IssueDate)
+
+	bookIssue.ReturnedFlag = true
+	bookIssue.Penalty = 0.0
+	bookIssue.ID = uuid.FromStringOrNil(id)
+
+	// if err := s.repo.Update(uow, bookIssue, queryProcessors); err != nil {
+	// 	uow.Complete()
+	// 	return err
+	// }
+	// uow.Commit()
+
+	log.Println("SAVE METHOD in update")
+	if err := s.repo.Save(uow, bookIssue, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}
+	uow.Commit()
+
+	return nil
+
+}
+*/
