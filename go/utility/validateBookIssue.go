@@ -2,20 +2,14 @@ package utility
 
 import (
 	"errors"
-	"log"
 
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/bookissue"
 )
 
-func ValidateBookIssue(bookIssue *model.BookIssue, issue []model.BookIssue) error {
-
-	log.Println("Book Issue -> ", bookIssue)
-	log.Println("Issue -> ", issue)
+func ValidateBookIssue(bookIssue *bookissue.BookIssue, issue []bookissue.BookIssue) error {
 
 	for i := 0; i < len(issue); i++ {
-		log.Println("student.BookIssues Flag -> ", issue[i].ReturnedFlag)
 		if issue[i].StudentID == bookIssue.StudentID && issue[i].ReturnedFlag == false {
-			log.Println("student.BookIssues -> ", issue[i])
 			if issue[i].BookID == bookIssue.BookID {
 				return errors.New("Book Already issued")
 			}

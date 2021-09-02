@@ -5,7 +5,7 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/book"
 	"github.com/shaileshhb/restapi/repository"
 )
 
@@ -21,11 +21,11 @@ func NewBookService(repo *repository.GormRepository, db *gorm.DB) *BookService {
 	}
 }
 
-func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
+func (s *BookService) GetAllBooks(books *[]book.BookAvailability) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
-	var book = model.Book{}
+	var book = book.Book{}
 	var queryProcessors []repository.QueryProcessor
 
 	queryProcessors = append(queryProcessors, repository.Model(book))
@@ -42,7 +42,7 @@ func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
 
 	if err := s.repo.Scan(uow, books, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 
@@ -54,7 +54,7 @@ func (s *BookService) GetAllBooks(books *[]model.BookAvailability) error {
 
 }
 
-func (s *BookService) GetBook(book *model.Book, id string) error {
+func (s *BookService) GetBook(book *book.Book, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -63,14 +63,14 @@ func (s *BookService) GetBook(book *model.Book, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Get(uow, book, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 	return nil
 }
 
-func (s *BookService) AddNewBook(book *model.Book) error {
+func (s *BookService) AddNewBook(book *book.Book) error {
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
@@ -85,7 +85,7 @@ func (s *BookService) AddNewBook(book *model.Book) error {
 	queryProcessors = append(queryProcessors, repository.Search(checkName, book.Name, book))
 
 	if err := s.repo.Add(uow, book, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -93,7 +93,7 @@ func (s *BookService) AddNewBook(book *model.Book) error {
 	return nil
 }
 
-func (s *BookService) Update(book *model.Book, id string) error {
+func (s *BookService) Update(book *book.Book, id string) error {
 
 	if err := s.Validate(book); err != nil {
 		return err
@@ -109,7 +109,7 @@ func (s *BookService) Update(book *model.Book, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Update(uow, book, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -117,7 +117,7 @@ func (s *BookService) Update(book *model.Book, id string) error {
 	return nil
 }
 
-func (s *BookService) Delete(book *model.Book, id string) error {
+func (s *BookService) Delete(book *book.Book, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 
@@ -126,14 +126,14 @@ func (s *BookService) Delete(book *model.Book, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Delete(uow, book, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 	return nil
 }
 
-func (s *BookService) Validate(book *model.Book) error {
+func (s *BookService) Validate(book *book.Book) error {
 	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 
 	if book.Name == "" {

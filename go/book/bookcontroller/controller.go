@@ -8,8 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/book/bookservice"
-	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/utility"
+	"github.com/shaileshhb/restapi/model/book"
 )
 
 type BookController struct {
@@ -22,40 +21,45 @@ func NewBookController(service *bookservice.BookService) *BookController {
 	}
 }
 
-func (c *BookController) RegisterBookRoutes(router *mux.Router) {
+func (c *BookController) RegisterBookRoutes(getRouter, middlewareRouter *mux.Router) {
+	log.Println("In RegisterBookRoutes")
 
-	apiRoutes := router.PathPrefix("/").Subrouter()
+	getRouter.HandleFunc("/books", c.GetAllBooks).Methods(http.MethodGet)
+	getRouter.HandleFunc("/books/{id}", c.GetBook).Methods(http.MethodGet)
 
-	apiRoutes.Use()
+	// excludedRoutes := []*mux.Route{}
+	// router.Use(utility.Authorization(excludedRoutes))
 
-	getBooks := apiRoutes.HandleFunc("/books", c.GetAllBooks).Methods("GET")
-	getBook := apiRoutes.HandleFunc("/books/{id}", c.GetBook).Methods("GET")
-
-	excludedRoutes := []*mux.Route{getBooks, getBook}
-	apiRoutes.Use(utility.Authorization(excludedRoutes))
-
-	apiRoutes.HandleFunc("/books", c.AddBook).Methods("POST")
-	apiRoutes.HandleFunc("/books/{id}", c.UpdateBook).Methods("PUT")
-	apiRoutes.HandleFunc("/books/{id}", c.DeleteBook).Methods("DELETE")
+	middlewareRouter.HandleFunc("/books", c.AddBook)
+	middlewareRouter.HandleFunc("/books/{id}", c.UpdateBook).Methods(http.MethodPut)
+	middlewareRouter.HandleFunc("/books/{id}", c.DeleteBook).Methods(http.MethodDelete)
 }
 
 func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
+	log.Println("In GetAllBooks")
 
 	var err error
 
-	var books = []model.BookAvailability{}
+	var books = []book.BookAvailability{}
 
 	if err = c.service.GetAllBooks(&books); err != nil {
 		log.Println(err)
 		return
 	}
-	bookJoinJSON, err := json.Marshal(books)
+	// bookJoinJSON, err := json.Marshal(books)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+	// w.Write(bookJoinJSON)
+	e := json.NewEncoder(w)
+	err = e.Encode(books)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write(bookJoinJSON)
 	// log.Println("Join Books -> ", books)
 }
 
@@ -63,7 +67,7 @@ func (c *BookController) GetBook(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var book = model.Book{}
+	var book = book.Book{}
 	params := mux.Vars(r)
 
 	err = c.service.GetBook(&book, params["id"])
@@ -84,10 +88,13 @@ func (c *BookController) GetBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
+	log.Println("In AddBook")
 
-	var err error
-
-	var book = &model.Book{}
+	var book = &book.Book{}
+	// err := book.FromJSON(r.Body)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// }
 	bookResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -103,7 +110,7 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Book in controller", book)
+	log.Printf("Book in controller %#v", *book)
 
 	err = c.service.AddNewBook(book)
 	if err != nil {
@@ -120,7 +127,7 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 	var err error
-	var book = &model.Book{}
+	var book = &book.Book{}
 
 	params := mux.Vars(r)
 
@@ -154,7 +161,7 @@ func (i *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var book = &model.Book{}
+	var book = &book.Book{}
 	params := mux.Vars(r)
 
 	err = i.service.Delete(book, params["id"])

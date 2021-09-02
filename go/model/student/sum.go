@@ -1,4 +1,4 @@
-package model
+package student
 
 type Sum struct {
 	N int64

@@ -1,10 +1,8 @@
 package utility
 
-import (
-	"github.com/shaileshhb/restapi/model"
-)
+import "github.com/shaileshhb/restapi/model/student"
 
-func TrimDate(students *model.Student) {
+func TrimDate(students *student.Student) {
 
 	if students.Date != nil {
 		trimDate := *students.Date
@@ -14,7 +12,7 @@ func TrimDate(students *model.Student) {
 
 }
 
-func TrimDates(students *[]model.Student) {
+func TrimDates(students *[]student.Student) {
 
 	tempStudentsDate := *students
 

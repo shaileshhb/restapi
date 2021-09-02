@@ -1,0 +1,9 @@
+directory structure
+
+Frameworks And Drivers -> infrastructure
+Interface -> interfaces
+Usecases -> usecases
+Entities -> domain (will consist of models)
+
+
+DBURL := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", DbHost, DbPort, DbUser, DbName, DbPassword)

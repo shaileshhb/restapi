@@ -58,8 +58,7 @@ export class LoginComponent implements OnInit {
   validateUser() {
 
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
-      // this.tokens = response
-      // console.log(this.tokens)
+      console.log(response)
       this.setLoginCookie(response)
       console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
@@ -106,10 +105,7 @@ export class LoginComponent implements OnInit {
     expiryTime.setMinutes(expiryTime.getMinutes() + 5);
 
     console.log(expiryTime);
-    
-
     this.cookieService.set("Token", value, expiryTime)
-
   }
 
 }

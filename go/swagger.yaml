@@ -1,0 +1,134 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  Base:
+    properties:
+      id:
+        $ref: '#/definitions/UUID'
+    type: object
+    x-go-package: github.com/shaileshhb/restapi/model
+  BookIssue:
+    properties:
+      bookID:
+        $ref: '#/definitions/UUID'
+      id:
+        $ref: '#/definitions/UUID'
+      issueDate:
+        type: string
+        x-go-name: IssueDate
+      penalty:
+        format: double
+        type: number
+        x-go-name: Penalty
+      returnedFlag:
+        type: boolean
+        x-go-name: ReturnedFlag
+      studentID:
+        $ref: '#/definitions/UUID'
+    type: object
+    x-go-package: github.com/shaileshhb/restapi/model
+  Student:
+    properties:
+      age:
+        description: age of the student
+        format: int64
+        minimum: 1
+        type: integer
+        x-go-name: Age
+      bookIssues:
+        description: the books issued to the student
+        items:
+          $ref: '#/definitions/BookIssue'
+        type: array
+        x-go-name: BookIssues
+      date:
+        description: age of the student
+        type: string
+        x-go-name: Date
+      email:
+        description: age of the student
+        example: user@provider.net
+        type: string
+        x-go-name: Email
+      id:
+        $ref: '#/definitions/UUID'
+      isMale:
+        description: age of the student
+        type: boolean
+        x-go-name: IsMale
+      name:
+        description: the name for this student
+        maxLength: 30
+        type: string
+        x-go-name: Name
+      phone:
+        description: age of the student
+        type: string
+        x-go-name: PhoneNumber
+      rollNo:
+        description: age of the student
+        format: int64
+        minimum: 1
+        type: integer
+        x-go-name: RollNo
+    required:
+    - name
+    - email
+    - isMale
+    title: Student will contain all details of student.
+    type: object
+    x-go-package: github.com/shaileshhb/restapi/model
+  UUID:
+    description: |-
+      UUID representation compliant with specification
+      described in RFC 4122.
+    items:
+      format: uint8
+      type: integer
+    type: array
+    x-go-package: github.com/satori/go.uuid
+info:
+  description: Documentation for Student API.
+  title: Student API
+  version: 1.1.0
+paths:
+  /student/{id}:
+    put:
+      description: Updates the specifie student
+      operationId: updateStudent
+      parameters:
+      - $ref: '#/definitions/UUID'
+        description: ID to update the student
+        in: path
+        name: id
+        required: true
+        x-go-name: ID
+      responses:
+        "200":
+          description: successfully updated
+          schema:
+            $ref: '#/definitions/Student'
+      tags:
+      - student
+  /students:
+    get:
+      operationId: GetAllStudents
+      responses:
+        "200":
+          $ref: '#/responses/StudentResponse'
+      summary: Returns all students.
+      tags:
+      - student
+produces:
+- application/json
+responses:
+  StudentResponse:
+    description: StudentResponse will contain all students.
+    schema:
+      items:
+        $ref: '#/definitions/Student'
+      type: array
+schemes:
+- http
+swagger: "2.0"

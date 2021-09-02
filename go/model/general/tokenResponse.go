@@ -1,4 +1,4 @@
-package model
+package general
 
 type TokenResponse struct {
 	AccessToken  string `json:"accessToken"`

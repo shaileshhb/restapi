@@ -9,8 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
-	"github.com/shaileshhb/restapi/model"
-	"github.com/shaileshhb/restapi/utility"
+	"github.com/shaileshhb/restapi/model/bookissue"
 )
 
 type BookIssueController struct {
@@ -24,27 +23,23 @@ func NewBookIssueController(service *bookissueservice.BookIssueService) *BookIss
 	}
 }
 
-func (i *BookIssueController) RegisterBookIssueRoutes(router *mux.Router) {
+func (i *BookIssueController) RegisterBookIssueRoutes(getRouter, middlewareRouter *mux.Router) {
 
-	apiRoutes := router.PathPrefix("/").Subrouter()
+	getRouter.HandleFunc("/bookIssues", i.GetAllBookIssues).Methods("GET")
+	getRouter.HandleFunc("/bookIssues/{studentID}", i.GetBookIssues).Methods("GET")
+	// penalty := router.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
 
-	apiRoutes.Use()
+	// excludedRoutes = []*mux.Route{getBookIssues, getBookIssue}
+	// apiRoutes.Use(utility.Authorization(excludedRoutes))
 
-	getBookIssues := apiRoutes.HandleFunc("/bookIssues", i.GetAllBookIssues).Methods("GET")
-	getBookIssue := apiRoutes.HandleFunc("/bookIssues/{studentID}", i.GetBookIssues).Methods("GET")
-	// penalty := apiRoutes.HandleFunc("/peanlty", i.GetPenalty).Methods("GET")
-
-	excludedRoutes := []*mux.Route{getBookIssues, getBookIssue}
-	apiRoutes.Use(utility.Authorization(excludedRoutes))
-
-	apiRoutes.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
-	apiRoutes.HandleFunc("/bookIssues/{id}", i.UpdateBookIssue).Methods("PUT")
-	apiRoutes.HandleFunc("/bookIssues/{id}", i.DeleteBookIssue).Methods("DELETE")
+	middlewareRouter.HandleFunc("/bookIssues", i.AddNewBookIssue).Methods("POST")
+	middlewareRouter.HandleFunc("/bookIssues/{id}", i.UpdateBookIssue).Methods("PUT")
+	middlewareRouter.HandleFunc("/bookIssues/{id}", i.DeleteBookIssue).Methods("DELETE")
 }
 
 func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Request) {
 
-	var bookIssues = []model.BookIssue{}
+	var bookIssues = []bookissue.BookIssue{}
 
 	err := i.service.GetAll(&bookIssues)
 	if err != nil {
@@ -65,7 +60,7 @@ func (i *BookIssueController) GetAllBookIssues(w http.ResponseWriter, r *http.Re
 
 func (i *BookIssueController) GetBookIssues(w http.ResponseWriter, r *http.Request) {
 
-	var bookIssue = []model.BookIssue{}
+	var bookIssue = []bookissue.BookIssue{}
 	params := mux.Vars(r)
 
 	log.Println("student id ->", params["studentID"])
@@ -93,7 +88,7 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 
 	log.Printf("\nINSIDE ADD Book Issue\n")
 
-	var bookIssue = model.BookIssue{}
+	var bookIssue = bookissue.BookIssue{}
 	issueResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -135,7 +130,7 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 func (i *BookIssueController) UpdateBookIssue(w http.ResponseWriter, r *http.Request) {
 
 	var err error
-	var bookIssue = model.BookIssue{}
+	var bookIssue = bookissue.BookIssue{}
 
 	params := mux.Vars(r)
 
@@ -173,7 +168,7 @@ func (i *BookIssueController) DeleteBookIssue(w http.ResponseWriter, r *http.Req
 
 	var err error
 
-	var bookIssue = &model.BookIssue{}
+	var bookIssue = &bookissue.BookIssue{}
 	params := mux.Vars(r)
 
 	err = i.service.Delete(bookIssue, params["id"])

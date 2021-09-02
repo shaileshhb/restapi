@@ -4,10 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/bookissue"
 )
 
-func Penalty(bookIssues *[]model.BookIssue) error {
+func Penalty(bookIssues *[]bookissue.BookIssue) error {
 
 	for i := 0; i < len(*bookIssues); i++ {
 

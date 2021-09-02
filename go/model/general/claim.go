@@ -1,8 +1,8 @@
-package model
+package general
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/uuid"
 )
 
 type Claim struct {

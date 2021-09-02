@@ -1,11 +1,10 @@
 // Student API
 //
-// Example Swagger spec.
+// Documentation for Student API.
 //
-//	Schemes: [http]
-//	BasePath: http://localhost:8080
-//	Version: 0.0.1
-//	Contact: ABC<admin@studentAPI.in>
+//	Schemes: http
+//	BasePath: /
+//	Version: 1.1.0
 //
 //	Consumes:
 //	- application/json
@@ -13,9 +12,6 @@
 //	Produces:
 //	- application/json
 //
-//      SecurityDefinitions:
-//          basic:
-//              type: basic
 // swagger:meta
 package main
 
@@ -26,8 +22,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"os/user"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -36,8 +34,11 @@ import (
 	"github.com/shaileshhb/restapi/book/bookservice"
 	"github.com/shaileshhb/restapi/bookissue/bookissuecontroller"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/book"
+	"github.com/shaileshhb/restapi/model/bookissue"
+	"github.com/shaileshhb/restapi/model/student"
 	"github.com/shaileshhb/restapi/repository"
+	md "github.com/shaileshhb/restapi/security/middleware"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
 	usercontroller "github.com/shaileshhb/restapi/user/user-controller"
@@ -46,49 +47,42 @@ import (
 
 func main() {
 
-	db, err := gorm.Open("mysql", "root:root@tcp(localhost:4040)/student_app?charset=utf8&parseTime=True&loc=Local")
-	defer db.Close()
+	db, err := gorm.Open("mysql", "root:root@tcp(localhost:3306)/student_app?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	defer db.Close()
 	fmt.Println("DB connected Successfully")
 
-	db.AutoMigrate(&model.User{}, &model.Student{}, &model.Book{}, &model.BookIssue{})
+	db.AutoMigrate(&user.User{}, &student.Student{}, &book.Book{}, &bookissue.BookIssue{})
 
 	// Setting Foreign keys
-	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "RESTRICT")
-	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "RESTRICT")
+	db.Model(&bookissue.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "RESTRICT")
+	db.Model(&bookissue.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "RESTRICT")
 
-	router := mux.NewRouter()
+	router := mux.NewRouter().StrictSlash(true)
 	if router == nil {
 		log.Fatal("No Route Created")
 	}
 
+	middlewareRouter := router.PathPrefix("/").Subrouter()
+	getRouter := router.PathPrefix("/").Subrouter()
+	middlewareRouter.Use(md.Middleware)
+
 	repos := repository.NewGormRepository()
 
-	//login
-	userService := userservice.NewUserService(repos, db)
-	userController := usercontroller.NewController(userService)
-	userController.RegisterUserRoutes(router)
+	RegisterControllerAndService(middlewareRouter, getRouter, repos, db)
 
-	//student
-	serv := stdservice.NewService(repos, db)
-	controller := stdcontroller.NewController(serv)
-	controller.RegisterRoutes(router)
+	ops := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	docHandler := middleware.Redoc(ops, nil)
 
-	// book
-	bookserv := bookservice.NewBookService(repos, db)
-	bookController := bookcontroller.NewBookController(bookserv)
-	bookController.RegisterBookRoutes(router)
-
-	// issues
-	issuesServ := bookissueservice.NewIssueService(repos, db)
-	issueController := bookissuecontroller.NewBookIssueController(issuesServ)
-	issueController.RegisterBookIssueRoutes(router)
+	getRouter.Handle("/docs", docHandler)
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
-	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost,
+		http.MethodPut, http.MethodDelete})
 	origin := handlers.AllowedOrigins([]string{"*"})
 
 	server := &http.Server{
@@ -119,6 +113,30 @@ func main() {
 	fmt.Println("Server ShutDown.......")
 	os.Exit(0)
 
+}
+
+func RegisterControllerAndService(middlewareRouter, getRouter *mux.Router,
+	repos *repository.GormRepository, db *gorm.DB) {
+
+	//login
+	userService := userservice.NewUserService(repos, db)
+	userController := usercontroller.NewController(userService)
+	userController.RegisterUserRoutes(getRouter, middlewareRouter)
+
+	//student
+	serv := stdservice.NewService(repos, db)
+	controller := stdcontroller.NewController(serv)
+	controller.RegisterRoutes(getRouter, middlewareRouter)
+
+	// book
+	bookserv := bookservice.NewBookService(repos, db)
+	bookController := bookcontroller.NewBookController(bookserv)
+	bookController.RegisterBookRoutes(getRouter, middlewareRouter)
+
+	// issues
+	issuesServ := bookissueservice.NewIssueService(repos, db)
+	issueController := bookissuecontroller.NewBookIssueController(issuesServ)
+	issueController.RegisterBookIssueRoutes(getRouter, middlewareRouter)
 }
 
 // availability query

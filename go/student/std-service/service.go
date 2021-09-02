@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/bookissue"
+	"github.com/shaileshhb/restapi/model/student"
 	"github.com/shaileshhb/restapi/repository"
 	"github.com/shaileshhb/restapi/utility"
 )
@@ -25,7 +26,7 @@ func NewService(repo *repository.GormRepository, db *gorm.DB) *Service {
 }
 
 // GetAll gives all students
-func (s *Service) GetAll(students *[]model.Student) error {
+func (s *Service) GetAll(students *[]student.Student) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -33,20 +34,18 @@ func (s *Service) GetAll(students *[]model.Student) error {
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
 
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 
 	utility.TrimDates(students)
-	// utility.TrimDateTime(students)
-
 	return nil
 
 }
 
 // Get returns students as per the id
-func (s *Service) Get(students *model.Student, id string) error {
+func (s *Service) Get(students *student.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -56,53 +55,31 @@ func (s *Service) Get(students *model.Student, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 
 	utility.TrimDate(students)
-	// s.UpdatePenalty(&students.BookIssues)
-	// utility.TrimDateTime(students)
-
 	return nil
 }
 
-// func (s *Service) UpdatePenalty(bookIssues *[]model.BookIssue) error {
-
-// 	log.Println("BookID From UPDATE PENALTY")
-
-// 	uow := repository.NewUnitOfWork(s.DB, false)
-// 	var queryProcessors []repository.QueryProcessor
-
-// 	calculatepenalty.Penalty(bookIssues)
-
-// 	if err := s.repo.Update(uow, bookIssues, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-// 	uow.Commit()
-// 	return nil
-// }
-
-func (s *Service) AddNewStudent(student *model.Student) error {
+func (s *Service) AddNewStudent(student *student.Student) error {
 
 	if err := s.Validate(student); err != nil {
 		return err
 	}
 
 	var queryProcessors []repository.QueryProcessor
-
 	checkName := "name = ?"
 	queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
-
 	utility.EmptyToNull(student)
 
 	// create unit of work
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Add(uow, student, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -111,29 +88,20 @@ func (s *Service) AddNewStudent(student *model.Student) error {
 
 }
 
-func (s *Service) Update(student *model.Student, id string) error {
+func (s *Service) Update(student *student.Student, id string) error {
 
 	if err := s.Validate(student); err != nil {
 		return err
 	}
 
-	log.Println("Book Issues -> ", student.BookIssues)
-
-	// studentMap := utility.ConvertStructToMap(student, id)
-
 	var queryProcessors []repository.QueryProcessor
 	checkID := "id = ?"
 	queryProcessors = append(queryProcessors, repository.Where(checkID, id))
 
-	// checkName := "name = ?"
-	// queryProcessors = append(queryProcessors, repository.Search(checkName, student.Name, student))
-
-	// bookAlreadyIssuedSearch := ""
-
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Save(uow, student, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -142,23 +110,17 @@ func (s *Service) Update(student *model.Student, id string) error {
 }
 
 // Delete the student
-func (s *Service) Delete(student *model.Student, id string) error {
+func (s *Service) Delete(student *student.Student, id string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, false)
 	var totalCount int
 	var queryProcessors []repository.QueryProcessor
 
-	// var bookIssue = []model.BookIssue{}
 	query := "student_id=? AND returned_flag=?"
 	queryProcessors = append(queryProcessors, repository.Where(query, id, false))
 
-	// if err := s.repo.Get(uow, &bookIssue, queryProcessors); err != nil {
-	// 	uow.Complete()
-	// 	return err
-	// }
-
-	if err := s.repo.GetCount(uow, model.BookIssue{}, &totalCount, queryProcessors); err != nil {
-		uow.Complete()
+	if err := s.repo.GetCount(uow, bookissue.BookIssue{}, &totalCount, queryProcessors); err != nil {
+		uow.Commit()
 		return err
 	}
 
@@ -173,25 +135,25 @@ func (s *Service) Delete(student *model.Student, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Delete(uow, student, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 	return nil
 }
 
-func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
+func (s *Service) GetSum(students *student.Student, sum *student.Sum) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 	var queryProcessors []repository.QueryProcessor
 
-	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
+	queryProcessors = append(queryProcessors, repository.Model(&student.Student{}))
 
 	query := "sum(age + roll_no) as n"
 	queryProcessors = append(queryProcessors, repository.Select(query))
 
 	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -199,56 +161,52 @@ func (s *Service) GetSum(students *model.Student, sum *model.Sum) error {
 
 }
 
-func (s *Service) GetDiff(students *model.Student, sum *model.Sum) error {
+func (s *Service) GetDiff(students *student.Student, sum *student.Sum) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
-
+	queryProcessors = append(queryProcessors, repository.Model(&student.Student{}))
 	query := "abs(sum(age - roll_no)) as n"
 	queryProcessors = append(queryProcessors, repository.Select(query))
 
 	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 	return nil
 }
 
-func (s *Service) GetDiffOfAgeAndRecord(students *model.Student, sum *model.Sum) error {
+func (s *Service) GetDiffOfAgeAndRecord(students *student.Student, sum *student.Sum) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	query := "sum(age) - count(*) as n"
-
 	var queryProcessors []repository.QueryProcessor
-	queryProcessors = append(queryProcessors, repository.Model(&model.Student{}))
+	queryProcessors = append(queryProcessors, repository.Model(&student.Student{}))
 
 	queryProcessors = append(queryProcessors, repository.Select(query))
 
 	if err := s.repo.Scan(uow, sum, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
 	return nil
 }
 
-func (s *Service) Search(students *[]model.Student, params map[string][]string) error {
+func (s *Service) Search(students *[]student.Student, params map[string][]string) error {
 
-	var err error
 	uow := repository.NewUnitOfWork(s.DB, true)
-
 	var queryProcessors []repository.QueryProcessor
 	queryProcessors = append(queryProcessors, repository.Preload([]string{"BookIssues"}))
 	s.createSearchQueries(params, &queryProcessors)
 
 	// utility.CreateSearchQuery(params, &queryProcessors)
 
-	if err = s.repo.Get(uow, students, queryProcessors); err != nil {
-		uow.Complete()
+	if err := s.repo.Get(uow, students, queryProcessors); err != nil {
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -302,24 +260,22 @@ func (s *Service) createSearchQueries(params map[string][]string, queryProcessor
 		utility.AddToSlice("book_id", "IN (?)", "OR", bookID, &columnNames, &conditions, &operators, &values)
 	}
 
-	log.Println("===================================================================================================")
-	log.Println("Column Names -> ", columnNames)
-	log.Println("conditions -> ", conditions)
-	log.Println("values Names -> ", values)
-	log.Println("operators Names -> ", operators)
-	log.Println("===================================================================================================")
+	// log.Println("===================================================================================================")
+	// log.Println("Column Names -> ", columnNames)
+	// log.Println("conditions -> ", conditions)
+	// log.Println("values Names -> ", values)
+	// log.Println("operators Names -> ", operators)
+	// log.Println("===================================================================================================")
 
 	*queryProcessors = append(*queryProcessors, repository.FilterWithOperator(columnNames, conditions, operators, values))
 
 }
 
-func (s *Service) Validate(student *model.Student) error {
+func (s *Service) Validate(student *student.Student) error {
 
 	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 	phonePattern := regexp.MustCompile("^[0-9]*$")
-	// datePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	// dateTimePattern := regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}`)
 
 	if student.Name == "" || !namePattern.MatchString(student.Name) {
 		return errors.New("Name is required")
@@ -336,20 +292,5 @@ func (s *Service) Validate(student *model.Student) error {
 	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
 		return errors.New("Phone number should be only numbers and atleast 10 digits")
 	}
-
-	// if student.DateTime != nil && !dateTimePattern.MatchString((*student.DateTime)) {
-	// 	return errors.New("Date time is invalid")
-
-	// }
-
-	// if student.Date != nil && !datePattern.MatchString((*student.Date)) {
-	// 	return errors.New("Date is invalid")
-
-	// }
-
-	// if student.IsMale == nil {
-	// 	return errors.New("Gender is required")
-	// }
-
 	return nil
 }

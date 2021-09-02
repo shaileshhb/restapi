@@ -4,10 +4,10 @@ import (
 	"log"
 
 	"github.com/fatih/structs"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/student"
 )
 
-func ConvertStructToMap(student *model.Student, id string) map[string]interface{} {
+func ConvertStructToMap(student *student.Student, id string) map[string]interface{} {
 
 	studentMap := structs.Map(student)
 	log.Println("Students -> ", studentMap)
@@ -56,7 +56,7 @@ func ConvertStructToMap(student *model.Student, id string) map[string]interface{
 
 }
 
-func EmptyToNull(student *model.Student) {
+func EmptyToNull(student *student.Student) {
 
 	if student.PhoneNumber != nil {
 		if *student.PhoneNumber == "" {

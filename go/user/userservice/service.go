@@ -5,7 +5,7 @@ import (
 	"regexp"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/user"
 	"github.com/shaileshhb/restapi/repository"
 )
 
@@ -21,7 +21,7 @@ func NewUserService(repo *repository.GormRepository, db *gorm.DB) *UserService {
 	}
 }
 
-func (s *UserService) Get(user *model.User, username string) error {
+func (s *UserService) Get(user *user.User, username string) error {
 
 	uow := repository.NewUnitOfWork(s.DB, true)
 
@@ -30,7 +30,7 @@ func (s *UserService) Get(user *model.User, username string) error {
 	// queryProcessors = append(queryProcessors, repository.Where(queryCondition, username))
 
 	if err := s.repo.Get(uow, user, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -38,7 +38,7 @@ func (s *UserService) Get(user *model.User, username string) error {
 
 }
 
-func (s *UserService) Add(user *model.User) error {
+func (s *UserService) Add(user *user.User) error {
 
 	if err := s.Validate(user); err != nil {
 		return err
@@ -53,7 +53,7 @@ func (s *UserService) Add(user *model.User) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Add(uow, user, queryProcessors); err != nil {
-		uow.Complete()
+		uow.Commit()
 		return err
 	}
 	uow.Commit()
@@ -62,45 +62,7 @@ func (s *UserService) Add(user *model.User) error {
 
 }
 
-// func (s *UserService) Update(user *model.User, id string) error {
-
-// if err := s.Validate(user); err != nil {
-// 	return err
-// }
-
-// 	var queryProcessors []repository.QueryProcessor
-// 	queryCondition := "id=?"
-// 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
-
-// 	uow := repository.NewUnitOfWork(s.DB, false)
-
-// 	if err := s.repo.Update(uow, user, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-// 	uow.Commit()
-
-// 	return nil
-// }
-
-// Delete the student
-// func (s *UserService) Delete(user *model.User, id string) error {
-
-// 	uow := repository.NewUnitOfWork(s.DB, false)
-
-// 	var queryProcessors []repository.QueryProcessor
-// 	queryCondition := "id=?"
-// 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
-
-// 	if err := s.repo.Delete(uow, user, queryProcessors); err != nil {
-// 		uow.Complete()
-// 		return err
-// 	}
-// 	uow.Commit()
-// 	return nil
-// }
-
-func (s *UserService) Validate(user *model.User) error {
+func (s *UserService) Validate(user *user.User) error {
 
 	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 

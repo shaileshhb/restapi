@@ -8,9 +8,8 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/shaileshhb/restapi/model"
+	"github.com/shaileshhb/restapi/model/student"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
-	"github.com/shaileshhb/restapi/utility"
 )
 
 type Controller struct {
@@ -23,175 +22,34 @@ func NewController(service *stdservice.Service) *Controller {
 	}
 }
 
-func (c *Controller) RegisterRoutes(router *mux.Router) {
+func (c *Controller) RegisterRoutes(getRouter, middlewareRouter *mux.Router) {
 
-	apiRoutes := router.PathPrefix("/").Subrouter()
-	// apiRoutes.Use(validationUserToken)
+	getRouter.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+	getRouter.HandleFunc("/students/sum", c.GetSum).Methods("GET")
+	getRouter.HandleFunc("/students/diff", c.GetDiff).Methods("GET")
+	getRouter.HandleFunc("/students/recordsDiff", c.GetDiffOfAgeAndRecord).Methods("GET")
+	getRouter.HandleFunc("/students/search", c.Search).Methods(http.MethodGet)
+	getRouter.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
 
-	// swagger:operation GET /students get-all-students getStudents
-	// ---
-	// summary: Get all students
-	// description: Returns Student name, email, rollno, age, date, gender, phone-number of all the students
-	// responses:
-	//     '200':
-	//         description: Authenticated
-	//     '404':
-	//         description: Bad request
-	getHandler := apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-	getSum := apiRoutes.HandleFunc("/students/sum", c.GetSum).Methods("GET")
-	getDiff := apiRoutes.HandleFunc("/students/diff", c.GetDiff).Methods("GET")
-	getAgeAndRecordDiff := apiRoutes.HandleFunc("/students/recordsDiff", c.GetDiffOfAgeAndRecord).Methods("GET")
-
-	search := apiRoutes.HandleFunc("/students/search", c.Search).Methods(http.MethodGet)
-
-	// apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-
-	// apiRoutes.Use(validationUserToken)
-	// swagger:operation GET /students/{id} get-student getStudent
-	// ---
-	// summary: List the repositories owned by the given author.
-	// description: Returns Student name, email, rollno, age, date, gender, phone-number of the specified students
-	// parameters:
-	// - name: Student ID
-	//   in: path
-	//   required: true
-	//   type: string
-	// responses:
-	//     '200':
-	//         description: Authenticated
-	//     '404':
-	//         description: Bad request
-	getHandlerWithID := apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-	// apiRoutes.HandleFunc("/students/{id}", c.GetStudent).Methods("GET")
-
-	excludeRoutes := []*mux.Route{
-		getHandler, getHandlerWithID, getSum, getDiff, getAgeAndRecordDiff, search,
-	}
-	apiRoutes.Use(utility.Authorization(excludeRoutes))
-
-	// swagger:operation POST /students add-student studentModel
-	// ---
-	// summary: Get students data and add it to the db.
-	// description: Get all students info
-	// parameters:
-	// - name: Student Name
-	//   in: body
-	//   required: true
-	//   type: string
-	// - name: Student Age
-	//   in: body
-	//   required: false
-	//   type: integer
-	// - name: Student Roll No
-	//   in: body
-	//   required: false
-	//   type: integer
-	// - name: Student Email
-	//   in: body
-	//   required: true
-	//   type: string
-	//   example: domain@abc.com
-	// - name: Student Phone Number
-	//   in: body
-	//   required: false
-	//   type: string
-	// - name: DOB
-	//   in: body
-	//   required: false
-	//   type: string
-	// - name: Student Gender
-	//   in: body
-	//   required: false
-	//   type: boolean
-	// responses:
-	//     '200':
-	//         description: Authenticated
-	//     '404':
-	//         description: Bad request
-	apiRoutes.HandleFunc("/students", c.AddNewStudent).Methods("POST")
-
-	// swagger:operation PUT /students/{id} update-student updateStudent
-	// ---
-	// summary: Update student details
-	// description: Update student
-	// parameters:
-	// - name: Student ID
-	//   required: true
-	//   in: path
-	//   type: string
-	// responses:
-	//     '200':
-	//         description: Authenticated
-	//     '404':
-	//         description: Bad request
-	apiRoutes.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
-
-	// swagger:operation DELETE /students/{id} delete-student deleteStudent
-	// ---
-	// summary: Delete Student details
-	// description: Delete Student
-	// parameters:
-	// - name: Student ID
-	//   required: true
-	//   in: path
-	//   type: string
-	// responses:
-	//     '200':
-	//         description: Authenticated
-	//     '404':
-	//         description: Bad request
-	apiRoutes.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
+	middlewareRouter.HandleFunc("/students", c.AddNewStudent).Methods("POST")
+	middlewareRouter.HandleFunc("/students/{id}", c.UpdateStudent).Methods("PUT")
+	middlewareRouter.HandleFunc("/students/{id}", c.DeleteStudent).Methods("DELETE")
 
 }
 
-// func validationUserToken(endpoint http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// swagger:route GET /students student GetAllStudents
+// Returns all students.
+// responses:
+// 200: StudentResponse
 
-// 		var jwtKey = []byte("some_secret_key")
-
-// 		if r.Header["Token"][0] != "" {
-
-// 			claims := &model.Claim{}
-
-// 			token, err := jwt.ParseWithClaims(r.Header["Token"][0], claims, func(token *jwt.Token) (interface{}, error) {
-// 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 					return nil, fmt.Errorf("There was an error")
-// 				}
-// 				return jwtKey, nil
-// 			})
-// 			if err != nil {
-// 				if err == jwt.ErrSignatureInvalid {
-// 					w.WriteHeader(http.StatusUnauthorized)
-// 					return
-// 				}
-// 				w.WriteHeader(http.StatusBadRequest)
-// 				return
-// 			}
-
-// 			log.Println("Token->", *token)
-// 			log.Println("Claims->", time.Unix(claims.ExpiresAt, 0).Sub(time.Now()))
-
-// 			if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) < 60*time.Second {
-// 				// refresh
-// 			}
-
-// 			if token.Valid {
-// 				endpoint.ServeHTTP(w, r)
-// 			}
-// 		} else {
-// 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)
-// 			// fmt.Fprintf(w, "Not Authorized")
-// 		}
-// 	})
-// }
-
+// GetAllStudents will return all the students.
 func (c *Controller) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
 	log.Printf("\nINSIDE GET ALL STUDENT\n")
 
-	var students = []model.Student{}
+	var students = []student.Student{}
 	err = c.Service.GetAll(&students)
 	if err != nil {
 		log.Println(err)
@@ -214,7 +72,7 @@ func (c *Controller) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var students = model.Student{}
+	var students = student.Student{}
 	params := mux.Vars(r)
 
 	log.Println("GET STUDENT -> ", params["id"])
@@ -244,7 +102,7 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("\nINSIDE ADD STUDENT\n")
 
-	var student = &model.Student{}
+	var student = &student.Student{}
 	studentResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -275,11 +133,17 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// swagger:route PUT /student/{id} student updateStudent
+// Updates the specifie student
+// responses:
+// 		200: Student successfully updated
+
+// UpdateStudent will update the specified student.
 func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var student = &model.Student{}
+	var student = &student.Student{}
 
 	params := mux.Vars(r)
 
@@ -315,7 +179,7 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	var student = &model.Student{}
+	var student = &student.Student{}
 	params := mux.Vars(r)
 
 	err = c.Service.Delete(student, params["id"])
@@ -331,12 +195,10 @@ func (c *Controller) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 
-	var err error
+	var students = &student.Student{}
+	var sum = &student.Sum{}
 
-	var students = &model.Student{}
-	var sum = &model.Sum{}
-
-	err = c.Service.GetSum(students, sum)
+	err := c.Service.GetSum(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -349,13 +211,10 @@ func (c *Controller) GetSum(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetDiff(w http.ResponseWriter, r *http.Request) {
+	var students = &student.Student{}
+	var sum = &student.Sum{}
 
-	var err error
-
-	var students = &model.Student{}
-	var sum = &model.Sum{}
-
-	err = c.Service.GetDiff(students, sum)
+	err := c.Service.GetDiff(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -368,13 +227,10 @@ func (c *Controller) GetDiff(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Request) {
+	var students = &student.Student{}
+	var sum = &student.Sum{}
 
-	var err error
-
-	var students = &model.Student{}
-	var sum = &model.Sum{}
-
-	err = c.Service.GetDiffOfAgeAndRecord(students, sum)
+	err := c.Service.GetDiffOfAgeAndRecord(students, sum)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -387,10 +243,8 @@ func (c *Controller) GetDiffOfAgeAndRecord(w http.ResponseWriter, r *http.Reques
 }
 
 func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
-
-	var err error
-	var students = []model.Student{}
-	// var searchStudent = model.SearchStudent{}
+	var students = []student.Student{}
+	// var searchStudent = student.SearchStudent{}
 
 	params := r.URL.Query()
 
@@ -400,7 +254,7 @@ func (c *Controller) Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.Service.Search(&students, params)
+	err := c.Service.Search(&students, params)
 	if err != nil {
 		log.Println("Error in Search -> ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

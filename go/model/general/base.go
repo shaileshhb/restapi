@@ -1,10 +1,10 @@
-package model
+package general
 
 import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/uuid"
 )
 
 type Base struct {
