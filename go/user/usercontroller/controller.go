@@ -2,15 +2,15 @@ package usercontroller
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/shaileshhb/restapi/model/general"
 	"github.com/shaileshhb/restapi/model/user"
 	"github.com/shaileshhb/restapi/security/auth"
-	service "github.com/shaileshhb/restapi/user/user-service"
+	service "github.com/shaileshhb/restapi/user/userservice"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,11 +31,9 @@ func (c *Controller) RegisterUserRoutes(getRouter, middlewareRouter *mux.Router)
 
 }
 
-// swagger: route POST /students/register
-
 // Register will register the user.
 func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println(" =========================== REGISTER =========================== ")
 	var user = &user.User{}
 	var err error
 
@@ -79,7 +77,7 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 	var validateUser = &user.User{}
 	var err error
 
-	log.Println("Inside userlogin")
+	log.Println(" ---------------------- Inside userlogin ---------------------- ")
 
 	userDetails, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -101,6 +99,10 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+
+	fmt.Println(" loginusername -> ", loginUser.Username)
+	fmt.Println(" validateusername -> ", validateUser.Username)
+
 	if validateUser.Username != loginUser.Username {
 		http.Error(w, "Login failed for username!", http.StatusUnauthorized)
 		log.Println("Username or password is invalid")
@@ -113,23 +115,28 @@ func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var tokenDetails = general.TokenDetails{}
+	// var tokenDetails = general.TokenDetails{}
 
-	err = auth.CreateToken(validateUser.Base.ID, &tokenDetails)
+	// err = auth.CreateToken(validateUser.Base.ID, &tokenDetails)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+	// log.Println(tokenDetails)
+
+	// log.Println(string(response))
+	// response, error := json.Marshal(tokenDetails)
+	// if error != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	w.Write([]byte(error.Error()))
+	// 	return
+	// }
+
+	tokenDetails, err := auth.GenerateToken(loginUser.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println(tokenDetails)
-
-	// log.Println(string(response))
-	response, error := json.Marshal(tokenDetails)
-	if error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(error.Error()))
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(response))
-
+	w.Write([]byte(tokenDetails))
 }

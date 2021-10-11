@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"os/user"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -34,20 +33,35 @@ import (
 	"github.com/shaileshhb/restapi/book/bookservice"
 	"github.com/shaileshhb/restapi/bookissue/bookissuecontroller"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
+	"github.com/shaileshhb/restapi/config"
 	"github.com/shaileshhb/restapi/model/book"
 	"github.com/shaileshhb/restapi/model/bookissue"
 	"github.com/shaileshhb/restapi/model/student"
+	"github.com/shaileshhb/restapi/model/user"
 	"github.com/shaileshhb/restapi/repository"
 	md "github.com/shaileshhb/restapi/security/middleware"
 	stdcontroller "github.com/shaileshhb/restapi/student/std-controller"
 	stdservice "github.com/shaileshhb/restapi/student/std-service"
-	usercontroller "github.com/shaileshhb/restapi/user/user-controller"
-	userservice "github.com/shaileshhb/restapi/user/user-service"
+	usercontroller "github.com/shaileshhb/restapi/user/usercontroller"
+	userservice "github.com/shaileshhb/restapi/user/userservice"
 )
 
 func main() {
 
-	db, err := gorm.Open("mysql", "root:root@tcp(localhost:3306)/student_app?charset=utf8&parseTime=True&loc=Local")
+	config, err := config.LoadConfig(".")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBDatabase)
+
+	fmt.Println(DBURL)
+
+	// "root:root@tcp(localhost:3306)/student_app?charset=utf8&parseTime=True&loc=Local"
+
+	db, err := gorm.Open("mysql", DBURL)
 	if err != nil {
 		fmt.Println(err)
 		return

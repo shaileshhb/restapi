@@ -26,8 +26,7 @@ func (s *UserService) Get(user *user.User, username string) error {
 	uow := repository.NewUnitOfWork(s.DB, true)
 
 	var queryProcessors []repository.QueryProcessor
-	// queryCondition := "username=?"
-	// queryProcessors = append(queryProcessors, repository.Where(queryCondition, username))
+	queryProcessors = append(queryProcessors, repository.Where("username=?", username))
 
 	if err := s.repo.Get(uow, user, queryProcessors); err != nil {
 		uow.Commit()

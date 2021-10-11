@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -66,4 +67,36 @@ func createRefreshToken(userID uuid.UUID, tokenDetails *general.TokenDetails) er
 	}
 
 	return nil
+}
+
+func GenerateToken(userID uuid.UUID) (string, error) {
+
+	// secret key
+	// var jwtKey = os.Getenv("ACCESS_SECRET")
+	var jwtKey = []byte("98hbun98h")
+	fmt.Println("-------- jwtKey ->", jwtKey)
+
+	expirationTime := time.Now().Add(5 * time.Minute)
+
+	// Creating JWT Claim which includes username and claims
+	claims := &general.Claim{
+		ID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	// Access Token
+	// token having algo form signing method and the claim
+	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	accessTokenString, err := userToken.SignedString(jwtKey)
+	if err != nil {
+		// w.Write([]byte("Failed"))
+		// http.Error(w, err.Error(), http.StatusBadRequest)
+		// log.Println("Username or password is invalid")
+		return "", err
+	}
+
+	return accessTokenString, nil
 }

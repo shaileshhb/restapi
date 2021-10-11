@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/shaileshhb/restapi/model/general"
@@ -13,7 +12,9 @@ import (
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Token -> ", r.Header.Get("Token"))
-		var jwtKey = os.Getenv("ACCESS_SECRET")
+		// var jwtKey = os.Getenv("ACCESS_SECRET")
+		var jwtKey = []byte("98hbun98h")
+		fmt.Println("-------- jwtKey ->", jwtKey)
 
 		if r.Header.Get("Token") != "" {
 
@@ -25,6 +26,9 @@ func Middleware(next http.Handler) http.Handler {
 				}
 				return jwtKey, nil
 			})
+
+			fmt.Println("-------- token.Valid ->", token.Valid)
+
 			if err != nil {
 				if err == jwt.ErrSignatureInvalid {
 					http.Error(w, "User Not Authorized", http.StatusUnauthorized)
