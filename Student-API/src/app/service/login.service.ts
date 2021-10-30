@@ -8,7 +8,8 @@ import { ITokenResponses } from '../ITokenResponse';
 })
 export class LoginService {
 
-  baseURL = "http://localhost:8080/students/"
+  baseURL = "http://localhost:8080/api/students"
+  // baseURL = "/api/students"
 
   constructor(private http: HttpClient) { }
 
@@ -19,7 +20,8 @@ export class LoginService {
     
     console.log(userJSON)
 
-    return this.http.post<ITokenResponses>(this.baseURL + "login", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    // return this.http.post<ITokenResponses>(this.baseURL + "login", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    return this.http.post<ITokenResponses>(`${this.baseURL}/login`, userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
     
   }
 
@@ -30,6 +32,7 @@ export class LoginService {
     
     console.log(userJSON)
 
-    return this.http.post<ITokenResponses>(this.baseURL + "register", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    // return this.http.post<ITokenResponses>(this.baseURL + "register", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    return this.http.post<ITokenResponses>(`${this.baseURL}/register`, userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
   }
 }

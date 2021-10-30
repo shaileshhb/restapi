@@ -16,8 +16,6 @@ import { MasterNavbarComponent } from './component/master-navbar/master-navbar.c
 import { StudentCrudComponent } from './component/student-crud/student-crud.component';
 import { CookieService } from 'ngx-cookie-service';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
-import { MomentModule } from 'angular2-moment';
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
@@ -38,7 +36,6 @@ import { NgSelectModule } from '@ng-select/ng-select';
     ReactiveFormsModule,
     NgbModule,
     NgIdleKeepaliveModule.forRoot(),
-    MomentModule,
     NgSelectModule
   ],
   providers: [CookieService],

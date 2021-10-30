@@ -22,7 +22,6 @@ func NewBookController(service *bookservice.BookService) *BookController {
 }
 
 func (c *BookController) RegisterBookRoutes(getRouter, middlewareRouter *mux.Router) {
-	log.Println("In RegisterBookRoutes")
 
 	getRouter.HandleFunc("/books", c.GetAllBooks).Methods(http.MethodGet)
 	getRouter.HandleFunc("/books/{id}", c.GetBook).Methods(http.MethodGet)

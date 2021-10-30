@@ -1,33 +1,38 @@
 version: "3.8"
 services:
-  db:
-    image: mysql
-    container_name: "database"
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=swabhav
-      - MYSQL_DATABASE=student_app
-      - MYSQL_USER=swabhav
-      - MYSQL_PASSWORD=swabhav
-    ports:
-      - "3306:3306"
-    volumes:
-      - database_mysql:/var/lib/mysql
-  web:
+  # db:
+  #   image: mysql
+  #   container_name: "database"
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=swabhav
+  #     - MYSQL_DATABASE=swabhav
+  #     - MYSQL_USER=swabhav
+  #     - MYSQL_PASSWORD=swabhav
+  #   ports:
+  #     - "3307:3306"
+  #   volumes:
+  #     - database_mysql:/var/lib/mysql
+  api:
     build:
       dockerfile: Dockerfile.dev
       context: ./go
-    container_name: "web"
-    environment:
-      DB_USERNAME: "swabhav"
-      DB_PASSWORD: "swabhav"
-      DB_DB: "student_app"
-      DB_HOST: "db"
-      # DB_TABLE: "swabhav"
-      DB_PORT: "3306"
+    container_name: "api"
     ports:
       - "8080:8080"
-    depends_on:
-      - db
-volumes:
-  database_mysql:
+  # angular:
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: ./Student-API
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./Student-API:/app
+  # nginx:
+  #   restart: always
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: ./nginx
+  #   ports:
+  #     - '3050:80'
+# volumes:
+#   database_mysql:

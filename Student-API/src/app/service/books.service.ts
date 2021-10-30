@@ -9,7 +9,8 @@ import { IBooks } from '../IBooks';
 })
 export class BooksService {
 
-  baseURL = "http://localhost:8080/books"
+  baseURL = "http://localhost:8080/api/books"
+  // baseURL = "/api/books"
 
   constructor(
     private http: HttpClient,
@@ -41,7 +42,8 @@ export class BooksService {
     console.log(bookJSON);
     
     
-    return this.http.put<string>(this.baseURL + "/" + id, bookJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    // return this.http.put<string>(this.baseURL + "/" + id, bookJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.put<string>(`${this.baseURL}/${id}`, bookJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
 
   }
 
@@ -50,7 +52,8 @@ export class BooksService {
     
     let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
 
-    return this.http.delete<string>(this.baseURL + "/" +id, {'headers': httpHeaders, responseType:'text' as 'json'});
+    // return this.http.delete<string>(this.baseURL + "/" +id, {'headers': httpHeaders, responseType:'text' as 'json'});
+    return this.http.delete<string>(`${this.baseURL}/${id}`, {'headers': httpHeaders, responseType:'text' as 'json'});
   }
 
 }

@@ -1,6 +1,6 @@
-FROM golang:1.16-alpine
+FROM golang:1.17-alpine3.14
 
-WORKDIR /app
+WORKDIR "/app"
 
 COPY go.mod .
 COPY go.sum .
@@ -8,6 +8,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./out/dist .
-EXPOSE 80
-CMD ./out/dist
+RUN go build -o main .
+
+CMD ["/app/main"]

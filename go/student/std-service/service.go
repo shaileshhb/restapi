@@ -2,7 +2,6 @@ package stdservice
 
 import (
 	"errors"
-	"log"
 	"regexp"
 	"strings"
 
@@ -40,8 +39,8 @@ func (s *Service) GetAll(students *[]student.Student) error {
 	uow.Commit()
 
 	utility.TrimDates(students)
-	return nil
 
+	return nil
 }
 
 // Get returns students as per the id
@@ -124,10 +123,8 @@ func (s *Service) Delete(student *student.Student, id string) error {
 		return err
 	}
 
-	log.Println("Total Count -> ", totalCount)
-
 	if totalCount > 0 {
-		return errors.New("Please return all issued books")
+		return errors.New("please return all issued books")
 	}
 
 	queryProcessors = nil
@@ -260,37 +257,30 @@ func (s *Service) createSearchQueries(params map[string][]string, queryProcessor
 		utility.AddToSlice("book_id", "IN (?)", "OR", bookID, &columnNames, &conditions, &operators, &values)
 	}
 
-	// log.Println("===================================================================================================")
-	// log.Println("Column Names -> ", columnNames)
-	// log.Println("conditions -> ", conditions)
-	// log.Println("values Names -> ", values)
-	// log.Println("operators Names -> ", operators)
-	// log.Println("===================================================================================================")
-
 	*queryProcessors = append(*queryProcessors, repository.FilterWithOperator(columnNames, conditions, operators, values))
 
 }
 
 func (s *Service) Validate(student *student.Student) error {
 
-	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
-	emailPattern := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-	phonePattern := regexp.MustCompile("^[0-9]*$")
+	namePattern := regexp.MustCompile(`^[a-zA-Z_ ]*$`)
+	emailPattern := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$`)
+	phonePattern := regexp.MustCompile(`^[0-9]*$`)
 
 	if student.Name == "" || !namePattern.MatchString(student.Name) {
-		return errors.New("Name is required")
+		return errors.New("name is required")
 	}
 
 	if student.RollNo != nil && (*student.RollNo) < 0 {
-		return errors.New("Roll number is invalid")
+		return errors.New("roll number is invalid")
 	}
 
 	if student.Email == "" || !emailPattern.MatchString(student.Email) {
-		return errors.New("Email is invalid")
+		return errors.New("email is invalid")
 	}
 
 	if student.PhoneNumber != nil && len(*student.PhoneNumber) <= 10 && !phonePattern.MatchString(*student.PhoneNumber) {
-		return errors.New("Phone number should be only numbers and atleast 10 digits")
+		return errors.New("phone number should be only numbers and atleast 10 digits")
 	}
 	return nil
 }
