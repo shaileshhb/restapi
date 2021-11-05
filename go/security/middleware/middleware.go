@@ -11,7 +11,7 @@ import (
 
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Token -> ", r.Header.Get("Token"))
+		log.Println("Token -> ", r.Header)
 		// var jwtKey = os.Getenv("ACCESS_SECRET")
 		var jwtKey = []byte("98hbun98h")
 		fmt.Println("-------- jwtKey ->", jwtKey)

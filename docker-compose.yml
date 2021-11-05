@@ -13,26 +13,33 @@ services:
   #     - "3307:3306"
   #   volumes:
   #     - database_mysql:/var/lib/mysql
-  api:
+  golang:
     build:
       dockerfile: Dockerfile.dev
       context: ./go
-    container_name: "api"
+    container_name: "golang"
     ports:
       - "8080:8080"
-  # angular:
-  #   build:
-  #     dockerfile: Dockerfile.dev
-  #     context: ./Student-API
-  #   volumes:
-  #     - /app/node_modules
-  #     - ./Student-API:/app
+  angular:
+    stdin_open: true
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./Student-API
+    container_name: "angular"
+    ports:
+      - "4200:80"
+    volumes:
+      - /app/node_modules
+      - ./Student-API:/app
   # nginx:
   #   restart: always
   #   build:
   #     dockerfile: Dockerfile.dev
   #     context: ./nginx
+  #   container_name: "nginx"
+  #   # volumes:
+  #   #   - /app/dist/Student-API /usr/share/nginx/html
   #   ports:
-  #     - '3050:80'
+  #     - '80:80'
 # volumes:
 #   database_mysql:

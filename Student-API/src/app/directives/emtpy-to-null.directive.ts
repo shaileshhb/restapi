@@ -6,17 +6,17 @@ import { NgControl } from '@angular/forms';
 })
 export class EmtpyToNullDirective {
 
-  constructor(@Self() private ngControl: NgControl) { }
+  constructor() { }
 
 
-  @HostListener('keyup', ['$event']) 
-  onKeyDowns(event: KeyboardEvent) {
+  // @HostListener('keyup', ['$event']) 
+  // onKeyDowns(event: KeyboardEvent) {
     
-    if (this.ngControl.value?.trim() === '') {
-      console.log(this.ngControl.value);
-      this.ngControl.reset(null);
-    }
-  }
+  //   if (this.ngControl.value?.trim() === '') {
+  //     console.log(this.ngControl.value);
+  //     this.ngControl.reset(null);
+  //   }
+  // }
 
 
 

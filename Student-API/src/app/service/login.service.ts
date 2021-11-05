@@ -8,20 +8,24 @@ import { ITokenResponses } from '../ITokenResponse';
 })
 export class LoginService {
 
-  baseURL = "http://localhost:8080/api/students"
+  // baseURL = "http://localhost:8080/students"
   // baseURL = "/api/students"
 
-  constructor(private http: HttpClient) { }
+  baseURL: string
 
-  userLogin(userDetails: any): Observable<ITokenResponses> {
+  constructor(private http: HttpClient) {
+    // this.baseURL = "/api/students"
+    this.baseURL = "http://localhost:8080/students"
+   }
+
+  userLogin(userDetails: any): Observable<any> {
     
     let userJSON = JSON.stringify(userDetails)
     let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8'} );
     
-    console.log(userJSON)
-
     // return this.http.post<ITokenResponses>(this.baseURL + "login", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
-    return this.http.post<ITokenResponses>(`${this.baseURL}/login`, userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    return this.http.post<any>(`${this.baseURL}/login`, userJSON, 
+      {'headers': httpHeaders, responseType: 'text' as 'json'})
     
   }
 
@@ -33,6 +37,7 @@ export class LoginService {
     console.log(userJSON)
 
     // return this.http.post<ITokenResponses>(this.baseURL + "register", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
-    return this.http.post<ITokenResponses>(`${this.baseURL}/register`, userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    return this.http.post<ITokenResponses>(`${this.baseURL}/register`, userJSON, 
+      {'headers': httpHeaders, responseType: 'text' as 'json'})
   }
 }

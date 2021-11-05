@@ -10,13 +10,17 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class StudentDTOService {
 
-  baseURL = "http://localhost:8080/api/students"
+  // baseURL = "http://localhost:8080/students"
   // baseURL = "/api/students"
+  
+  baseURL: string
 
   constructor(
     private http: HttpClient, 
     private cookieService: CookieService,
-    ) { }
+    ) { 
+      this.baseURL = "http://localhost:8080/students"
+    }
 
   getStudentDetails(): Observable<IStudentDTO[]> {
     return this.http.get<IStudentDTO[]>(`${this.baseURL}`);
@@ -28,20 +32,20 @@ export class StudentDTOService {
 
   addNewStudent(studentDetails): Observable<any> {
     let studentJSON: string = JSON.stringify(studentDetails);
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': this.cookieService.get("Token") } );
+    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': localStorage.getItem("token") } );
     
     return this.http.post<any>(`${this.baseURL}`, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
   }
 
   updateExisitingStudent(id: string, studentDetails: any): Observable<string> {
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': this.cookieService.get("Token") } );
+    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': localStorage.getItem("token") } );
     let studentJSON: string = JSON.stringify(studentDetails); 
 
     return this.http.put<string>(`${this.baseURL}/${id}`, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
   } 
 
   deleteStudent(studentID: string): Observable<string> {
-    let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
+    let httpHeaders = new HttpHeaders( { 'Token': localStorage.getItem("token") } );
     return this.http.delete<string>(`${this.baseURL}/${studentID}`, {'headers': httpHeaders, responseType:'text' as 'json'});
   }
 

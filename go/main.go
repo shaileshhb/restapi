@@ -110,6 +110,7 @@ func main() {
 
 	go func() {
 		log.Fatal(server.ListenAndServe())
+		fmt.Println(" ======= Listening at port :8080")
 	}()
 
 	ch := make(chan os.Signal, 1)

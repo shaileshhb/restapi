@@ -60,14 +60,14 @@ export class LoginComponent implements OnInit {
     this.loginSerive.userLogin(this.loginForm.value).subscribe(response => {
       console.log(response)
       this.setLoginCookie(response)
+      localStorage.setItem("token", response)
       console.log(this.cookieService.get("Token"));
       this.login = 'Logout';
       this.router.navigate(['/students'])
-
     },
     (err) => {
       alert("Error:" + err.error)
-      console.log("Error:" + err.error);
+      console.error("Error:", err.error);
       
     })
 
