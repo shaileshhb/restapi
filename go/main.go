@@ -24,7 +24,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/go-openapi/runtime/middleware"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -88,15 +87,15 @@ func main() {
 
 	RegisterControllerAndService(middlewareRouter, getRouter, repos, db)
 
-	ops := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
-	docHandler := middleware.Redoc(ops, nil)
+	// ops := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	// docHandler := middleware.Redoc(ops, nil)
 
-	getRouter.Handle("/docs", docHandler)
-	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	// getRouter.Handle("/docs", docHandler)
+	// getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
-	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost,
-		http.MethodPut, http.MethodDelete})
+	// headers := handlers.AllowedHeaders([]string{"Content-Type", "X-Total-Count", "token", "totalLifetimeValue"})
+	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete})
 	origin := handlers.AllowedOrigins([]string{"*"})
 
 	server := &http.Server{

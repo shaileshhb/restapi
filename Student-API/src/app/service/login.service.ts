@@ -25,7 +25,7 @@ export class LoginService {
     
     // return this.http.post<ITokenResponses>(this.baseURL + "login", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
     return this.http.post<any>(`${this.baseURL}/login`, userJSON, 
-      {'headers': httpHeaders, responseType: 'text' as 'json'})
+      { headers: httpHeaders, responseType: 'text' as 'json'})
     
   }
 
@@ -36,8 +36,8 @@ export class LoginService {
     
     console.log(userJSON)
 
-    // return this.http.post<ITokenResponses>(this.baseURL + "register", userJSON, {'headers': httpHeaders, responseType: 'text' as 'json'})
+    // return this.http.post<ITokenResponses>(this.baseURL + "register", userJSON, {headers: httpHeaders, responseType: 'text' as 'json'})
     return this.http.post<ITokenResponses>(`${this.baseURL}/register`, userJSON, 
-      {'headers': httpHeaders, responseType: 'text' as 'json'})
+      { headers: httpHeaders, responseType: 'text' as 'json'})
   }
 }

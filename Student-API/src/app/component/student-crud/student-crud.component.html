@@ -197,7 +197,7 @@
             </fieldset>   
 
             <div class="form-group">
-                <button *ngIf="userLoggedIn" [disabled]="!studentForm.valid" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
+                <button *ngIf="userLoggedIn" [disabled]="!studentForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
             </div>
             
         </form>

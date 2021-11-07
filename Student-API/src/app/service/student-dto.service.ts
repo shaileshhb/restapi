@@ -32,21 +32,21 @@ export class StudentDTOService {
 
   addNewStudent(studentDetails): Observable<any> {
     let studentJSON: string = JSON.stringify(studentDetails);
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': localStorage.getItem("token") } );
+    let httpHeaders = new HttpHeaders( { 'Token': localStorage.getItem("token") } );
     
-    return this.http.post<any>(`${this.baseURL}`, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.post<any>(`${this.baseURL}`, studentJSON, { headers: httpHeaders, responseType:'text' as 'json'} );
   }
 
   updateExisitingStudent(id: string, studentDetails: any): Observable<string> {
-    let httpHeaders = new HttpHeaders( { 'Content-type': 'application/json; charset=utf-8', 'Token': localStorage.getItem("token") } );
+    let httpHeaders = new HttpHeaders( { 'Token': localStorage.getItem("token") } );
     let studentJSON: string = JSON.stringify(studentDetails); 
 
-    return this.http.put<string>(`${this.baseURL}/${id}`, studentJSON, {'headers': httpHeaders, responseType:'text' as 'json'} );
+    return this.http.put<string>(`${this.baseURL}/${id}`, studentJSON, { headers: httpHeaders, responseType:'text' as 'json'} );
   } 
 
   deleteStudent(studentID: string): Observable<string> {
     let httpHeaders = new HttpHeaders( { 'Token': localStorage.getItem("token") } );
-    return this.http.delete<string>(`${this.baseURL}/${studentID}`, {'headers': httpHeaders, responseType:'text' as 'json'});
+    return this.http.delete<string>(`${this.baseURL}/${studentID}`, { headers: httpHeaders, responseType:'text' as 'json'});
   }
 
   searchStudent(data: any): Observable<IStudentDTO[]> {
@@ -59,7 +59,7 @@ export class StudentDTOService {
       params = params.set(key, data[key])
     }
 
-    return this.http.get<IStudentDTO[]>(`${this.baseURL}/search`, {params}); 
+    return this.http.get<IStudentDTO[]>(`${this.baseURL}/search`, { params: params }); 
   }
 
 }

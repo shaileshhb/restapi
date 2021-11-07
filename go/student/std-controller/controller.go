@@ -118,8 +118,6 @@ func (c *Controller) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Student in controller", student)
-
 	err = c.Service.AddNewStudent(student)
 	if err != nil {
 		log.Println("error from add", err)
@@ -150,7 +148,7 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	studentResponse, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Response could not be read"))
+		w.Write([]byte(err.Error()))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -161,15 +159,15 @@ func (c *Controller) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println("PhoneNumber -> ", student.PhoneNumber)
-	log.Println("ID -> ", params["id"])
+
 	err = c.Service.Update(student, params["id"])
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("Error while updating student"))
+		// w.Write([]byte(err.Error()))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	w.Write([]byte(student.ID.String()))
 	log.Println("Student successfully updated")
 

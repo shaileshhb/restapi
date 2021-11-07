@@ -29,7 +29,7 @@ func (c *BookController) RegisterBookRoutes(getRouter, middlewareRouter *mux.Rou
 	// excludedRoutes := []*mux.Route{}
 	// router.Use(utility.Authorization(excludedRoutes))
 
-	middlewareRouter.HandleFunc("/books", c.AddBook)
+	middlewareRouter.HandleFunc("/books", c.AddBook).Methods(http.MethodPost)
 	middlewareRouter.HandleFunc("/books/{id}", c.UpdateBook).Methods(http.MethodPut)
 	middlewareRouter.HandleFunc("/books/{id}", c.DeleteBook).Methods(http.MethodDelete)
 }

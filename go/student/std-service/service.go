@@ -264,7 +264,7 @@ func (s *Service) createSearchQueries(params map[string][]string, queryProcessor
 func (s *Service) Validate(student *student.Student) error {
 
 	namePattern := regexp.MustCompile(`^[a-zA-Z_ ]*$`)
-	emailPattern := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$`)
+	// emailPattern := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$`)
 	phonePattern := regexp.MustCompile(`^[0-9]*$`)
 
 	if student.Name == "" || !namePattern.MatchString(student.Name) {
@@ -275,7 +275,8 @@ func (s *Service) Validate(student *student.Student) error {
 		return errors.New("roll number is invalid")
 	}
 
-	if student.Email == "" || !emailPattern.MatchString(student.Email) {
+	if student.Email == "" {
+		// || !emailPattern.MatchString(student.Email)
 		return errors.New("email is invalid")
 	}
 

@@ -237,17 +237,18 @@ export class StudentCrudComponent implements OnInit {
     
     // console.log(this.studentForm.get('phone').value);
 
-    this.studentService.updateExisitingStudent(this.studentID.studentID, {
-      "id": this.studentID.studentID,
-      "rollNo": this.studentForm.get('rollNo').value, 
-      "name": this.studentForm.get('name').value, 
-      "age": this.studentForm.get('age').value, 
-      "email": this.studentForm.get('email').value,
-      "phone": this.studentForm.get('phone').value,
-      "date": this.studentForm.get('date').value,
-      // "dateTime": this.studentForm.get('dateTime').value,
-      "isMale": this.studentForm.get('gender').value
-    }).
+    // {
+    //   "id": this.studentID.studentID,
+    //   "rollNo": this.studentForm.get('rollNo').value, 
+    //   "name": this.studentForm.get('name').value, 
+    //   "age": this.studentForm.get('age').value, 
+    //   "email": this.studentForm.get('email').value,
+    //   "phone": this.studentForm.get('phone').value,
+    //   "date": this.studentForm.get('date').value,
+    //   // "dateTime": this.studentForm.get('dateTime').value,
+    //   "isMale": this.studentForm.get('gender').value
+    // }
+    this.studentService.updateExisitingStudent(this.studentID.studentID, this.studentForm.value).
     subscribe((data) => {        
       this.getStudents();
       alert("Student updated");

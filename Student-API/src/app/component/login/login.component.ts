@@ -102,8 +102,7 @@ export class LoginComponent implements OnInit {
   setLoginCookie(value: any) {
 
     const expiryTime = new Date();
-    expiryTime.setMinutes(expiryTime.getMinutes() + 5);
-
+    expiryTime.setMinutes(expiryTime.getMinutes() + 60);
     console.log(expiryTime);
     this.cookieService.set("Token", value, expiryTime)
   }
