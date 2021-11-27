@@ -9,13 +9,10 @@ import { IBookIssue } from '../IBookIssue';
 })
 export class BookIssueService {
 
-  // baseURL = "http://localhost:8080/bookIssues"
-  // baseURL = "/api/bookIssues"
   baseURL: string
 
   constructor(
     private http: HttpClient,
-    private cookieService: CookieService
   ) {
     // this.baseURL = "/api/bookIssues"
     this.baseURL = "http://localhost:8080/bookIssues"

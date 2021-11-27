@@ -1,0 +1,2 @@
+- when using mysql mention depends_on tag for mysql so that it waits for mysql 
+  to fully start

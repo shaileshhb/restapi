@@ -48,55 +48,61 @@ export class StudentCrudComponent implements OnInit {
     private modalService: NgbModal,
     private cookieService: CookieService,
     ) {
+      this.students = []
+      this.books = []
+      this.dropdownList = []
+      this.bookIssues = []
+      
+      if (localStorage.getItem("token") != "") {
+        this.userLoggedIn = true
+      } else {
+        this.userLoggedIn = false
+      }
+      this.getStudents();
+      this.createMultiSelectFields()
+
       this.studentSearchFormBuild()
       this.studentFormBuild()
   }
 
   ngOnInit(): void {
-    if (this.cookieService.get("Token") != "") {
-      this.userLoggedIn = true
-    } else {
-      this.userLoggedIn = false
-    }
-    this.getStudents();
+
    }
 
   studentFormBuild(){
     this.studentForm = this.formBuilder.group({
-      rollNo: [null, [Validators.min(1)]],
-      name: ['', [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: [null, [Validators.min(5)]],
-      phone: ['', [Validators.minLength(10), Validators.pattern("^[0-9]*$")]],
-      date: [],
-      dateTime: [],
-      gender: [],
-      email: ['', [Validators.required, Validators.email, 
-        Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+      rollNo: new FormControl(null, [Validators.min(1)]),
+      name: new FormControl(null, [Validators.required, Validators.pattern("^[a-zA-Z_ ]+$")]),
+      age: new FormControl(null, [Validators.min(5)]),
+      phone: new FormControl(null, [Validators.minLength(10), Validators.pattern("^[0-9]*$")]),
+      date: new FormControl(null),
+      dateTime: new FormControl(null),
+      gender: new FormControl(null),
+      email: new FormControl(null, [Validators.required, Validators.email, 
+        Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]),
     });
   }
 
   studentSearchFormBuild() {
     this.searchStudentForm = this.formBuilder.group({
-      name: ['', [Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: [''],
-      dateFrom: [''],
-      dateTo: [''],
-      email: [''],
-      books: ['']
+      name: new FormControl(null, [Validators.pattern("^[a-zA-Z_ ]+$")]),
+      age: new FormControl(null),
+      dateFrom: new FormControl(null),
+      dateTo: new FormControl(null),
+      email: new FormControl(null),
+      books: new FormControl(null),
     });
     
-    this.createMultiSelectFields()
-
   }
 
   createMultiSelectFields() {
-
-    this.bookService.getBooks().subscribe(response => {
+    this.dropdownList = []
+    this.bookService.getBooks().subscribe((response: any) => {
+      console.log(response);
       this.dropdownList = response
-    })  
-    
-    console.log(this.dropdownList);
-    
+    }, (err: any) => {
+      console.error(err);
+    }) 
   }
 
   bookIssueFormBuilder() {
@@ -175,7 +181,7 @@ export class StudentCrudComponent implements OnInit {
     this.viewAll = false
     this.studentService.getStudentDetails().subscribe((data)=>{
       this.students = data;
-      for (let i = 0; i < this.students.length; i++) {
+      for (let i = 0; i < this.students?.length; i++) {
         // this.students[i].dateTime = this.students[i].dateTime.replace('T', " ")
         if(this.students[i].isMale != null) {
           this.students[i].isMale = this.students[i].isMale == true ? "Male" : "Female"         
@@ -184,7 +190,6 @@ export class StudentCrudComponent implements OnInit {
         }
       }
       console.log(this.students);
-      
     },
     (err) => {
       console.log('HTTP Error', err.error)
@@ -292,21 +297,17 @@ export class StudentCrudComponent implements OnInit {
 
     this.bookIssueService.getBookIssues(id).subscribe((response) => {
       this.bookIssues = response
-      for (let i = 0; i < this.bookIssues.length; i++) {
+      for (let i = 0; i < this.bookIssues?.length; i++) {
         this.bookIssues[i].returned = (this.bookIssues[i].returnedFlag == false) ? "Not Returned" : "Returned"
       }
-
     },
     err => {
       console.log(err.error);
       alert("ERROR"+ err.text)
-      
     })
-
   }
 
   returnBookIssued(bookID: string, studentID: string) {
-
     if (confirm("Are you sure?")) {
       this.bookIssueService.updateBookIssue(bookID, {
         "studentID": studentID,

@@ -9,25 +9,21 @@ import { IBooks } from '../IBooks';
 })
 export class BooksService {
 
-  // baseURL = "http://localhost:8080/books"
-  // baseURL = "/api/books"
   baseURL: string
 
   constructor(
     private http: HttpClient,
-    private cookieService: CookieService,
   ) { 
     // this.baseURL = "/api/books"
     this.baseURL = "http://localhost:8080/books"
   }
 
 
-  getBooks(): Observable<IBooks[]> {
+  getBooks(): Observable<any> {
     // let httpHeaders = new HttpHeaders( { 'Token': this.cookieService.get("Token") } );
     let httpHeaders = new HttpHeaders( { 'Token': localStorage.getItem("token") } );
-    return this.http.get<IBooks[]>(this.baseURL, { headers: httpHeaders })
+    return this.http.get(this.baseURL, { headers: httpHeaders })
   }
-
   
   addNewBookIssue(bookDetails): Observable<any> {
 

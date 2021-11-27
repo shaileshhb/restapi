@@ -59,7 +59,7 @@
 
 <div class="container">
     &nbsp;
-    <div *ngIf="students.length != 0; else noStudents">
+    <div *ngIf="students && students?.length != 0; else noStudents">
         <table class="table table-bordered table-responsive">
             <tr>
                 <th>ID</th>
@@ -155,8 +155,8 @@
                 <div class="col-sm-6">
                     <input type="text" class="form-control" id="phoneId" formControlName="phone">
                     <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
-                        <div *ngIf="studentForm.get('phone').errors.minLength">Phone number should have 10 digits</div>
-                        <div *ngIf="studentForm.get('phone').errors.pattern">Phone number should contain only digits</div>
+                        <div *ngIf="studentForm.get('phone')?.errors?.minLength">Phone number should have 10 digits</div>
+                        <div *ngIf="studentForm.get('phone')?.errors?.pattern">Phone number should contain only digits</div>
                     </div>
                 </div>
             </div>
@@ -214,7 +214,7 @@
 
     <div class="modal-body">
         <div *ngIf="isViewClicked">
-            <div *ngIf="bookIssues.length != 0; else noBooksIssued">
+            <div *ngIf="bookIssues && bookIssues.length != 0; else noBooksIssued">
                 <table class="table table-bordered table-responsive">
                     <tr>
                         <th>Book ID</th>

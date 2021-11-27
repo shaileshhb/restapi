@@ -10,14 +10,10 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class StudentDTOService {
 
-  // baseURL = "http://localhost:8080/students"
-  // baseURL = "/api/students"
-  
   baseURL: string
 
   constructor(
     private http: HttpClient, 
-    private cookieService: CookieService,
     ) { 
       this.baseURL = "http://localhost:8080/students"
     }

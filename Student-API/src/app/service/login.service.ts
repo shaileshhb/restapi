@@ -8,13 +8,9 @@ import { ITokenResponses } from '../ITokenResponse';
 })
 export class LoginService {
 
-  // baseURL = "http://localhost:8080/students"
-  // baseURL = "/api/students"
-
   baseURL: string
 
   constructor(private http: HttpClient) {
-    // this.baseURL = "/api/students"
     this.baseURL = "http://localhost:8080/students"
    }
 
