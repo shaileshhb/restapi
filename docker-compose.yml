@@ -34,17 +34,17 @@ services:
       context: ./Student-API
     container_name: "angular"
     ports:
-      - "4200:80"
+      - "4201:80"
     volumes:
       - /app/node_modules
-      - ./Student-API:/app
-  # nginx:
-  #   restart: always
-  #   build:
-  #     dockerfile: Dockerfile.dev
-  #     context: ./nginx
-  #   container_name: "nginx"
-  #   ports:
-  #     - '81:80'
+        - ./Student-API:/app
+    # nginx:
+    #   restart: always
+    #   build:
+    #     dockerfile: Dockerfile.dev
+    #     context: ./nginx
+    #   container_name: "nginx"
+    #   ports:
+    #     - '4201:80'
 volumes:
   database_mysql:

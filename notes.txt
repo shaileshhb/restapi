@@ -1,2 +1,4 @@
 - when using mysql mention depends_on tag for mysql so that it waits for mysql 
   to fully start
+
+- nginx throws error when page is reloaded has it redirects to :4200
