@@ -24,11 +24,12 @@ RUN npm install
 COPY . .
 
 RUN npm run prod
+# CMD [ "npm", "run", "prod" ]
 
 # Stage 2
 FROM nginx:1.17.1-alpine
 
 EXPOSE 4201
 
-COPY ../nginx/default.conf /etc/nginx/conf.d/default.conf
+# COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist/Student-API /usr/share/nginx/html

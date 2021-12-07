@@ -23,7 +23,7 @@ services:
       context: ./go
     container_name: "golang"
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       - db
   angular:
@@ -34,7 +34,7 @@ services:
       context: ./Student-API
     container_name: "angular"
     ports:
-      - "4201:80"
+      - "4201:81"
     volumes:
       - /app/node_modules
         - ./Student-API:/app

@@ -9,7 +9,7 @@ import (
 )
 
 type Repository interface {
-	Get(uow *UnitOfWork, out interface{}) error
+	Get(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
 	GetCount(uow *UnitOfWork, out interface{}, count *int, queryProcessors []QueryProcessor) error
 	Add(uow *UnitOfWork, entity interface{}) error
 	Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
@@ -38,7 +38,7 @@ func Search(condition string, value interface{}, entity interface{}) QueryProces
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
 		if !db.Debug().Where(condition, value).First(entity).RecordNotFound() {
-			return nil, errors.New("Entry Already exists")
+			return nil, errors.New("entry Already exists")
 		}
 		return db, nil
 	}
@@ -55,10 +55,8 @@ func Model(entity interface{}) QueryProcessor {
 func Preload(preloadAssociation []string) QueryProcessor {
 
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		if preloadAssociation != nil {
-			for _, association := range preloadAssociation {
-				db = db.Debug().Preload(association)
-			}
+		for _, association := range preloadAssociation {
+			db = db.Debug().Preload(association)
 		}
 		return db, nil
 	}
@@ -120,14 +118,13 @@ func (g *GormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors [
 	db := uow.DB
 	var err error
 
-	if queryProcessors != nil {
-		for _, queryProcessor := range queryProcessors {
-			db, err = queryProcessor(db, out)
-			if err != nil {
-				return err
-			}
+	for _, queryProcessor := range queryProcessors {
+		db, err = queryProcessor(db, out)
+		if err != nil {
+			return err
 		}
 	}
+
 	if err = db.Debug().Find(out).Error; err != nil {
 		return err
 	}
@@ -140,14 +137,13 @@ func (g *GormRepository) GetCount(uow *UnitOfWork, entity interface{}, count *in
 	db := uow.DB
 	var err error
 
-	if queryProcessors != nil {
-		for _, queryProcessor := range queryProcessors {
-			db, err = queryProcessor(db, entity)
-			if err != nil {
-				return err
-			}
+	for _, queryProcessor := range queryProcessors {
+		db, err = queryProcessor(db, entity)
+		if err != nil {
+			return err
 		}
 	}
+
 	if err = db.Debug().Count(count).Error; err != nil {
 		return err
 	}
