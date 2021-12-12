@@ -36,21 +36,11 @@ func TestAddBook(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 
-			// data := url.Values{}
-			// data.Set("name", tc.book.Name)
-			// data.Set("stock", strconv.Itoa(*tc.book.Stock))
-
 			body, err := json.Marshal(&tc.book)
 			require.NoError(t, err)
-			// if err != nil {
-			// 	t.Errorf("err while marshaling data: %v", err)
-			// }
 
 			req, err := http.NewRequest(http.MethodPost, "/books", bytes.NewReader(body))
 			require.NoError(t, err)
-			// if err != nil {
-			// 	t.Errorf("could not send request: %v", err)
-			// }
 
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Token", token)
@@ -96,7 +86,7 @@ func TestGetAllBooks(t *testing.T) {
 			controller.GetAllBooks(wr, req)
 
 			res := wr.Result()
-			// defer res.Body.Close()
+			require.NotEmpty(t, res.Body)
 
 			if res.StatusCode != http.StatusOK {
 				t.Errorf("expected status OK; got %v", res.Status)
