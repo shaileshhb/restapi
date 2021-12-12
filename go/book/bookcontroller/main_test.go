@@ -15,9 +15,9 @@ import (
 
 const (
 	DBURL = "swabhav:swabhav@tcp(localhost:3306)/swabhav_test?charset=utf8&parseTime=True&loc=Local"
+	token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImV4cCI6MTYzODAzMDQ4Nn0.V1Sk-p_nvdp3e5IQOqYW0CufN_z3KBUvCiSarSBAQjc"
 )
 
-var db *gorm.DB
 var repos *repository.GormRepository
 
 var bookService *bookservice.BookService

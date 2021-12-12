@@ -1,10 +1,10 @@
 package bookservice
 
 import (
-	"errors"
 	"regexp"
 
 	"github.com/jinzhu/gorm"
+	"github.com/shaileshhb/restapi/errors"
 	"github.com/shaileshhb/restapi/model/book"
 	"github.com/shaileshhb/restapi/repository"
 )
@@ -30,15 +30,13 @@ func (s *BookService) GetAllBooks(books *[]book.BookAvailability) error {
 
 	queryProcessors = append(queryProcessors, repository.Model(book))
 
-	selectQuery := "books.id as id, books.name as name, if(sum(returned_flag=0)>0, abs(stock - sum(returned_flag=0)), stock) as in_stock, books.stock as total_stock"
-	// selectQuery := "books.id as id, books.name as name, abs(stock - sum(returned_flag=0)) as in_stock, books.stock as total_stock"
+	selectQuery := `books.id as id, books.name as name, if(sum(returned_flag=0)>0, abs(stock - sum(returned_flag=0)), stock) 
+		AS in_stock, books.stock as total_stock`
+	joinQuery := "left join book_issues on books.id = book_issues.book_id"
+	groupBy := "books.id"
 
 	queryProcessors = append(queryProcessors, repository.Select(selectQuery))
-
-	joinQuery := "left join book_issues on books.id = book_issues.book_id"
 	queryProcessors = append(queryProcessors, repository.Join(joinQuery))
-
-	groupBy := "books.id"
 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
 
 	if err := s.repo.Scan(uow, books, queryProcessors); err != nil {
@@ -137,15 +135,15 @@ func (s *BookService) Validate(book *book.Book) error {
 	namePattern := regexp.MustCompile("^[a-zA-Z_ ]*$")
 
 	if book.Name == "" {
-		return errors.New("Name is required")
+		return errors.NewValidationError("Name is required")
 	}
 
 	if !namePattern.MatchString(book.Name) {
-		return errors.New("Name is invalid")
+		return errors.NewValidationError("Name is invalid")
 	}
 
-	if book.Stock == nil {
-		return errors.New("Stock should atleast be 1")
+	if book.Stock == nil || *book.Stock < 1 {
+		return errors.NewValidationError("Stock should atleast be 1")
 	}
 
 	return nil
