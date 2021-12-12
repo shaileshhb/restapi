@@ -32,7 +32,7 @@ func (uow *UnitOfWork) Commit() {
 	uow.Committed = true
 }
 
-func (uow *UnitOfWork) Complete() {
+func (uow *UnitOfWork) Rollback() {
 	if !uow.Committed && !uow.ReadOnly {
 		uow.DB.Rollback()
 	}

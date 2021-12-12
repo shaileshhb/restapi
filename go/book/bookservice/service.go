@@ -42,7 +42,7 @@ func (s *BookService) GetAllBooks(books *[]book.BookAvailability) error {
 	queryProcessors = append(queryProcessors, repository.GroupBy([]string{groupBy}))
 
 	if err := s.repo.Scan(uow, books, queryProcessors); err != nil {
-		uow.Commit()
+		uow.Rollback()
 		return err
 	}
 
@@ -63,7 +63,7 @@ func (s *BookService) GetBook(book *book.Book, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Get(uow, book, queryProcessors); err != nil {
-		uow.Commit()
+		uow.Rollback()
 		return err
 	}
 	uow.Commit()
@@ -85,7 +85,7 @@ func (s *BookService) AddNewBook(book *book.Book) error {
 	queryProcessors = append(queryProcessors, repository.Search(checkName, book.Name, book))
 
 	if err := s.repo.Add(uow, book, queryProcessors); err != nil {
-		uow.Commit()
+		uow.Rollback()
 		return err
 	}
 	uow.Commit()
@@ -109,7 +109,7 @@ func (s *BookService) Update(book *book.Book, id string) error {
 	uow := repository.NewUnitOfWork(s.DB, false)
 
 	if err := s.repo.Update(uow, book, queryProcessors); err != nil {
-		uow.Commit()
+		uow.Rollback()
 		return err
 	}
 	uow.Commit()
@@ -126,7 +126,7 @@ func (s *BookService) Delete(book *book.Book, id string) error {
 	queryProcessors = append(queryProcessors, repository.Where(queryCondition, id))
 
 	if err := s.repo.Delete(uow, book, queryProcessors); err != nil {
-		uow.Commit()
+		uow.Rollback()
 		return err
 	}
 	uow.Commit()

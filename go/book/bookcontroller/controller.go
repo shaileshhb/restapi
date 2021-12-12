@@ -1,14 +1,13 @@
 package bookcontroller
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/book/bookservice"
 	"github.com/shaileshhb/restapi/model/book"
+	"github.com/shaileshhb/restapi/web"
 )
 
 type BookController struct {
@@ -24,7 +23,7 @@ func NewBookController(service *bookservice.BookService) *BookController {
 func (c *BookController) RegisterBookRoutes(getRouter, middlewareRouter *mux.Router) {
 
 	getRouter.HandleFunc("/books", c.GetAllBooks).Methods(http.MethodGet)
-	getRouter.HandleFunc("/books/{id}", c.GetBook).Methods(http.MethodGet)
+	getRouter.HandleFunc("/book/{id}", c.GetBook).Methods(http.MethodGet)
 
 	// excludedRoutes := []*mux.Route{}
 	// router.Use(utility.Authorization(excludedRoutes))
@@ -43,69 +42,38 @@ func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 
 	if err = c.service.GetAllBooks(&books); err != nil {
 		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// bookJoinJSON, err := json.Marshal(books)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// 	return
-	// }
-	// w.Write(bookJoinJSON)
-	e := json.NewEncoder(w)
-	err = e.Encode(books)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	// log.Println("Join Books -> ", books)
+
+	web.RespondJSON(w, http.StatusOK, books)
 }
 
 func (c *BookController) GetBook(w http.ResponseWriter, r *http.Request) {
 
-	var err error
-
 	var book = book.Book{}
 	params := mux.Vars(r)
 
-	err = c.service.GetBook(&book, params["id"])
-	if err != nil {
-		log.Println(err)
-		// w.Write([]byte("Book Not Found"))
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	bookJSON, err := json.Marshal(book)
+	err := c.service.GetBook(&book, params["id"])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write(bookJSON)
-	log.Println("Book successfully returned")
+
+	web.RespondJSON(w, http.StatusOK, book)
 }
 
 func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("In AddBook")
 
 	var book = &book.Book{}
-	// err := book.FromJSON(r.Body)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// }
-	bookResponse, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		// w.Write([]byte("Response could not be read"))
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
-	err = json.Unmarshal(bookResponse, book)
+	err := web.UnmarshalJSON(r, book)
 	if err != nil {
-		log.Println(err)
+		log.Println("error from add", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		// w.Write([]byte("Error while adding book, " + err.Error()))
 		return
 	}
 
@@ -119,26 +87,19 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(book.ID.String()))
-	log.Println("Book successfully added", book.ID)
+	web.RespondJSON(w, http.StatusOK, "Book successfully added")
+
+	// w.Write([]byte(book.ID.String()))
+	// log.Println("Book successfully added", book.ID)
 }
 
 func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
-	var err error
 	var book = &book.Book{}
 
 	params := mux.Vars(r)
 
-	bookResponse, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		w.Write([]byte("Response could not be read"))
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = json.Unmarshal(bookResponse, book)
+	err := web.UnmarshalJSON(r, book)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -152,8 +113,10 @@ func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte("Book successfully updated"))
-	log.Println("Book successfully updated")
+	web.RespondJSON(w, http.StatusOK, "Book successfully updated")
+
+	// w.Write([]byte("Book successfully updated"))
+	// log.Println("Book successfully updated")
 }
 
 func (i *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +132,7 @@ func (i *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte(book.ID.String()))
-	log.Println("Book successfully deleted")
-
+	// w.Write([]byte(book.ID.String()))
+	// log.Println("Book successfully deleted")
+	web.RespondJSON(w, http.StatusOK, "Book successfully deleted")
 }

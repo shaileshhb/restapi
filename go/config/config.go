@@ -11,6 +11,8 @@ type Config struct {
 	DBPort          string `mapstructure:"DB_PORT"`
 	DBHost          string `mapstructure:"DB_HOST"`
 	AccessSecretKey string `mapstructure:"ACCESS_SECRET"`
+	TestDBPassword  string `mapstructure:"TEST_DB_PASSWORD"`
+	TestDBDatabase  string `mapstructure:"TEST_DB_DATABASE"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
