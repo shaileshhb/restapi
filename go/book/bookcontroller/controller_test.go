@@ -8,12 +8,11 @@ import (
 	"testing"
 
 	"github.com/shaileshhb/restapi/model/book"
+	"github.com/shaileshhb/restapi/utility"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddBook(t *testing.T) {
-
-	bookStock1 := 10
-	bookStock2 := 0
 
 	tt := []struct {
 		name string
@@ -21,13 +20,17 @@ func TestAddBook(t *testing.T) {
 		err  string
 	}{
 		{name: "add book", book: book.Book{
-			Name:  "BookOne",
-			Stock: &bookStock1,
+			Name:  utility.GenerateRandomString(6),
+			Stock: utility.GenerateBookStock(1, 20),
 		}},
 		{name: "zero book", book: book.Book{
-			Name:  "BookTwo",
-			Stock: &bookStock2,
+			Name:  utility.GenerateRandomString(6),
+			Stock: utility.GenerateBookStock(0, 0),
 		}, err: "Stock should atleast be 1"},
+		{name: "invalid name", book: book.Book{
+			Name:  "Book-3",
+			Stock: utility.GenerateBookStock(1, 20),
+		}, err: "Name is invalid"},
 	}
 
 	for _, tc := range tt {
@@ -38,14 +41,17 @@ func TestAddBook(t *testing.T) {
 			// data.Set("stock", strconv.Itoa(*tc.book.Stock))
 
 			body, err := json.Marshal(&tc.book)
-			if err != nil {
-				t.Errorf("err while marshaling data: %v", err)
-			}
+			require.NoError(t, err)
+			// if err != nil {
+			// 	t.Errorf("err while marshaling data: %v", err)
+			// }
 
 			req, err := http.NewRequest(http.MethodPost, "/books", bytes.NewReader(body))
-			if err != nil {
-				t.Errorf("could not send request: %v", err)
-			}
+			require.NoError(t, err)
+			// if err != nil {
+			// 	t.Errorf("could not send request: %v", err)
+			// }
+
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Token", token)
 

@@ -9,10 +9,8 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.16
-	github.com/kr/text v0.2.0 // indirect
 	github.com/satori/uuid v1.2.0
 	github.com/spf13/viper v1.9.0
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )

@@ -25,9 +25,6 @@ func (c *BookController) RegisterBookRoutes(getRouter, middlewareRouter *mux.Rou
 	getRouter.HandleFunc("/books", c.GetAllBooks).Methods(http.MethodGet)
 	getRouter.HandleFunc("/book/{id}", c.GetBook).Methods(http.MethodGet)
 
-	// excludedRoutes := []*mux.Route{}
-	// router.Use(utility.Authorization(excludedRoutes))
-
 	middlewareRouter.HandleFunc("/books", c.AddBook).Methods(http.MethodPost)
 	middlewareRouter.HandleFunc("/books/{id}", c.UpdateBook).Methods(http.MethodPut)
 	middlewareRouter.HandleFunc("/books/{id}", c.DeleteBook).Methods(http.MethodDelete)
@@ -73,7 +70,6 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error from add", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		// w.Write([]byte("Error while adding book, " + err.Error()))
 		return
 	}
 
@@ -83,14 +79,10 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error from add", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		// w.Write([]byte("Error while adding book, " + err.Error()))
 		return
 	}
 
 	web.RespondJSON(w, http.StatusOK, "Book successfully added")
-
-	// w.Write([]byte(book.ID.String()))
-	// log.Println("Book successfully added", book.ID)
 }
 
 func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
