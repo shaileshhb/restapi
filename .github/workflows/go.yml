@@ -11,6 +11,18 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: swabhav
+          MYSQL_DATABASE: swabhav_test
+          MYSQL_USER: swabhav
+          MYSQL_PASSWORD: swabhav
+        # ports:
+        # - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
     - uses: actions/checkout@v2
 
@@ -19,8 +31,10 @@ jobs:
       with:
         go-version: 1.17
 
-    # - name: Build
-    #   run: go build -v ./...
+    - name: Verify MySQL connection from host
+      run: |
+        sudo apt-get install -y mysql-client
+        mysql --host 127.0.0.1 --port 3306 -uroot -ppassword -e "SHOW DATABASES"
 
     - name: Test
       run: go test -v --cover ./...
