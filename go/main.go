@@ -92,7 +92,7 @@ func main() {
 	origin := handlers.AllowedOrigins([]string{"*"})
 
 	srv := &http.Server{
-		Addr:         ":8081",
+		Addr:         ":8080",
 		WriteTimeout: 60 * time.Second,
 		ReadTimeout:  60 * time.Second,
 		Handler:      handlers.CORS(headers, methods, origin)(router),

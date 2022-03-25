@@ -1,50 +1,16 @@
 version: "3"
 services:
-  # db:
-  #   image: mysql:8.0
-  #   container_name: db
-  #   restart: always
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=swabhav
-  #     - MYSQL_DATABASE=swabhav
-  #     - MYSQL_USER=swabhav
-  #     - MYSQL_PASSWORD=swabhav
-  #   ports:
-  #     - "3307:3306"
-  #   command: --authentication_policy=mysql_native_password
-  #   security_opt:
-  #     - seccomp=unconfined
-  #   volumes:
-  #     - database_mysql:/var/lib/mysql
   golang:
-    # restart: always # added this line coz golang quits before db is initialized 
     build:
       dockerfile: Dockerfile.dev
       context: ./go
-    container_name: "golang"
+    container_name: golang
     ports:
-      - 8081:8081
-    # depends_on:
-    #   - db
+      - 8080:8080
   angular:
     build:
       dockerfile: Dockerfile.dev
       context: ./Student-API
-    container_name: "angular"
+    container_name: angular
     ports:
       - 4200:4200
-    depends_on:
-      - golang
-    # volumes:
-    #   - /app/node_modules
-    #   - ./Student-API:/app
-  # nginx:
-  #   restart: always
-  #   build:
-  #     dockerfile: Dockerfile.dev
-  #     context: ./nginx
-  #   container_name: "nginx"
-  #   ports:
-  #     - '4200:80'
-volumes:
-  database_mysql:
