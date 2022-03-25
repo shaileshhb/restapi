@@ -1,0 +1,14 @@
+apiVersion: restapi/v1
+kind: Deployment
+metadata:
+  name: golang-restapi
+  labels:
+    app: golang
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang-restapi
+  template:
+    metadata:
+      name:

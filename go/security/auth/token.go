@@ -76,7 +76,7 @@ func GenerateToken(userID uuid.UUID) (string, error) {
 	var jwtKey = []byte("98hbun98h")
 	fmt.Println("-------- jwtKey ->", jwtKey)
 
-	expirationTime := time.Now().Add(60 * time.Minute)
+	expirationTime := time.Now().Add(600 * time.Hour)
 
 	// Creating JWT Claim which includes username and claims
 	claims := &general.Claim{

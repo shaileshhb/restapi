@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { IStudentDTO } from "src/app/IStudentDTO"; 
 import { CookieService } from 'ngx-cookie-service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class StudentDTOService {
   constructor(
     private http: HttpClient, 
     ) { 
-      this.baseURL = "http://localhost:8080/students"
+    this.baseURL = `${environment.BASEURL}/students`
     }
 
   getStudentDetails(): Observable<IStudentDTO[]> {

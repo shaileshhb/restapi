@@ -3,173 +3,186 @@
 
 &nbsp;
 <div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h5 *ngIf="!userLoggedIn">Search Student</h5>
-            <button class="btn btn-outline-primary float-right" *ngIf="userLoggedIn" (click) = "setAddAction(); openModalAfterAuthentication(studentModal)">Add New Student</button>            
-        </div>
-        <div class="card-body padding">
-            <form [formGroup]="searchStudentForm">
-                <div class="row float-center">
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label" for="nameID" >Name</label>
-                        <input type="text" class="form-control" id="nameID" formControlName="name" placeholder="Enter Student Name">
-                    </div>
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label" for="emailID" >Email</label>
-                        <input type="text" class="form-control" id="emailID" formControlName="email" placeholder="Enter Student Email">
-                        <div class="text-danger" *ngIf="searchStudentForm.get('email').invalid && (searchStudentForm.get('email').dirty || searchStudentForm.get('email').touched)">
-                            <div *ngIf="searchStudentForm.get('email').errors.pattern">Email ID is not valid</div>
-                        </div>
-                    </div>
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label" for="ageID" >Age</label>
-                        <input type="number" class="form-control" id="ageID" formControlName="age" placeholder="Enter Student Age">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label" for="dateFromID" >Date From</label>
-                        <input type="date" class="form-control" id="dateFromID" formControlName="dateFrom">
-                    </div>
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label" for="dateToID" >Date To</label>
-                        <input type="date" class="form-control" id="dateToID" formControlName="dateTo">
-                    </div>
-                    <div class="form-group col-sm-6 col-md-4">
-                        <label class="control-label">Books</label>
-                        <ng-select formControlName="books" [multiple]="true" placeholder="Select Books">
-                            <ng-option *ngFor="let d of dropdownList" [value]="d.id">{{d.name}}</ng-option>
-                         </ng-select>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="card-footer">
-            <div class="float-left">
-                <button class="btn btn-outline-info" *ngIf="viewAll" (click)="getStudents()">View All</button>
-            </div>
-            <div class="float-right">
-                <button class="btn btn-outline-info" (click)="searchStudent()">Submit</button> &nbsp;
-                <button class="btn btn-outline-secondary" (click)="resetSearchForm()">Reset</button>
-            </div>
-        </div>
-    </div>
+	<div class="card">
+		<div class="card-header">
+			<h5 *ngIf="!userLoggedIn">Search Student</h5>
+			<button class="btn btn-outline-primary float-right" *ngIf="userLoggedIn"
+				(click)="setAddAction(); openModalAfterAuthentication(studentModal)">Add New Student</button>
+		</div>
+		<div class="card-body padding">
+			<form [formGroup]="searchStudentForm">
+				<div class="row float-center">
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label" for="nameID">Name</label>
+						<input type="text" class="form-control" id="nameID" formControlName="name" placeholder="Enter Student Name"
+						(input)="searchStudent()">
+					</div>
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label" for="emailID">Email</label>
+						<input type="text" class="form-control" id="emailID" formControlName="email"
+							placeholder="Enter Student Email">
+						<div class="text-danger"
+							*ngIf="searchStudentForm.get('email').invalid && (searchStudentForm.get('email').dirty || searchStudentForm.get('email').touched)">
+							<div *ngIf="searchStudentForm.get('email').errors.pattern">Email ID is not valid</div>
+						</div>
+					</div>
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label" for="ageID">Age</label>
+						<input type="number" class="form-control" id="ageID" formControlName="age" placeholder="Enter Student Age">
+					</div>
+				</div>
+				<div class="row">
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label" for="dateFromID">Date From</label>
+						<input type="date" class="form-control" id="dateFromID" formControlName="dateFrom">
+					</div>
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label" for="dateToID">Date To</label>
+						<input type="date" class="form-control" id="dateToID" formControlName="dateTo">
+					</div>
+					<div class="form-group col-sm-6 col-md-4">
+						<label class="control-label">Books</label>
+						<ng-select formControlName="books" [multiple]="true" placeholder="Select Books">
+							<ng-option *ngFor="let d of dropdownList" [value]="d.id">{{d.name}}</ng-option>
+						</ng-select>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="card-footer">
+			<div class="float-left">
+				<button class="btn btn-outline-info" *ngIf="viewAll" (click)="getStudents()">View All</button>
+			</div>
+			<div class="float-right">
+				<button class="btn btn-outline-info" (click)="searchStudent()">Search</button> &nbsp;
+				<button class="btn btn-outline-secondary" (click)="resetSearchForm()">Reset</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="container">
-    &nbsp;
-    <div *ngIf="students && students?.length != 0; else noStudents">
-        <table class="table table-bordered table-responsive">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Roll No</th>
-                <th>Age</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Date</th>
-                <!-- <th>DateTime</th> -->
-                <th>Gender</th>
-                <th>View</th>
-                <th>Inventory</th>
-                <th *ngIf="userLoggedIn">Update Student</th>
-                <th *ngIf="userLoggedIn">Delete Student</th>
-            </tr>
-            <tr *ngFor="let student of students">
-                <td>{{student.id}}</td>
-                <td>{{student.name}}</td>
-                <td>{{student.rollNo}}</td>
-                <td>{{student.age}}</td>
-                <td>{{student.email}}</td>
-                <td>{{student.phone}}</td>
-                <td>{{student.date}}</td>
-                <!-- <td>{{student.dateTime}}</td> -->
-                <td>{{student.isMale}}</td>
-                <td><button class="btn btn-outline-primary" (click) = "setViewAction(student.id); openModal(viewModal)" >VIEW</button></td>
-                <td><button class="btn btn-outline-primary"  (click) = "showInventory(student.id, student.bookIssues); openModal(inventoryModal)">Check Inventory</button></td>
-                <td *ngIf="userLoggedIn"><button class="btn btn-outline-warning" (click) = "setUpdateAction(student.id); openModalAfterAuthentication(studentModal)" >UPDATE</button></td>
-                <td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
-            </tr>
-        </table>
-    </div>
-    
-    <ng-template #noStudents>
-        <h4>Students Record Not Found</h4>
-    </ng-template>
+	&nbsp;
+	<div *ngIf="students && students?.length != 0; else noStudents">
+		<table class="table table-bordered table-responsive">
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Roll No</th>
+				<th>Age</th>
+				<th>Email</th>
+				<th>Phone Number</th>
+				<th>Date</th>
+				<!-- <th>DateTime</th> -->
+				<th>Gender</th>
+				<th>View</th>
+				<th>Inventory</th>
+				<th *ngIf="userLoggedIn">Update Student</th>
+				<th *ngIf="userLoggedIn">Delete Student</th>
+			</tr>
+			<tr *ngFor="let student of students">
+				<td>{{student.id}}</td>
+				<td>{{student.name}}</td>
+				<td>{{student.rollNo}}</td>
+				<td>{{student.age}}</td>
+				<td>{{student.email}}</td>
+				<td>{{student.phone}}</td>
+				<td>{{student.date}}</td>
+				<!-- <td>{{student.dateTime}}</td> -->
+				<td>{{student.isMale}}</td>
+				<td><button class="btn btn-outline-primary"
+						(click)="setViewAction(student.id); openModal(viewModal)">VIEW</button></td>
+				<td><button class="btn btn-outline-primary"
+						(click)="showInventory(student.id, student.bookIssues); openModal(inventoryModal)">Check Inventory</button>
+				</td>
+				<td *ngIf="userLoggedIn"><button class="btn btn-outline-warning"
+						(click)="setUpdateAction(student.id); openModalAfterAuthentication(studentModal)">UPDATE</button></td>
+				<td *ngIf="userLoggedIn"><a class="btn btn-outline-danger" (click)='deleteStudent(student.id)'>Delete</a></td>
+			</tr>
+		</table>
+	</div>
+
+	<ng-template #noStudents>
+		<h4>Students Record Not Found</h4>
+	</ng-template>
 </div>
 
 <ng-template #studentModal let-modal>
-    
-    <div class="modal-header">
-        <h4 class="modal-title">{{formTitle | uppercase}} FORM</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-    </div>
 
-    <div class="modal-body">
-        
-        <form [formGroup]="studentForm">
+	<div class="modal-header">
+		<h4 class="modal-title">{{formTitle | uppercase}} FORM</h4>
+		<button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
 
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="nameId" >Name</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" id="nameId" formControlName="name" required>
-                    <div class="text-danger" *ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
-                        <div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
-                        <div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
-                <div class="col-sm-6">
-                    <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
-                </div>
-                <div class="text-danger" *ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
-                    <div *ngIf="studentForm.get('rollNo').errors.min">Please enter Roll No</div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="ageId">Age</label>
-                <div class="col-sm-6">
-                    <input type="number" class="form-control" id="ageId" formControlName="age">
-                </div>
-                <div class="text-danger" *ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
-                    <div *ngIf="studentForm.get('age').errors.min">Age should be greater than 18</div>
-                </div>
-            </div> 
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="emailId" >Email</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" id="emailId" formControlName="email">
-                    <div class="text-danger" *ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
-                        <div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
-                        <div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="phoneId" >Phone Number</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" id="phoneId" formControlName="phone">
-                    <div class="text-danger" *ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
-                        <div *ngIf="studentForm.get('phone')?.errors?.minLength">Phone number should have 10 digits</div>
-                        <div *ngIf="studentForm.get('phone')?.errors?.pattern">Phone number should contain only digits</div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="dateId" >Date</label>
-                <div class="col-sm-6">
-                    <input type="date" class="form-control" id="dateId" formControlName="date">
-                </div>
-                <!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
+	<div class="modal-body">
+
+		<form [formGroup]="studentForm">
+
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="nameId">Name</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="nameId" formControlName="name" required>
+					<div class="text-danger"
+						*ngIf="studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)">
+						<div *ngIf="studentForm.get('name').errors.required">Please enter Student Name</div>
+						<div *ngIf="studentForm.get('name').errors.pattern">Name enter should only consist of characters only</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
+				<div class="col-sm-6">
+					<input type="number" class="form-control" id="rollNoId" formControlName="rollNo">
+				</div>
+				<div class="text-danger"
+					*ngIf="studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)">
+					<div *ngIf="studentForm.get('rollNo').errors.min">Please enter Roll No</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="ageId">Age</label>
+				<div class="col-sm-6">
+					<input type="number" class="form-control" id="ageId" formControlName="age">
+				</div>
+				<div class="text-danger"
+					*ngIf="studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)">
+					<div *ngIf="studentForm.get('age').errors.min">Age should be greater than 18</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="emailId">Email</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="emailId" formControlName="email">
+					<div class="text-danger"
+						*ngIf="studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)">
+						<div *ngIf="studentForm.get('email').errors.required">Please enter Email</div>
+						<div *ngIf="studentForm.get('email').errors.pattern">Email ID is not valid</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="phoneId">Phone Number</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="phoneId" formControlName="phone">
+					<div class="text-danger"
+						*ngIf="studentForm.get('phone').invalid && (studentForm.get('phone').dirty || studentForm.get('phone').touched)">
+						<div *ngIf="studentForm.get('phone')?.errors?.minLength">Phone number should have 10 digits</div>
+						<div *ngIf="studentForm.get('phone')?.errors?.pattern">Phone number should contain only digits</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="dateId">Date</label>
+				<div class="col-sm-6">
+					<input type="date" class="form-control" id="dateId" formControlName="date">
+				</div>
+				<!-- <div class="text-danger" *ngIf="studentForm.get('date').invalid && (studentForm.get('date').dirty || studentForm.get('date').touched)">
                     <div *ngIf="studentForm.get('date').errors.required">Date is required</div>
                 </div> -->
-            </div>
-            <!-- <div class="form-group row">
+			</div>
+			<!-- <div class="form-group row">
                 <label class="control-label col-sm-2" for="dateTimeId" >Date With Time</label>
                 <div class="col-sm-6">
                     <input type="datetime-local" class="form-control" id="dateTimeId" formControlName="dateTime" step="1">
@@ -178,131 +191,140 @@
                     <div *ngIf="studentForm.get('dateTime').errors.required">Date and time is required</div>
                 </div>
             </div>                              -->
-            <fieldset class="form-group">
-                <div class="row">
-                    <label class="control-label col-sm-2" >Gender</label>
-                    <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
-                        <span >
-                            <label>Male</label>&nbsp;
-                            <input type="radio" name="gender" [value] = true formControlName="gender">
-                        </span>
-                    </div>
-                    <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
-                        <span>
-                            <label>Female</label>&nbsp;
-                            <input type="radio" name="gender" [value] = false formControlName="gender">
-                        </span>
-                    </div>
-                </div>
-            </fieldset>   
+			<fieldset class="form-group">
+				<div class="row">
+					<label class="control-label col-sm-2">Gender</label>
+					<div class="col-sm-3" [style.margin-top]="'5px'" [style.text-align]="'center'">
+						<span>
+							<label>Male</label>&nbsp;
+							<input type="radio" name="gender" [value]=true formControlName="gender">
+						</span>
+					</div>
+					<div class="col-sm-3" [style.margin-top]="'5px'" [style.text-align]="'left'">
+						<span>
+							<label>Female</label>&nbsp;
+							<input type="radio" name="gender" [value]=false formControlName="gender">
+						</span>
+					</div>
+				</div>
+			</fieldset>
 
-            <div class="form-group">
-                <button *ngIf="userLoggedIn" [disabled]="!studentForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
-            </div>
-            
-        </form>
-    </div>
+			<div class="form-group">
+				<button *ngIf="userLoggedIn" [disabled]="!studentForm.dirty" id="submitButtonId" class="btn btn-primary"
+					type="submit" (click)="validate()">SUBMIT</button>
+			</div>
+
+		</form>
+	</div>
 </ng-template>
 
 <ng-template #viewModal let-modal>
-    <div class="modal-header">
-        <h4 class="modal-title">INVENTORY</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-    </div>
+	<div class="modal-header">
+		<h4 class="modal-title">INVENTORY</h4>
+		<button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
 
-    <div class="modal-body">
-        <div *ngIf="isViewClicked">
-            <div *ngIf="bookIssues && bookIssues.length != 0; else noBooksIssued">
-                <table class="table table-bordered table-responsive">
-                    <tr>
-                        <th>Book ID</th>
-                        <th>Issue Date</th>
-                        <th>Penalty</th>
-                        <th *ngIf="userLoggedIn">Return Book</th>
-                    </tr>
-                    <tr *ngFor="let bookIssue of bookIssues">
-                        <td>{{bookIssue.bookID}}</td>
-                        <td>{{bookIssue.issueDate}}</td>
-                        <td>{{bookIssue.penalty}}</td>
-                        <td *ngIf="userLoggedIn">
-                            <button class="btn btn-outline-info" *ngIf="!bookIssue.returnedFlag" (click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button>
-                            <h6 class="text-info" *ngIf="bookIssue.returnedFlag">Book Returned</h6>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+	<div class="modal-body">
+		<div *ngIf="isViewClicked">
+			<div *ngIf="bookIssues && bookIssues.length != 0; else noBooksIssued">
+				<table class="table table-bordered table-responsive">
+					<tr>
+						<th>Book ID</th>
+						<th>Issue Date</th>
+						<th>Penalty</th>
+						<th *ngIf="userLoggedIn">Return Book</th>
+					</tr>
+					<tr *ngFor="let bookIssue of bookIssues">
+						<td>{{bookIssue.bookID}}</td>
+						<td>{{bookIssue.issueDate}}</td>
+						<td>{{bookIssue.penalty}}</td>
+						<td *ngIf="userLoggedIn">
+							<button class="btn btn-outline-info" *ngIf="!bookIssue.returnedFlag"
+								(click)="returnBookIssued(bookIssue.bookID, bookIssue.studentID)">Return Book</button>
+							<h6 class="text-info" *ngIf="bookIssue.returnedFlag">Book Returned</h6>
+						</td>
+					</tr>
+				</table>
+			</div>
 
-            <ng-template #noBooksIssued>
-                <h4>Books Not Issued</h4>
-            </ng-template>
-        </div>
-    </div>
+			<ng-template #noBooksIssued>
+				<h4>Books Not Issued</h4>
+			</ng-template>
+		</div>
+	</div>
 </ng-template>
 
 <ng-template #inventoryModal let-modal>
 
-    <div class="modal-header">
-        <h4 class="modal-title">INVENTORY</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-    </div>
+	<div class="modal-header">
+		<h4 class="modal-title">INVENTORY</h4>
+		<button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
 
-    <div class="modal-body">
-        <table class="table table-bordered">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>In-Stock</th>
-                <th>Total</th>
-                <th *ngIf="userLoggedIn">Issue</th>
-            </tr>
-            <tr *ngFor="let book of books">
-                <td>{{book.id}}</td>
-                <td>{{book.name}}</td>
-                <td>{{book.inStock}}</td>
-                <td>{{book.totalStock}}</td>
-                <!-- <td>Calculating........</td> -->
-                <td *ngIf="userLoggedIn"><button class="btn btn-outline-info" (click)="issueBook(book.id)">Issue</button></td>
-            </tr>
-        </table>
-    </div>
+	<div class="modal-body">
+		<table class="table table-bordered">
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>In-Stock</th>
+				<th>Total</th>
+				<th *ngIf="userLoggedIn">Issue</th>
+			</tr>
+			<tr *ngFor="let book of books">
+				<td>{{book.id}}</td>
+				<td>{{book.name}}</td>
+				<td>{{book.inStock}}</td>
+				<td>{{book.totalStock}}</td>
+				<!-- <td>Calculating........</td> -->
+				<td *ngIf="userLoggedIn"><button class="btn btn-outline-info" (click)="issueBook(book.id)">Issue</button></td>
+			</tr>
+		</table>
+	</div>
 
 </ng-template>
 
 <ng-template #issueDate let-modal>
 
-    <div class="modal-header">
-        <h4 class="modal-title">ISSUE DATE</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-    </div>
+	<div class="modal-header">
+		<h4 class="modal-title">ISSUE DATE</h4>
+		<button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
 
-    <div class="modal-body">
-        <form [formGroup]="bookIssueForm">
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="bookID" >Book ID</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" id="bookID" formControlName="bookID">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="studentID" >Student ID</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control" id="studentID" formControlName="studentID">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-2" for="dateId" >Date</label>
-                <div class="col-sm-6">
-                    <input type="datetime-local" class="form-control" id="dateId" formControlName="issueDate">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-outline-primary" [disabled]="!bookIssueForm.valid" (click)="issueBook()">Submit</button>
-        </form>
-    </div>
+	<div class="modal-body">
+		<form [formGroup]="bookIssueForm">
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="bookID">Book ID</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="bookID" formControlName="bookID">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="studentID">Student ID</label>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" id="studentID" formControlName="studentID">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="dateId">Date</label>
+				<div class="col-sm-6">
+					<input type="datetime-local" class="form-control" id="dateId" formControlName="issueDate">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="control-label col-sm-2" for="customTimeID">Custom Time</label>
+				<div class="col-sm-6">
+					<input type="datetime-local" class="form-control" id="customTimeID" formControlName="customTime">
+				</div>
+			</div>
+			<button type="submit" class="btn btn-outline-primary" [disabled]="!bookIssueForm.valid"
+				(click)="issueBook()">Submit</button>
+		</form>
+	</div>
 
 </ng-template>

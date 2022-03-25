@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { ITokenResponses } from '../ITokenResponse';
 
 @Injectable({
@@ -11,7 +12,8 @@ export class LoginService {
   baseURL: string
 
   constructor(private http: HttpClient) {
-    this.baseURL = "http://localhost:8080/students"
+    this.baseURL = `${environment.BASEURL}/students`
+    // this.baseURL = "http://localhost:8080/students"
    }
 
   userLogin(userDetails: any): Observable<any> {

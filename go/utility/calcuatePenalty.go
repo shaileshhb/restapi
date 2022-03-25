@@ -16,6 +16,7 @@ func Penalty(bookIssues *[]bookissue.BookIssue) error {
 			log.Println("ERROR in date -> ", err)
 			return err
 		}
+
 		diff := time.Now().Sub(t)
 		days := int(diff.Hours() / 24)
 		isBookReturned := (*bookIssues)[i].ReturnedFlag
@@ -33,7 +34,7 @@ func Penalty(bookIssues *[]bookissue.BookIssue) error {
 			(*bookIssues)[i].Penalty = 0.0
 		}
 
-		(*bookIssues)[i].IssueDate = (*bookIssues)[i].IssueDate[:19]
+		(*bookIssues)[i].IssueDate = (*bookIssues)[i].IssueDate
 	}
 	return nil
 }

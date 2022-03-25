@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/shaileshhb/restapi/bookissue/bookissueservice"
@@ -106,13 +105,14 @@ func (i *BookIssueController) AddNewBookIssue(w http.ResponseWriter, r *http.Req
 	log.Println("===============================================================")
 	log.Println("StudentID ->", bookIssue.StudentID)
 	log.Println("BookID -> ", bookIssue.BookID)
+	log.Println("CustomTime -> ", bookIssue.Date)
 	log.Println("===============================================================")
 
-	currentTime := time.Now()
+	// currentTime := time.Now()
 	// currentTime.Format("2006-01-02T15:04:05")
-	currentTimeInString := currentTime.String()
-	currentTimeInString = currentTimeInString[:19]
-	bookIssue.IssueDate = currentTimeInString
+	// currentTimeInString := currentTime.Format()
+	// currentTimeInString = currentTimeInString[:19]
+	// bookIssue.IssueDate = currentTimeInString
 
 	log.Println("Book ID -> ", bookIssue.BookID)
 

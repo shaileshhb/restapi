@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { IBookIssue } from '../IBookIssue';
 
 @Injectable({
@@ -15,7 +16,7 @@ export class BookIssueService {
     private http: HttpClient,
   ) {
     // this.baseURL = "/api/bookIssues"
-    this.baseURL = "http://localhost:8080/bookIssues"
+    this.baseURL = `${environment.BASEURL}/bookIssues`
    }
 
   getBookIssues(studentID: string): Observable<IBookIssue[]> {

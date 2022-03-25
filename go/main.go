@@ -68,12 +68,6 @@ func main() {
 	defer db.Close()
 	fmt.Println("DB connected Successfully")
 
-	db.AutoMigrate(&user.User{}, &student.Student{}, &book.Book{}, &bookissue.BookIssue{})
-
-	// Setting Foreign keys
-	db.Model(&bookissue.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "RESTRICT")
-	db.Model(&bookissue.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "RESTRICT")
-
 	router := mux.NewRouter().StrictSlash(true)
 	if router == nil {
 		log.Fatal("No Route Created")
@@ -85,31 +79,30 @@ func main() {
 
 	repos := repository.NewGormRepository()
 
+	db = db.AutoMigrate(&user.User{}, &student.Student{}, &book.Book{}, &bookissue.BookIssue{})
+
+	// Setting Foreign keys
+	db = db.Model(&bookissue.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "RESTRICT")
+	db = db.Model(&bookissue.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "RESTRICT")
+
 	RegisterControllerAndService(middlewareRouter, getRouter, repos, db)
 
-	// ops := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
-	// docHandler := middleware.Redoc(ops, nil)
-
-	// getRouter.Handle("/docs", docHandler)
-	// getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
-
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
-	// headers := handlers.AllowedHeaders([]string{"Content-Type", "X-Total-Count", "token", "totalLifetimeValue"})
 	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete})
 	origin := handlers.AllowedOrigins([]string{"*"})
 
-	server := &http.Server{
+	srv := &http.Server{
+		Addr:         ":8081",
+		WriteTimeout: 60 * time.Second,
+		ReadTimeout:  60 * time.Second,
 		Handler:      handlers.CORS(headers, methods, origin)(router),
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-		Addr:         ":8080",
 	}
 
 	var wait time.Duration
 
 	go func() {
-		log.Fatal(server.ListenAndServe())
-		fmt.Println(" ======= Listening at port :8080")
+		fmt.Println(" ======= Listening at port", srv.Addr)
+		log.Fatal(srv.ListenAndServe())
 	}()
 
 	ch := make(chan os.Signal, 1)
@@ -119,14 +112,14 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
-	server.Shutdown(ctx)
+	srv.Shutdown(ctx)
 	func() {
 		fmt.Println("Closing DB")
 		db.Close()
 	}()
 	fmt.Println("Server ShutDown.......")
 	os.Exit(0)
-
+	fmt.Println("========== waiting ==========")
 }
 
 func RegisterControllerAndService(middlewareRouter, getRouter *mux.Router,

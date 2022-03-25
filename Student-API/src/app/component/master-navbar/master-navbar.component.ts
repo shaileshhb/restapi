@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
@@ -15,9 +15,9 @@ export class MasterNavbarComponent implements OnInit {
 
   constructor(
     private cookieService: CookieService,
+    private router: Router,
     private idle: Idle,
     private keepalive: Keepalive,
-    private router: Router
     ) { }
 
   ngOnInit(): void {
