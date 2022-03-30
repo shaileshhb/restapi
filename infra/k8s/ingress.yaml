@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-myservicea
+  annotations:
+    kubernetes.io/ingreess.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+  - host: post.com
+    http:
+      paths:
+        - path: /?(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: angular-serv
+              port:
+                number: 80

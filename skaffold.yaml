@@ -1,0 +1,26 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+build:
+  googleCloudBuild:
+    projectId: kubernetes-demo-345511
+  artifacts:
+    - image: us.gcr.io/kubernetes-demo-345511/angular
+      context: Student-API # path to find dockerfile
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "*/**/*.ts" # specifing which file to be watched for changes
+    - image: us.gcr.io/kubernetes-demo-345511/golang
+      context: go # path to find dockerfile
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "*/**/*.go" # specifing which file to be watched for changes

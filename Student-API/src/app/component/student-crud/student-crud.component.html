@@ -228,7 +228,7 @@
 
 	<div class="modal-body">
 		<div *ngIf="isViewClicked">
-			<div *ngIf="bookIssues && bookIssues.length != 0; else noBooksIssued">
+			<div *ngIf="bookIssues && bookIssues?.length != 0; else noBooksIssued">
 				<table class="table table-bordered table-responsive">
 					<tr>
 						<th>Book ID</th>

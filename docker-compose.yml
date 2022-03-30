@@ -13,4 +13,4 @@ services:
       context: ./Student-API
     container_name: angular
     ports:
-      - 4200:4200
+      - 3000:80

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-depl
+  labels:
+    app: angular-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: angular-app
+  template:
+    metadata:
+      name: angular-pod
+      labels:
+        app: angular-app
+    spec:
+      containers:
+        - name: angular-pod
+          image: us.gcr.io/kubernetes-demo-345511/angular
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: angular-serv
+spec:
+  selector:
+    app: angular-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

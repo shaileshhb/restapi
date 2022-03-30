@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-depl
+  labels:
+    app: golang-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang-app
+  template:
+    metadata:
+      name: golang-pod
+      labels:
+        app: golang-app
+    spec:
+      containers:
+        - name: golang-pod
+          image: us.gcr.io/kubernetes-demo-345511/golang
+          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: golang-serv
+spec:
+  selector:
+    app: golang-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

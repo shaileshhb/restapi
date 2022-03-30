@@ -1,23 +1,15 @@
-# FROM node:10-alpine
-
-# WORKDIR /app
-
-# COPY package*.json .
-
-# RUN npm install
-
-# COPY . .
-
-# CMD [ "npm", "start" ]
-# # CMD [ "npm", "run", "prod" ]
-
-FROM node:10-alpine
+FROM node:10-alpine AS builder
 
 WORKDIR /app
 
-COPY . /app
+COPY package*.json .
 
 RUN npm install
 
-CMD [ "npm", "start" ]
-# CMD [ "npm", "run", "prod" ]
+COPY . .
+
+RUN npm run prod
+
+FROM nginx:1.17.1-alpine
+
+COPY --from=builder /app/dist/Student-API /usr/share/nginx/html
