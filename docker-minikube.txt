@@ -1,0 +1,9 @@
+- first build docker image -> docker build -t tagName filePath
+
+
+minikube service --url backend-service -> command to expose service outside minikube
+
+
+FLUENTD
+https://medium.com/kubernetes-tutorials/cluster-level-logging-in-kubernetes-with-fluentd-e59aa2b6093a
+- creating serivce account in kube-system for creating identity for fluentd daemonset
