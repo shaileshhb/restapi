@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -39,7 +40,7 @@ func Middleware(next http.Handler) http.Handler {
 			}
 
 			if token.Valid {
-				next.ServeHTTP(w, r)
+				next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), "username", token)))
 			}
 		} else {
 			http.Error(w, "User Not Authorized", http.StatusUnauthorized)

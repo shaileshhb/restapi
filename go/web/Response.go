@@ -17,6 +17,7 @@ func RespondJSON(w http.ResponseWriter, code int, payload interface{}) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'self';style-src 'self' img-src 'self'; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; connect-src 'self'")
 	w.WriteHeader(code)
 	w.Write([]byte(response))
 }
@@ -30,6 +31,7 @@ func RespondJSONWithXTotalCount(w http.ResponseWriter, code int, count int, payl
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; object-src 'self';style-src 'self' img-src 'self'; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; connect-src 'self'")
 	SetNewHeader(w, "X-Total-Count", strconv.Itoa(count))
 	w.WriteHeader(code)
 	w.Write([]byte(response))
@@ -54,7 +56,8 @@ func RespondError(w http.ResponseWriter, err error) {
 }
 
 // SetNewHeader will expose and set the given headerName and value
-// 	SetNewHeader(w,"total","10") will set header "total" : "10"
+//
+//	SetNewHeader(w,"total","10") will set header "total" : "10"
 func SetNewHeader(w http.ResponseWriter, headerName, value string) {
 	w.Header().Add("Access-Control-Expose-Headers", headerName)
 	w.Header().Set(headerName, value)

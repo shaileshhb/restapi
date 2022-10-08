@@ -87,15 +87,15 @@ func main() {
 
 	RegisterControllerAndService(middlewareRouter, getRouter, repos, db)
 
-	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token"})
+	headers := handlers.AllowedHeaders([]string{"Content-Type", "Token", "Content-Security-Policy"})
 	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete})
 	origin := handlers.AllowedOrigins([]string{"*"})
 
 	srv := &http.Server{
 		Addr:         ":8081",
-		WriteTimeout: 60 * time.Second,
-		ReadTimeout:  60 * time.Second,
-		Handler:      handlers.CORS(headers, methods, origin)(router),
+		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  5 * time.Second,
+		Handler:      handlers.CORS(headers, methods, origin)(http.TimeoutHandler(router, time.Second*3, "Request timeout!")),
 	}
 
 	var wait time.Duration

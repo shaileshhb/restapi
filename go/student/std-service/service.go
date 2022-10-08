@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/shaileshhb/restapi/model/bookissue"
@@ -39,6 +40,8 @@ func (s *Service) GetAll(students *[]student.Student) error {
 	uow.Commit()
 
 	utility.TrimDates(students)
+
+	time.Sleep(6 * time.Second)
 
 	return nil
 }

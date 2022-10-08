@@ -8,5 +8,6 @@ export const routeArgs: Routes = [
     { path: 'home', component: StudentDetailsComponent },
     { path: 'students', component: StudentCrudComponent },
     { path: 'login', component: LoginComponent },
+    { path: 'login/:id', component: LoginComponent },
     { path: '', redirectTo: '/home', pathMatch: 'full' },
 ]

@@ -1,9 +1,9 @@
-apiVersion: restapi/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: golang-restapi
   labels:
-    app: golang
+    app: golang-restapi
 spec:
   replicas: 1
   selector:
@@ -11,4 +11,24 @@ spec:
       app: golang-restapi
   template:
     metadata:
-      name:
+      name: backend-pod
+      labels:
+        app: golang-restapi
+    spec:
+      containers:
+        - name: golang-restapi
+          image: shaileshswabhav/restapi
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: golang-restapi
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081

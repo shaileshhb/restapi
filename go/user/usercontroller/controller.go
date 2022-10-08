@@ -11,6 +11,7 @@ import (
 	"github.com/shaileshhb/restapi/model/user"
 	"github.com/shaileshhb/restapi/security/auth"
 	service "github.com/shaileshhb/restapi/user/userservice"
+	"github.com/shaileshhb/restapi/web"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -69,6 +70,7 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("User ID -> ", user.ID)
+	web.RespondJSON(w, http.StatusCreated, user.ID)
 }
 
 func (c *Controller) UserLogin(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 import { CookieService } from 'ngx-cookie-service';
@@ -16,9 +16,10 @@ export class MasterNavbarComponent implements OnInit {
   constructor(
     private cookieService: CookieService,
     private router: Router,
+    private route: ActivatedRoute,
     private idle: Idle,
     private keepalive: Keepalive,
-    ) { }
+  ) { }
 
   ngOnInit(): void {
     if (this.cookieService.get("Token") == "") {
@@ -50,8 +51,17 @@ export class MasterNavbarComponent implements OnInit {
       // this.timedOut = true;
       alert("Session Timeout. Please login")
       this.cookieService.delete("Token")
-      this.router.navigateByUrl('/login')
+      this.router.navigate(['/login', 123], {
+
+      })
     })
+
+    let query = this.route.snapshot.params
+
+    this.route.params.subscribe((response: Params) => {
+
+    })
+    
     // this.idle.onIdleStart.subscribe(() => this.idleState = 'You\'ve gone idle!');
     // this.idle.onTimeoutWarning.subscribe((countdown) => this.idleState = 'You will time out in ' + countdown + ' seconds!');
     this.keepalive.interval(15)
